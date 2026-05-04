@@ -45,6 +45,64 @@ async function handleCheckoutCompleted(session: any) {
     if (feeErr) console.error("platform_fees insert failed:", feeErr);
   }
   console.log(`Transaction ${transactionId} locked; fee=${feeInCents}c`);
+
+  // Send SMS notification to recipient if identifier is a phone number
+  try {
+    const { data: full } = await sb
+      .from("transactions")
+      .select("recipient_identifier, amount, note")
+      .eq("id", transactionId)
+      .maybeSingle();
+    if (full) await sendRecipientSms(full.recipient_identifier as string, Number(full.amount), (full.note as string) ?? null);
+  } catch (e) {
+    console.error("SMS notify failed:", e);
+  }
+}
+
+function isPhone(id: string): boolean {
+  // E.164-ish: optional +, 8-15 digits
+  const cleaned = id.replace(/[\s\-()]/g, "");
+  return /^\+?[1-9]\d{7,14}$/.test(cleaned);
+}
+
+function toE164(id: string): string {
+  const cleaned = id.replace(/[\s\-()]/g, "");
+  if (cleaned.startsWith("+")) return cleaned;
+  // Default to US country code if 10 digits
+  if (/^\d{10}$/.test(cleaned)) return `+1${cleaned}`;
+  return `+${cleaned}`;
+}
+
+async function sendRecipientSms(recipientIdentifier: string, amount: number, note: string | null) {
+  if (!isPhone(recipientIdentifier)) {
+    console.log("Recipient not a phone number; skipping SMS:", recipientIdentifier);
+    return;
+  }
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  const TWILIO_API_KEY = Deno.env.get("TWILIO_API_KEY");
+  const FROM = Deno.env.get("TWILIO_FROM_NUMBER");
+  if (!LOVABLE_API_KEY || !TWILIO_API_KEY || !FROM) {
+    console.error("Twilio env not configured (LOVABLE_API_KEY/TWILIO_API_KEY/TWILIO_FROM_NUMBER)");
+    return;
+  }
+  const to = toE164(recipientIdentifier);
+  const body = `You have $${amount.toFixed(2)} waiting on LockPay${note ? ` (${note})` : ""}. Sign in and enter the unlock code from the sender to claim: ${Deno.env.get("SUPABASE_URL")?.includes("localhost") ? "http://localhost:8080" : "https://code-lock-pay.lovable.app"}`;
+
+  const res = await fetch("https://connector-gateway.lovable.dev/twilio/Messages.json", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": TWILIO_API_KEY,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({ To: to, From: FROM, Body: body }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    console.error(`Twilio error [${res.status}]:`, data);
+    return;
+  }
+  console.log("SMS sent, sid:", data.sid);
 }
 
 async function handlePaymentFailed(intent: any) {
