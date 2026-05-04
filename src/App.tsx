@@ -9,6 +9,7 @@ import SendMoney from "./pages/SendMoney";
 import Transactions from "./pages/Transactions";
 import Profile from "./pages/Profile";
 import UnlockTransaction from "./pages/UnlockTransaction";
+import CheckoutReturn from "./pages/CheckoutReturn";
 import AuthPage from "./pages/Auth";
 import NotFound from "./pages/NotFound.tsx";
 
