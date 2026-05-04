@@ -18,7 +18,7 @@ import { toast } from "sonner";
 
 const schema = z.object({
   recipient: z.string().trim().min(3, "Enter recipient").max(255),
-  amount: z.coerce.number().positive("Amount must be positive").max(10000),
+  amount: z.coerce.number().positive("Amount must be positive").max(20, "Amount is capped at $20 for now"),
   note: z.string().max(140).optional(),
 });
 
