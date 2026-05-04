@@ -10,8 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CodeInput } from "@/components/CodeInput";
+import { LockPayCheckout } from "@/components/LockPayCheckout";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { generateCode, hashCode } from "@/lib/unlock-code";
-import { getProvider } from "@/lib/payments/providers";
 import { toast } from "sonner";
 
 const schema = z.object({
@@ -20,7 +21,7 @@ const schema = z.object({
   note: z.string().max(140).optional(),
 });
 
-type Step = "details" | "code" | "review" | "done";
+type Step = "details" | "code" | "pay";
 
 export default function SendMoney() {
   const { user } = useAuth();
@@ -40,13 +41,12 @@ export default function SendMoney() {
     setStep("code");
   };
 
-  const handleGenerate = () => { setCode(generateCode()); };
+  const handleGenerate = () => setCode(generateCode());
 
   const handleConfirm = async () => {
     if (code.length !== 4) { toast.error("Enter a 4-digit unlock code"); return; }
     setLoading(true);
     try {
-      // Create txn row first to get id (used as salt)
       const { data: prof } = await supabase.from("profiles").select("paypal_email").eq("id", user!.id).maybeSingle();
       const tempId = crypto.randomUUID();
       const hash = await hashCode(code, tempId);
@@ -59,26 +59,15 @@ export default function SendMoney() {
         amount: Number(amount),
         currency: "USD",
         provider: "paypal",
-        status: "locked",
+        status: "pending_payment",
         unlock_code_hash: hash,
         note: note.trim() || null,
       }).select().single();
 
       if (error || !txn) throw error ?? new Error("Failed to create transaction");
 
-      // Initiate mock PayPal payment
-      const provider = getProvider("paypal");
-      await provider.initiatePayment({
-        amount: Number(amount),
-        currency: "USD",
-        senderAccount: prof?.paypal_email ?? "sender@paypal",
-        recipientAccount: recipient.trim(),
-        reference: txn.id,
-      });
-
       setCreatedId(txn.id);
-      setStep("done");
-      toast.success("Payment locked in escrow");
+      setStep("pay");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create payment");
     } finally { setLoading(false); }
@@ -91,7 +80,8 @@ export default function SendMoney() {
 
   return (
     <AppShell>
-      <div className="px-5 pt-12 pb-6">
+      <PaymentTestModeBanner />
+      <div className="px-5 pt-6 pb-6">
         <button onClick={() => step === "details" ? navigate(-1) : setStep(step === "code" ? "details" : "code")}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card">
           <ArrowLeft className="h-5 w-5" />
@@ -123,7 +113,7 @@ export default function SendMoney() {
               </div>
               <div className="flex items-center gap-2 rounded-xl bg-secondary p-3 text-xs text-muted-foreground">
                 <Sparkles className="h-4 w-4 text-accent" />
-                Payment processor: <span className="font-semibold text-foreground">PayPal</span>
+                Payment processor: <span className="font-semibold text-foreground">Stripe</span>
               </div>
             </div>
 
@@ -170,31 +160,25 @@ export default function SendMoney() {
             <Button onClick={handleConfirm} disabled={loading || code.length !== 4}
               className="mt-5 w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90">
               <Lock className="mr-2 h-5 w-5" />
-              {loading ? "Locking…" : "Lock & send"}
+              {loading ? "Preparing…" : "Continue to payment"}
             </Button>
           </div>
         )}
 
-        {step === "done" && createdId && (
-          <div className="mt-12 flex flex-col items-center text-center animate-unlock-burst">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full gradient-lock animate-lock-pulse">
-              <Lock className="h-10 w-10 text-lock-foreground" strokeWidth={2.4} />
-            </div>
-            <h1 className="mt-6 text-2xl font-bold">Locked & on hold</h1>
-            <p className="mt-2 max-w-xs text-sm text-muted-foreground">
-              ${Number(amount).toFixed(2)} is held in escrow. Share the code <span className="font-bold text-foreground">{code}</span> with {recipient}.
+        {step === "pay" && createdId && (
+          <div className="mt-6 animate-slide-up">
+            <h1 className="text-2xl font-bold">Pay & lock</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              ${Number(amount).toFixed(2)} will be held in escrow until <span className="font-semibold text-foreground">{recipient}</span> enters code <span className="font-mono font-bold text-foreground">{code}</span> with you.
             </p>
-            <p className="mt-2 text-xs text-muted-foreground">Auto-refunds in 48h if not unlocked.</p>
 
-            <div className="mt-8 w-full space-y-2">
-              <Button onClick={() => navigate(`/unlock/${createdId}`)}
-                className="w-full h-14 rounded-2xl text-base font-semibold">
-                View transaction
-              </Button>
-              <Button variant="outline" onClick={() => navigate("/")}
-                className="w-full h-14 rounded-2xl text-base font-semibold bg-card">
-                Back home
-              </Button>
+            <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-card">
+              <LockPayCheckout
+                transactionId={createdId}
+                amountInCents={Math.round(Number(amount) * 100)}
+                recipient={recipient.trim()}
+                returnUrl={`${window.location.origin}/checkout/return?txn=${createdId}&session_id={CHECKOUT_SESSION_ID}`}
+              />
             </div>
           </div>
         )}

@@ -5,6 +5,7 @@ import type { Database } from "@/integrations/supabase/types";
 type Status = Database["public"]["Enums"]["transaction_status"];
 
 const config: Record<Status, { label: string; icon: typeof Lock; className: string }> = {
+  pending_payment: { label: "Awaiting payment", icon: Clock, className: "bg-muted text-muted-foreground" },
   locked: { label: "Locked", icon: Lock, className: "bg-lock-soft text-lock-foreground" },
   awaiting_confirmation: { label: "Awaiting confirmation", icon: AlertCircle, className: "bg-lock-soft text-lock-foreground" },
   completed: { label: "Released", icon: CheckCircle2, className: "bg-accent-soft text-accent-foreground" },
