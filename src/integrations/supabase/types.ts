@@ -41,6 +41,44 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_fees: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          sender_id: string
+          stripe_payment_intent: string | null
+          transaction_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          sender_id: string
+          stripe_payment_intent?: string | null
+          transaction_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          sender_id?: string
+          stripe_payment_intent?: string | null
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_fees_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -77,6 +115,7 @@ export type Database = {
           created_at: string
           currency: string
           expires_at: string
+          fee_amount: number
           id: string
           max_attempts: number
           note: string | null
@@ -101,6 +140,7 @@ export type Database = {
           created_at?: string
           currency?: string
           expires_at?: string
+          fee_amount?: number
           id?: string
           max_attempts?: number
           note?: string | null
@@ -125,6 +165,7 @@ export type Database = {
           created_at?: string
           currency?: string
           expires_at?: string
+          fee_amount?: number
           id?: string
           max_attempts?: number
           note?: string | null
