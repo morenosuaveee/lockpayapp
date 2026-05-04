@@ -91,6 +91,8 @@ export type Database = {
           sender_id: string
           sender_paypal_email: string | null
           status: Database["public"]["Enums"]["transaction_status"]
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
           unlock_code_hash: string
           updated_at: string
         }
@@ -113,6 +115,8 @@ export type Database = {
           sender_id: string
           sender_paypal_email?: string | null
           status?: Database["public"]["Enums"]["transaction_status"]
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
           unlock_code_hash: string
           updated_at?: string
         }
@@ -135,6 +139,8 @@ export type Database = {
           sender_id?: string
           sender_paypal_email?: string | null
           status?: Database["public"]["Enums"]["transaction_status"]
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
           unlock_code_hash?: string
           updated_at?: string
         }
@@ -189,6 +195,7 @@ export type Database = {
     Enums: {
       payment_provider: "paypal" | "venmo" | "bank"
       transaction_status:
+        | "pending_payment"
         | "locked"
         | "awaiting_confirmation"
         | "completed"
@@ -323,6 +330,7 @@ export const Constants = {
     Enums: {
       payment_provider: ["paypal", "venmo", "bank"],
       transaction_status: [
+        "pending_payment",
         "locked",
         "awaiting_confirmation",
         "completed",
