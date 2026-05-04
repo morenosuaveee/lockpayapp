@@ -29,6 +29,7 @@ const App = () => (
             <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/unlock/:id" element={<ProtectedRoute><UnlockTransaction /></ProtectedRoute>} />
+            <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
