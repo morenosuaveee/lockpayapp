@@ -13,6 +13,7 @@ import { CodeInput } from "@/components/CodeInput";
 import { LockPayCheckout } from "@/components/LockPayCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { generateCode, hashCode } from "@/lib/unlock-code";
+import { calcFeeDollars } from "@/lib/fees";
 import { toast } from "sonner";
 
 const schema = z.object({
@@ -51,12 +52,16 @@ export default function SendMoney() {
       const tempId = crypto.randomUUID();
       const hash = await hashCode(code, tempId);
 
+      const amountNum = Number(amount);
+      const feeNum = calcFeeDollars(amountNum);
+
       const { data: txn, error } = await supabase.from("transactions").insert({
         id: tempId,
         sender_id: user!.id,
         sender_paypal_email: prof?.paypal_email ?? null,
         recipient_identifier: recipient.trim(),
-        amount: Number(amount),
+        amount: amountNum,
+        fee_amount: feeNum,
         currency: "USD",
         provider: "paypal",
         status: "pending_payment",
@@ -152,6 +157,14 @@ export default function SendMoney() {
                 <span className="font-semibold tabular-nums">${Number(amount || 0).toFixed(2)}</span>
               </div>
               <div className="mt-1 flex items-center justify-between">
+                <span className="text-muted-foreground">LockPay fee (1%, min $0.50)</span>
+                <span className="font-semibold tabular-nums">${calcFeeDollars(Number(amount || 0)).toFixed(2)}</span>
+              </div>
+              <div className="mt-1 flex items-center justify-between border-t border-border/50 pt-2">
+                <span className="text-muted-foreground">Total charged</span>
+                <span className="font-semibold tabular-nums">${(Number(amount || 0) + calcFeeDollars(Number(amount || 0))).toFixed(2)}</span>
+              </div>
+              <div className="mt-1 flex items-center justify-between">
                 <span className="text-muted-foreground">To</span>
                 <span className="font-semibold">{recipient}</span>
               </div>
@@ -169,13 +182,14 @@ export default function SendMoney() {
           <div className="mt-6 animate-slide-up">
             <h1 className="text-2xl font-bold">Pay & lock</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              ${Number(amount).toFixed(2)} will be held in escrow until <span className="font-semibold text-foreground">{recipient}</span> enters code <span className="font-mono font-bold text-foreground">{code}</span> with you.
+              ${Number(amount).toFixed(2)} held in escrow + ${calcFeeDollars(Number(amount)).toFixed(2)} LockPay fee. Released when <span className="font-semibold text-foreground">{recipient}</span> enters code <span className="font-mono font-bold text-foreground">{code}</span> with you.
             </p>
 
             <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-card">
               <LockPayCheckout
                 transactionId={createdId}
                 amountInCents={Math.round(Number(amount) * 100)}
+                feeInCents={Math.round(calcFeeDollars(Number(amount)) * 100)}
                 recipient={recipient.trim()}
                 returnUrl={`${window.location.origin}/checkout/return?txn=${createdId}&session_id={CHECKOUT_SESSION_ID}`}
               />

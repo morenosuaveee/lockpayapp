@@ -29,12 +29,13 @@ Deno.serve(async (req) => {
     const user = userData.user;
 
     const body = await req.json();
-    const { transactionId, amountInCents, recipient, returnUrl, environment } = body as {
-      transactionId: string; amountInCents: number; recipient: string; returnUrl: string; environment: StripeEnv;
+    const { transactionId, amountInCents, feeInCents, recipient, returnUrl, environment } = body as {
+      transactionId: string; amountInCents: number; feeInCents: number; recipient: string; returnUrl: string; environment: StripeEnv;
     };
 
     if (!transactionId || typeof transactionId !== "string") throw new Error("Invalid transactionId");
     if (!amountInCents || amountInCents < 50) throw new Error("Amount must be at least $0.50");
+    if (typeof feeInCents !== "number" || feeInCents < 0) throw new Error("Invalid fee");
     if (!recipient || typeof recipient !== "string") throw new Error("Invalid recipient");
     if (!returnUrl || typeof returnUrl !== "string") throw new Error("Invalid returnUrl");
     if (environment !== "sandbox" && environment !== "live") throw new Error("Invalid environment");
@@ -50,21 +51,33 @@ Deno.serve(async (req) => {
     if (txn.status !== "pending_payment") throw new Error("Transaction not awaiting payment");
 
     const stripe = createStripeClient(environment);
-    const session = await stripe.checkout.sessions.create({
-      line_items: [{
+    const lineItems: any[] = [{
+      price_data: {
+        currency: "usd",
+        product_data: { name: `LockPay transfer to ${recipient}`, description: "Funds held in LockPay escrow until dual-code unlock." },
+        unit_amount: amountInCents,
+      },
+      quantity: 1,
+    }];
+    if (feeInCents > 0) {
+      lineItems.push({
         price_data: {
           currency: "usd",
-          product_data: { name: `LockPay transfer to ${recipient}`, description: "Funds held in LockPay escrow until dual-code unlock." },
-          unit_amount: amountInCents,
+          product_data: { name: "LockPay service fee", description: "1% of transfer (min $0.50)." },
+          unit_amount: feeInCents,
         },
         quantity: 1,
-      }],
+      });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      line_items: lineItems,
       mode: "payment",
       ui_mode: "embedded_page",
       return_url: returnUrl,
       customer_email: user.email,
-      metadata: { transactionId, userId: user.id },
-      payment_intent_data: { metadata: { transactionId, userId: user.id } },
+      metadata: { transactionId, userId: user.id, feeInCents: String(feeInCents) },
+      payment_intent_data: { metadata: { transactionId, userId: user.id, feeInCents: String(feeInCents) } },
     });
 
     await supabase

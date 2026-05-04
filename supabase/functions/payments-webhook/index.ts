@@ -19,7 +19,10 @@ async function handleCheckoutCompleted(session: any) {
     return;
   }
   const paymentIntent = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
-  await getSupabase()
+  const feeInCents = Number(session.metadata?.feeInCents ?? 0);
+  const sb = getSupabase();
+
+  const { data: txn } = await sb
     .from("transactions")
     .update({
       status: "locked",
@@ -27,8 +30,21 @@ async function handleCheckoutCompleted(session: any) {
       updated_at: new Date().toISOString(),
     })
     .eq("id", transactionId)
-    .eq("status", "pending_payment");
-  console.log(`Transaction ${transactionId} locked after successful payment`);
+    .eq("status", "pending_payment")
+    .select("id, sender_id")
+    .maybeSingle();
+
+  if (txn && feeInCents > 0) {
+    const { error: feeErr } = await sb.from("platform_fees").upsert({
+      transaction_id: transactionId,
+      sender_id: txn.sender_id,
+      amount: feeInCents / 100,
+      currency: "USD",
+      stripe_payment_intent: paymentIntent ?? null,
+    }, { onConflict: "transaction_id" });
+    if (feeErr) console.error("platform_fees insert failed:", feeErr);
+  }
+  console.log(`Transaction ${transactionId} locked; fee=${feeInCents}c`);
 }
 
 async function handlePaymentFailed(intent: any) {
