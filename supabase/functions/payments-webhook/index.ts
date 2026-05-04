@@ -78,31 +78,31 @@ async function sendRecipientSms(recipientIdentifier: string, amount: number, not
     console.log("Recipient not a phone number; skipping SMS:", recipientIdentifier);
     return;
   }
-  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  const TWILIO_API_KEY = Deno.env.get("TWILIO_API_KEY");
-  const FROM = Deno.env.get("TWILIO_FROM_NUMBER");
-  if (!LOVABLE_API_KEY || !TWILIO_API_KEY || !FROM) {
-    console.error("Twilio env not configured (LOVABLE_API_KEY/TWILIO_API_KEY/TWILIO_FROM_NUMBER)");
+  const USERNAME = Deno.env.get("EZTEXTING_USERNAME");
+  const APP_KEY = Deno.env.get("EZTEXTING_APP_KEY");
+  if (!USERNAME || !APP_KEY) {
+    console.error("EZ Texting env not configured (EZTEXTING_USERNAME/EZTEXTING_APP_KEY)");
     return;
   }
   const to = toE164(recipientIdentifier);
-  const body = `You have $${amount.toFixed(2)} waiting on LockPay${note ? ` (${note})` : ""}. Sign in and enter the unlock code from the sender to claim: ${Deno.env.get("SUPABASE_URL")?.includes("localhost") ? "http://localhost:8080" : "https://code-lock-pay.lovable.app"}`;
+  const body = `You have $${amount.toFixed(2)} waiting on LockPay${note ? ` (${note})` : ""}. Sign in and enter the unlock code from the sender to claim: https://code-lock-pay.lovable.app`;
 
-  const res = await fetch("https://connector-gateway.lovable.dev/twilio/Messages.json", {
+  const auth = btoa(`${USERNAME}:${APP_KEY}`);
+  const res = await fetch("https://a.eztexting.com/v1/messages", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-      "X-Connection-Api-Key": TWILIO_API_KEY,
-      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": `Basic ${auth}`,
+      "Content-Type": "application/json",
+      "Accept": "application/json",
     },
-    body: new URLSearchParams({ To: to, From: FROM, Body: body }),
+    body: JSON.stringify({ message: body, toNumbers: [to] }),
   });
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    console.error(`Twilio error [${res.status}]:`, data);
+    console.error(`EZ Texting error [${res.status}]:`, data);
     return;
   }
-  console.log("SMS sent, sid:", data.sid);
+  console.log("SMS sent via EZ Texting:", data);
 }
 
 async function handlePaymentFailed(intent: any) {
