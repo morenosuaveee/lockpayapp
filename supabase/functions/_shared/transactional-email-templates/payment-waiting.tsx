@@ -1,11 +1,13 @@
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Button, Container, Head, Heading, Html, Preview, Section, Text,
+  Body, Button, Container, Head, Heading, Html, Img, Preview, Section, Text,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'LockPay'
 const APP_URL = 'https://code-lock-pay.lovable.app'
+const LOGO_URL = `${APP_URL}/logo.png`
+const CLAIM_URL = `${APP_URL}/transactions`
 
 interface PaymentWaitingProps {
   amount?: number
@@ -20,6 +22,9 @@ const PaymentWaitingEmail = ({ amount, note }: PaymentWaitingProps) => {
       <Preview>{`${formatted} is waiting for you on ${SITE_NAME}`}</Preview>
       <Body style={main}>
         <Container style={container}>
+          <Section style={{ textAlign: 'center', margin: '0 0 16px' }}>
+            <Img src={LOGO_URL} alt={`${SITE_NAME} logo`} width="64" height="64" style={logo} />
+          </Section>
           <Heading style={h1}>You have {formatted} waiting</Heading>
           <Text style={text}>
             Someone sent you {formatted} on {SITE_NAME}.
@@ -29,7 +34,7 @@ const PaymentWaitingEmail = ({ amount, note }: PaymentWaitingProps) => {
             To claim it, sign in and enter the unlock code the sender shared with you.
           </Text>
           <Section style={{ textAlign: 'center', margin: '30px 0' }}>
-            <Button href={APP_URL} style={button}>Claim your payment</Button>
+            <Button href={CLAIM_URL} style={button}>Claim your payment</Button>
           </Section>
           <Text style={footer}>— The {SITE_NAME} Team</Text>
         </Container>
@@ -50,7 +55,8 @@ export const template = {
 
 const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
 const container = { padding: '24px', maxWidth: '560px' }
-const h1 = { fontSize: '22px', fontWeight: 'bold', color: '#0f172a', margin: '0 0 16px' }
+const logo = { display: 'inline-block', borderRadius: '12px' }
+const h1 = { fontSize: '22px', fontWeight: 'bold', color: '#0f172a', margin: '0 0 16px', textAlign: 'center' as const }
 const text = { fontSize: '14px', color: '#334155', lineHeight: '1.5', margin: '0 0 16px' }
 const button = { backgroundColor: '#0f172a', color: '#ffffff', padding: '12px 20px', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }
-const footer = { fontSize: '12px', color: '#94a3b8', margin: '32px 0 0' }
+const footer = { fontSize: '12px', color: '#94a3b8', margin: '32px 0 0', textAlign: 'center' as const }
