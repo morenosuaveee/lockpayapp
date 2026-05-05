@@ -47,3 +47,10 @@ export const template = {
   displayName: 'Payment waiting',
   previewData: { amount: 25, note: 'Lunch' },
 } satisfies TemplateEntry
+
+const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
+const container = { padding: '24px', maxWidth: '560px' }
+const h1 = { fontSize: '22px', fontWeight: 'bold', color: '#0f172a', margin: '0 0 16px' }
+const text = { fontSize: '14px', color: '#334155', lineHeight: '1.5', margin: '0 0 16px' }
+const button = { backgroundColor: '#0f172a', color: '#ffffff', padding: '12px 20px', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold' }
+const footer = { fontSize: '12px', color: '#94a3b8', margin: '32px 0 0' }
