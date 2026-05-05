@@ -50,10 +50,21 @@ async function handleCheckoutCompleted(session: any) {
   try {
     const { data: full } = await sb
       .from("transactions")
-      .select("recipient_identifier, amount, note")
+      .select("recipient_identifier, amount, note, sender_id")
       .eq("id", transactionId)
       .maybeSingle();
-    if (full) await sendRecipientEmail(transactionId, full.recipient_identifier as string, Number(full.amount), (full.note as string) ?? null);
+    if (full) {
+      let senderName: string | null = null;
+      let recipientName: string | null = null;
+      if (full.sender_id) {
+        const { data: sp } = await sb.from("profiles").select("display_name").eq("id", full.sender_id).maybeSingle();
+        senderName = (sp?.display_name as string) ?? null;
+      }
+      // Try to find recipient profile by email
+      const { data: rp } = await sb.from("profiles").select("display_name, id").eq("paypal_email", String(full.recipient_identifier).toLowerCase()).maybeSingle();
+      recipientName = (rp?.display_name as string) ?? null;
+      await sendRecipientEmail(transactionId, full.recipient_identifier as string, Number(full.amount), (full.note as string) ?? null, senderName, recipientName);
+    }
   } catch (e) {
     console.error("Email notify failed:", e);
   }
@@ -63,7 +74,7 @@ function isEmail(id: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(id.trim());
 }
 
-async function sendRecipientEmail(transactionId: string, recipientIdentifier: string, amount: number, note: string | null) {
+async function sendRecipientEmail(transactionId: string, recipientIdentifier: string, amount: number, note: string | null, senderName: string | null, recipientName: string | null) {
   if (!isEmail(recipientIdentifier)) {
     console.log("Recipient not an email; skipping notification:", recipientIdentifier);
     return;
@@ -74,7 +85,7 @@ async function sendRecipientEmail(transactionId: string, recipientIdentifier: st
       templateName: "payment-waiting",
       recipientEmail: recipientIdentifier.trim().toLowerCase(),
       idempotencyKey: `payment-waiting-${transactionId}`,
-      templateData: { amount, note },
+      templateData: { amount, note, senderName, recipientName },
     },
   });
   if (error) console.error("send-transactional-email error:", error);
