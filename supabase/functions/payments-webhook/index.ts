@@ -46,63 +46,39 @@ async function handleCheckoutCompleted(session: any) {
   }
   console.log(`Transaction ${transactionId} locked; fee=${feeInCents}c`);
 
-  // Send SMS notification to recipient if identifier is a phone number
+  // Send email notification to recipient if identifier is an email
   try {
     const { data: full } = await sb
       .from("transactions")
       .select("recipient_identifier, amount, note")
       .eq("id", transactionId)
       .maybeSingle();
-    if (full) await sendRecipientSms(full.recipient_identifier as string, Number(full.amount), (full.note as string) ?? null);
+    if (full) await sendRecipientEmail(transactionId, full.recipient_identifier as string, Number(full.amount), (full.note as string) ?? null);
   } catch (e) {
-    console.error("SMS notify failed:", e);
+    console.error("Email notify failed:", e);
   }
 }
 
-function isPhone(id: string): boolean {
-  // E.164-ish: optional +, 8-15 digits
-  const cleaned = id.replace(/[\s\-()]/g, "");
-  return /^\+?[1-9]\d{7,14}$/.test(cleaned);
+function isEmail(id: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(id.trim());
 }
 
-function toE164(id: string): string {
-  const cleaned = id.replace(/[\s\-()]/g, "");
-  if (cleaned.startsWith("+")) return cleaned;
-  // Default to US country code if 10 digits
-  if (/^\d{10}$/.test(cleaned)) return `+1${cleaned}`;
-  return `+${cleaned}`;
-}
-
-async function sendRecipientSms(recipientIdentifier: string, amount: number, note: string | null) {
-  if (!isPhone(recipientIdentifier)) {
-    console.log("Recipient not a phone number; skipping SMS:", recipientIdentifier);
+async function sendRecipientEmail(transactionId: string, recipientIdentifier: string, amount: number, note: string | null) {
+  if (!isEmail(recipientIdentifier)) {
+    console.log("Recipient not an email; skipping notification:", recipientIdentifier);
     return;
   }
-  const USERNAME = Deno.env.get("EZTEXTING_USERNAME");
-  const APP_KEY = Deno.env.get("EZTEXTING_APP_KEY");
-  if (!USERNAME || !APP_KEY) {
-    console.error("EZ Texting env not configured (EZTEXTING_USERNAME/EZTEXTING_APP_KEY)");
-    return;
-  }
-  const to = toE164(recipientIdentifier);
-  const body = `You have $${amount.toFixed(2)} waiting on LockPay${note ? ` (${note})` : ""}. Sign in and enter the unlock code from the sender to claim: https://code-lock-pay.lovable.app`;
-
-  const auth = btoa(`${USERNAME}:${APP_KEY}`);
-  const res = await fetch("https://a.eztexting.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Authorization": `Basic ${auth}`,
-      "Content-Type": "application/json",
-      "Accept": "application/json",
+  const sb = getSupabase();
+  const { error } = await sb.functions.invoke("send-transactional-email", {
+    body: {
+      templateName: "payment-waiting",
+      recipientEmail: recipientIdentifier.trim().toLowerCase(),
+      idempotencyKey: `payment-waiting-${transactionId}`,
+      templateData: { amount, note },
     },
-    body: JSON.stringify({ message: body, toNumbers: [to] }),
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    console.error(`EZ Texting error [${res.status}]:`, data);
-    return;
-  }
-  console.log("SMS sent via EZ Texting:", data);
+  if (error) console.error("send-transactional-email error:", error);
+  else console.log("Payment-waiting email enqueued for", recipientIdentifier);
 }
 
 async function handlePaymentFailed(intent: any) {

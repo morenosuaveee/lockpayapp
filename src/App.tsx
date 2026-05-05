@@ -12,6 +12,7 @@ import UnlockTransaction from "./pages/UnlockTransaction";
 import CheckoutReturn from "./pages/CheckoutReturn";
 import AuthPage from "./pages/Auth";
 import NotFound from "./pages/NotFound.tsx";
+import Unsubscribe from "./pages/Unsubscribe";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/unlock/:id" element={<ProtectedRoute><UnlockTransaction /></ProtectedRoute>} />
             <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
+            <Route path="/unsubscribe" element={<Unsubscribe />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
