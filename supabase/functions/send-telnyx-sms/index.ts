@@ -57,7 +57,30 @@ Deno.serve(async (req) => {
       throw new Error(`Telnyx send failed [${res.status}]: ${JSON.stringify(data)}`);
     }
 
-    return new Response(JSON.stringify({ success: true, id: data?.data?.id ?? null }), {
+    const msgId = data?.data?.id ?? null;
+    console.log("Telnyx accepted message", msgId, "to", body.to, "from", data?.data?.from?.phone_number);
+    // Poll once after a short delay for actual carrier DLR (catches 10DLC / carrier rejects)
+    if (msgId) {
+      (async () => {
+        await new Promise((r) => setTimeout(r, 4000));
+        try {
+          const dlr = await fetch(`https://api.telnyx.com/v2/messages/${msgId}`, {
+            headers: { Authorization: `Bearer ${apiKey}` },
+          });
+          const d = await dlr.json();
+          const to0 = d?.data?.to?.[0];
+          const errs = d?.data?.errors;
+          if (to0?.status && to0.status !== "delivered" && to0.status !== "sent") {
+            console.error("Telnyx DLR failure for", msgId, "status:", to0.status, "errors:", JSON.stringify(errs));
+          } else {
+            console.log("Telnyx DLR for", msgId, "status:", to0?.status);
+          }
+        } catch (e) {
+          console.error("DLR fetch failed:", e);
+        }
+      })();
+    }
+    return new Response(JSON.stringify({ success: true, id: msgId }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
