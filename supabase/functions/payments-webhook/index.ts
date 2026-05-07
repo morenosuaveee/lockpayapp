@@ -76,10 +76,14 @@ async function handleCheckoutCompleted(session: any) {
 
       await sendRecipientEmail(transactionId, recipId, amt, note, senderName, recipientName);
 
-      // SMS: if recipient identifier itself is a phone, OR profile has a phone
-      const smsTarget = isE164(recipId) ? recipId : (recipientPhone && isE164(recipientPhone) ? recipientPhone : null);
+      // SMS: prefer the recipient identifier if it looks like a phone (any format),
+      // otherwise fall back to a phone on the recipient's profile.
+      const smsTarget = toE164(recipId) ?? (recipientPhone ? toE164(recipientPhone) : null);
+      console.log("SMS target resolution:", { recipId, recipientPhone, smsTarget });
       if (smsTarget) {
         await sendRecipientSms(transactionId, smsTarget, amt, senderName);
+      } else {
+        console.log("No SMS target resolved for transaction", transactionId);
       }
     }
   } catch (e) {
