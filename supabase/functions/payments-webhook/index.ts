@@ -91,6 +91,23 @@ function isE164(s: string): boolean {
   return /^\+[1-9]\d{6,14}$/.test(s.trim());
 }
 
+// Try to coerce common phone formats into E.164. Returns null if not phone-like.
+function toE164(raw: string): string | null {
+  if (!raw) return null;
+  const s = raw.trim();
+  if (isE164(s)) return s;
+  // Strip everything except digits and leading +
+  const digits = s.replace(/[^\d]/g, "");
+  if (!digits) return null;
+  // US/Canada 10-digit
+  if (digits.length === 10) return `+1${digits}`;
+  // 11-digit starting with 1
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  // Already has country code (7-15 digits) — best-effort
+  if (digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+  return null;
+}
+
 async function sendRecipientSms(transactionId: string, toPhone: string, amount: number, senderName: string | null) {
   const appUrl = Deno.env.get("APP_URL") ?? "https://lockpayapp.lovable.app";
   const claimUrl = `${appUrl}/transactions/${transactionId}`;
