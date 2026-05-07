@@ -56,18 +56,52 @@ async function handleCheckoutCompleted(session: any) {
     if (full) {
       let senderName: string | null = null;
       let recipientName: string | null = null;
+      let recipientPhone: string | null = null;
       if (full.sender_id) {
         const { data: sp } = await sb.from("profiles").select("display_name").eq("id", full.sender_id).maybeSingle();
         senderName = (sp?.display_name as string) ?? null;
       }
-      // Try to find recipient profile by email
-      const { data: rp } = await sb.from("profiles").select("display_name, id").eq("paypal_email", String(full.recipient_identifier).toLowerCase()).maybeSingle();
+      const recipId = String(full.recipient_identifier);
+      // Try to find recipient profile by email or phone
+      const { data: rp } = await sb
+        .from("profiles")
+        .select("display_name, id, phone, paypal_email")
+        .or(`paypal_email.eq.${recipId.toLowerCase()},phone.eq.${recipId}`)
+        .maybeSingle();
       recipientName = (rp?.display_name as string) ?? null;
-      await sendRecipientEmail(transactionId, full.recipient_identifier as string, Number(full.amount), (full.note as string) ?? null, senderName, recipientName);
+      recipientPhone = (rp?.phone as string) ?? null;
+
+      const amt = Number(full.amount);
+      const note = (full.note as string) ?? null;
+
+      await sendRecipientEmail(transactionId, recipId, amt, note, senderName, recipientName);
+
+      // SMS: if recipient identifier itself is a phone, OR profile has a phone
+      const smsTarget = isE164(recipId) ? recipId : (recipientPhone && isE164(recipientPhone) ? recipientPhone : null);
+      if (smsTarget) {
+        await sendRecipientSms(transactionId, smsTarget, amt, senderName);
+      }
     }
   } catch (e) {
-    console.error("Email notify failed:", e);
+    console.error("Notify failed:", e);
   }
+}
+
+function isE164(s: string): boolean {
+  return /^\+[1-9]\d{6,14}$/.test(s.trim());
+}
+
+async function sendRecipientSms(transactionId: string, toPhone: string, amount: number, senderName: string | null) {
+  const appUrl = Deno.env.get("APP_URL") ?? "https://lockpayapp.lovable.app";
+  const claimUrl = `${appUrl}/transactions/${transactionId}`;
+  const who = senderName ? senderName : "Someone";
+  const text = `LockPay: ${who} sent you $${amount.toFixed(2)} (locked in escrow). Claim it: ${claimUrl}\nReply STOP to opt out.`;
+  const sb = getSupabase();
+  const { error } = await sb.functions.invoke("send-telnyx-sms", {
+    body: { to: toPhone, text },
+  });
+  if (error) console.error("send-telnyx-sms error:", error);
+  else console.log("Telnyx SMS enqueued for", toPhone);
 }
 
 function isEmail(id: string): boolean {
