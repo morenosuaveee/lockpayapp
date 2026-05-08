@@ -147,14 +147,36 @@ async function sendRecipientEmail(transactionId: string, recipientIdentifier: st
   else console.log("Payment-waiting email enqueued for", recipientIdentifier);
 }
 
+async function sendPush(userIds: string[], title: string, body: string, data: Record<string, unknown> = {}) {
+  try {
+    const sb = getSupabase();
+    await sb.functions.invoke("send-push", {
+      body: { user_ids: userIds, title, body, data },
+    });
+  } catch (e) {
+    console.error("send-push invoke failed", e);
+  }
+}
+
 async function handlePaymentFailed(intent: any) {
   const transactionId = intent.metadata?.transactionId;
   if (!transactionId) return;
-  await getSupabase()
+  const sb = getSupabase();
+  const { data: tx } = await sb
     .from("transactions")
     .update({ status: "cancelled", updated_at: new Date().toISOString() })
     .eq("id", transactionId)
-    .eq("status", "pending_payment");
+    .eq("status", "pending_payment")
+    .select("id, sender_id, amount")
+    .maybeSingle();
+  if (tx?.sender_id) {
+    await sendPush(
+      [tx.sender_id as string],
+      "Payment cancelled",
+      `Your $${Number(tx.amount).toFixed(2)} payment could not be completed.`,
+      { transactionId, type: "payment_cancelled" },
+    );
+  }
 }
 
 async function handleWebhook(req: Request, env: StripeEnv) {
