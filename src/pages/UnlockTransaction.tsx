@@ -20,7 +20,7 @@ interface Tx {
   recipient_id: string | null;
   recipient_identifier: string;
   amount: number; currency: string;
-  status: "locked" | "awaiting_confirmation" | "completed" | "expired" | "cancelled";
+  status: "pending" | "locked" | "awaiting_confirmation" | "unlocked" | "completed" | "refunded" | "expired" | "cancelled";
   unlock_code_hash: string;
   sender_confirmed: boolean; receiver_confirmed: boolean;
   sender_attempts: number; receiver_attempts: number; max_attempts: number;
