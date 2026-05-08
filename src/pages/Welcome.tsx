@@ -79,6 +79,11 @@ export default function Welcome() {
           <p className="pt-2 text-center text-[11px] text-muted-foreground">
             By continuing you agree to LockPay's terms & privacy.
           </p>
+          <div className="flex items-center justify-center gap-4 pt-1 text-[10px] uppercase tracking-wider text-muted-foreground/80">
+            <span className="inline-flex items-center gap-1"><Shield className="h-3 w-3" /> 256-bit secure</span>
+            <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+            <span>Powered by PayPal</span>
+          </div>
         </div>
       </div>
     </div>

@@ -112,9 +112,17 @@ export default function Dashboard() {
         </div>
 
         {loading ? (
-          <div className="space-y-2">
-            {[1, 2, 3].map((i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-muted" />)}
-          </div>
+          <ul className="space-y-2 stagger">
+            {[1, 2, 3].map((i) => (
+              <li key={i} className="flex items-center gap-3 rounded-2xl bg-card p-4 shadow-card">
+                <div className="h-11 w-11 shrink-0 rounded-xl skeleton-shimmer" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3.5 w-2/3 rounded-full skeleton-shimmer" />
+                  <div className="h-3 w-1/3 rounded-full skeleton-shimmer" />
+                </div>
+              </li>
+            ))}
+          </ul>
         ) : txs.length === 0 ? (
           <div className="rounded-3xl bg-card p-8 text-center shadow-card">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft">
