@@ -26,3 +26,9 @@ verify_jwt = false
 
 [functions.telnyx-message-status]
 verify_jwt = false
+
+[functions.phone-login-start]
+verify_jwt = false
+
+[functions.phone-login-verify]
+verify_jwt = false
