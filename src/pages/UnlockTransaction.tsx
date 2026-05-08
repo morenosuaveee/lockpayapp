@@ -172,12 +172,13 @@ export default function UnlockTransaction() {
         {/* Status hero */}
         <div className="mt-6 text-center">
           <div className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full ${
-            tx.status === "completed" ? "gradient-accent animate-unlock-burst" :
-            tx.status === "expired" || tx.status === "cancelled" ? "bg-muted" :
+            isReleased ? "gradient-accent animate-unlock-burst" :
+            tx.status === "expired" || tx.status === "cancelled" || tx.status === "refunded" ? "bg-muted" :
             "gradient-lock animate-lock-pulse"
           }`}>
-            {tx.status === "completed" ? <CheckCircle2 className="h-10 w-10 text-accent-foreground" /> :
+            {isReleased ? <CheckCircle2 className="h-10 w-10 text-accent-foreground" /> :
              tx.status === "expired" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
+             tx.status === "refunded" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
              tx.status === "cancelled" ? <AlertTriangle className="h-10 w-10 text-muted-foreground" /> :
              <Lock className="h-10 w-10 text-lock-foreground" />}
           </div>
