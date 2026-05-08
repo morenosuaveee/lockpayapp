@@ -6,14 +6,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AppShell } from "@/components/layout/AppShell";
+import { NotificationsBell, type NotifTx } from "@/components/NotificationsBell";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
-interface Tx {
-  id: string; sender_id: string; amount: number; currency: string;
-  status: "locked" | "awaiting_confirmation" | "completed" | "expired" | "cancelled";
-  recipient_identifier: string; created_at: string; note: string | null;
-  sender_paypal_email: string | null;
+interface Tx extends NotifTx {
+  note: string | null;
 }
 
 interface Profile { display_name: string | null; paypal_email: string | null; }
@@ -59,12 +57,15 @@ export default function Dashboard() {
             <p className="text-sm text-muted-foreground">Welcome back</p>
             <h1 className="text-2xl font-bold">{profile?.display_name ?? "Friend"} 👋</h1>
           </div>
-          <button
-            onClick={() => navigate("/profile")}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
-          >
-            {(profile?.display_name?.[0] ?? "?").toUpperCase()}
-          </button>
+          <div className="flex items-center gap-2">
+            {user && <NotificationsBell txs={txs} userId={user.id} />}
+            <button
+              onClick={() => navigate("/profile")}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
+            >
+              {(profile?.display_name?.[0] ?? "?").toUpperCase()}
+            </button>
+          </div>
         </div>
 
         {/* Balance card */}
