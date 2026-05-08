@@ -103,6 +103,20 @@ Deno.serve(async (req) => {
       .update({ phone: phoneStr, phone_verified_at: new Date().toISOString() })
       .eq("id", userId);
 
+    // Fire-and-forget Expo push: OTP verified
+    try {
+      await admin.functions.invoke("send-push", {
+        body: {
+          user_ids: [userId],
+          title: "Phone verified ✅",
+          body: "Your phone number was verified successfully.",
+          data: { type: "otp_verified" },
+        },
+      });
+    } catch (e) {
+      console.error("send-push (otp) failed", e);
+    }
+
     return json({ verified: true, phone: phoneStr, password });
   } catch (e) {
     console.error("phone-login-verify error", e);
