@@ -22,12 +22,14 @@ interface Props {
 
 export function PhoneVerificationCard({ initialPhone, verifiedAt, onVerified }: Props) {
   const [phone, setPhone] = useState(initialPhone ?? "");
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(verifiedAt ? initialPhone : null);
+  const [verifiedTs, setVerifiedTs] = useState<string | null>(verifiedAt);
   const [step, setStep] = useState<"idle" | "code">("idle");
   const [code, setCode] = useState("");
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
-  const isVerified = !!verifiedAt && phone === initialPhone;
+  const isVerified = !!verifiedTs && phone.trim() === verifiedPhone;
 
   async function sendCode() {
     const parsed = phoneSchema.safeParse(phone);
