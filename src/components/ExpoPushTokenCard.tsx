@@ -66,7 +66,8 @@ export function ExpoPushTokenCard({ userId }: { userId: string }) {
 
   async function save(t: string) {
     const value = t.trim();
-    if (!value.startsWith("ExponentPushToken[") && !value.startsWith("ExpoPushToken[")) {
+    const looksLikeExpo = value.startsWith("ExponentPushToken[") || value.startsWith("ExpoPushToken[");
+    if (!looksLikeExpo && !isNative()) {
       toast.error("Token must look like ExponentPushToken[xxxxx]");
       return;
     }
