@@ -130,13 +130,13 @@ export default function UnlockTransaction() {
         ? { sender_confirmed: true }
         : { receiver_confirmed: true, recipient_id: user!.id };
 
-      const newStatus = otherConfirmed ? "completed" : "awaiting_confirmation";
+      const newStatus = otherConfirmed ? "unlocked" : "awaiting_confirmation";
       await supabase.from("transactions").update({
         ...update, status: newStatus,
-        ...(newStatus === "completed" ? { released_at: new Date().toISOString() } : {}),
+        ...(newStatus === "unlocked" ? { released_at: new Date().toISOString() } : {}),
       }).eq("id", tx.id);
 
-      if (newStatus === "completed") {
+      if (newStatus === "unlocked") {
         const provider = getProvider("paypal");
         await provider.releasePayment({
           providerRef: tx.id,
