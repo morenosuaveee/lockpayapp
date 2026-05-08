@@ -85,6 +85,15 @@ async function handleCheckoutCompleted(session: any) {
       } else {
         console.log("No SMS target resolved for transaction", transactionId);
       }
+      // Push notification to recipient if they have an account + Expo token
+      if (rp?.id) {
+        await sendPush(
+          [rp.id as string],
+          "Payment received 🔒",
+          `${senderName ?? "Someone"} sent you $${amt.toFixed(2)} (locked). Tap to unlock.`,
+          { transactionId, type: "payment_received" },
+        );
+      }
     }
   } catch (e) {
     console.error("Notify failed:", e);
