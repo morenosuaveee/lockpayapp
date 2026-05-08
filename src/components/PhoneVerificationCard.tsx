@@ -108,7 +108,7 @@ export function PhoneVerificationCard({ initialPhone, verifiedAt, onVerified }: 
           {isVerified ? (
             <>
               <p className="text-[11px] text-muted-foreground">
-                Verified {verifiedAt ? format(new Date(verifiedAt), "MMM d, yyyy") : ""}.
+                Verified {verifiedTs ? format(new Date(verifiedTs), "MMM d, yyyy") : ""}.
               </p>
               <Button
                 variant="outline"
