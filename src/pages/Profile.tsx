@@ -7,13 +7,13 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PhoneVerificationCard } from "@/components/PhoneVerificationCard";
 import { toast } from "sonner";
 import { z } from "zod";
 
 const schema = z.object({
   display_name: z.string().trim().min(1, "Name required").max(80),
   paypal_email: z.string().trim().email("Invalid email").max(255).optional().or(z.literal("")),
-  phone: z.string().trim().max(40).optional().or(z.literal("")),
 });
 
 export default function Profile() {
@@ -21,7 +21,8 @@ export default function Profile() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [paypal, setPaypal] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState<string | null>(null);
+  const [phoneVerifiedAt, setPhoneVerifiedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -30,19 +31,19 @@ export default function Profile() {
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle().then(({ data }) => {
       setName(data?.display_name ?? "");
       setPaypal(data?.paypal_email ?? user.email ?? "");
-      setPhone(data?.phone ?? "");
+      setPhone(data?.phone ?? null);
+      setPhoneVerifiedAt((data as { phone_verified_at?: string | null } | null)?.phone_verified_at ?? null);
       setLoading(false);
     });
   }, [user]);
 
   async function save() {
-    const parsed = schema.safeParse({ display_name: name, paypal_email: paypal, phone });
+    const parsed = schema.safeParse({ display_name: name, paypal_email: paypal });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setSaving(true);
     const { error } = await supabase.from("profiles").update({
       display_name: parsed.data.display_name,
       paypal_email: parsed.data.paypal_email || null,
-      phone: parsed.data.phone || null,
     }).eq("id", user!.id);
     setSaving(false);
     if (error) toast.error(error.message); else toast.success("Profile updated");
@@ -50,7 +51,7 @@ export default function Profile() {
 
   async function signOut() {
     await supabase.auth.signOut();
-    navigate("/login");
+    navigate("/welcome");
   }
 
   if (loading) return <AppShell><div className="flex h-screen items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" /></div></AppShell>;
@@ -79,13 +80,17 @@ export default function Profile() {
             <Label htmlFor="pp"><Mail className="mr-1 inline h-3.5 w-3.5" />PayPal email</Label>
             <Input id="pp" type="email" value={paypal} onChange={(e) => setPaypal(e.target.value)} />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="ph">Phone</Label>
-            <Input id="ph" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 555 0000" />
-          </div>
           <Button onClick={save} disabled={saving} className="w-full h-12 rounded-xl">
             {saving ? "Saving…" : "Save changes"}
           </Button>
+        </div>
+
+        <div className="mt-5">
+          <PhoneVerificationCard
+            initialPhone={phone}
+            verifiedAt={phoneVerifiedAt}
+            onVerified={(p, at) => { setPhone(p); setPhoneVerifiedAt(at); }}
+          />
         </div>
 
         <div className="mt-5 rounded-3xl bg-card p-5 shadow-card">
