@@ -105,6 +105,17 @@ export default function UnlockTransaction() {
         if (remaining <= 0) {
           await supabase.from("transactions").update({ status: "cancelled" }).eq("id", tx.id);
           toast.error("Too many wrong attempts. Transaction cancelled.");
+          const targets = [tx.sender_id, tx.recipient_id].filter(Boolean) as string[];
+          if (targets.length) {
+            supabase.functions.invoke("send-push", {
+              body: {
+                user_ids: targets,
+                title: "Payment cancelled",
+                body: `The $${Number(tx.amount).toFixed(2)} transfer was cancelled after too many wrong attempts.`,
+                data: { transactionId: tx.id, type: "payment_cancelled" },
+              },
+            }).catch(() => {});
+          }
         } else {
           toast.error(`Wrong code. ${remaining} ${remaining === 1 ? "try" : "tries"} left.`);
         }
@@ -131,6 +142,15 @@ export default function UnlockTransaction() {
           amount: Number(tx.amount),
         });
         toast.success("Funds released! 🎉");
+        const targets = [tx.sender_id, tx.recipient_id ?? user!.id].filter(Boolean) as string[];
+        supabase.functions.invoke("send-push", {
+          body: {
+            user_ids: targets,
+            title: "Payment unlocked 🔓",
+            body: `$${Number(tx.amount).toFixed(2)} has been released to ${tx.recipient_identifier}.`,
+            data: { transactionId: tx.id, type: "payment_unlocked" },
+          },
+        }).catch(() => {});
       } else {
         toast.success("Code confirmed. Waiting for the other party.");
       }

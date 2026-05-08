@@ -171,6 +171,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           display_name: string | null
+          expo_push_token: string | null
           id: string
           paypal_email: string | null
           phone: string | null
@@ -181,6 +182,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          expo_push_token?: string | null
           id: string
           paypal_email?: string | null
           phone?: string | null
@@ -191,6 +193,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
+          expo_push_token?: string | null
           id?: string
           paypal_email?: string | null
           phone?: string | null

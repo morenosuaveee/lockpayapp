@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PhoneVerificationCard } from "@/components/PhoneVerificationCard";
 import { PushNotificationsCard } from "@/components/PushNotificationsCard";
+import { ExpoPushTokenCard } from "@/components/ExpoPushTokenCard";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -120,6 +121,7 @@ export default function Profile() {
 
           <p className="eyebrow mt-6">Notifications</p>
           <PushNotificationsCard />
+          {user && <ExpoPushTokenCard userId={user.id} />}
 
           <p className="eyebrow mt-6">Payouts</p>
           <div className="rounded-3xl bg-card p-5 shadow-card">
