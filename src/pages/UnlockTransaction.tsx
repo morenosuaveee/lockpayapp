@@ -229,14 +229,19 @@ export default function UnlockTransaction() {
           </div>
         )}
 
-        {tx.status === "completed" && (
+        {isReleased && (
           <div className="mt-6 rounded-3xl bg-accent-soft p-6 text-center">
             <p className="text-sm font-semibold text-accent-foreground">Funds released to {tx.recipient_identifier}.</p>
           </div>
         )}
+        {tx.status === "refunded" && (
+          <div className="mt-6 rounded-3xl bg-secondary p-6 text-center">
+            <p className="text-sm font-semibold">Expired — refund issued to sender.</p>
+          </div>
+        )}
         {tx.status === "expired" && (
           <div className="mt-6 rounded-3xl bg-secondary p-6 text-center">
-            <p className="text-sm font-semibold">Expired — refunded to sender (mock).</p>
+            <p className="text-sm font-semibold">Expired.</p>
           </div>
         )}
         {tx.status === "cancelled" && (
