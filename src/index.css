@@ -210,3 +210,32 @@
 .animate-unlock-burst { animation: unlock-burst 0.5s var(--ease-spring); }
 .animate-shake { animation: shake 0.4s ease-in-out; }
 .animate-slide-up { animation: slide-up 0.4s var(--ease-smooth); }
+
+/* ---------- Native mobile polish (Capacitor / iOS-first) ---------- */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+html, body, #root {
+  height: 100%;
+  overscroll-behavior-y: none;
+}
+body {
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
+input, textarea, [contenteditable] { -webkit-user-select: text; user-select: text; }
+.scroll-smooth-native { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+
+.pt-safe { padding-top: var(--safe-top); }
+.pb-safe { padding-bottom: var(--safe-bottom); }
+.pl-safe { padding-left: var(--safe-left); }
+.pr-safe { padding-right: var(--safe-right); }
+.min-h-safe-screen { min-height: calc(100vh - var(--safe-top) - var(--safe-bottom)); }
