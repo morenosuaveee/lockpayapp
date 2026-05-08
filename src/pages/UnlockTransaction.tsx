@@ -7,6 +7,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { CodeInput } from "@/components/CodeInput";
 import { StatusBadge } from "@/components/StatusBadge";
+import { Countdown } from "@/components/Countdown";
 import { verifyCode } from "@/lib/unlock-code";
 import { getProvider } from "@/lib/payments/providers";
 import { toast } from "sonner";
