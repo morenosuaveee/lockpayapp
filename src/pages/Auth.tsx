@@ -29,6 +29,46 @@ export default function AuthPage({ mode }: Props) {
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Phone OTP state
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpStep, setOtpStep] = useState<"idle" | "code">("idle");
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+
+  async function sendOtp() {
+    const parsed = phoneSchema.safeParse(phone);
+    if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+    setOtpSending(true);
+    const { data, error } = await supabase.functions.invoke("phone-login-start", { body: { phone: parsed.data } });
+    setOtpSending(false);
+    const err = (data as { error?: string } | null)?.error;
+    if (error || err) { toast.error(err ?? error?.message ?? "Could not send code"); return; }
+    toast.success("Code sent — check your messages");
+    setOtpStep("code");
+    setOtp("");
+  }
+
+  async function verifyOtp() {
+    if (otp.length < 4) { toast.error("Enter the code"); return; }
+    setOtpVerifying(true);
+    const { data, error } = await supabase.functions.invoke("phone-login-verify", { body: { phone: phone.trim(), code: otp } });
+    const payload = data as { verified?: boolean; password?: string; phone?: string; error?: string } | null;
+    if (error || !payload?.verified || !payload.password) {
+      setOtpVerifying(false);
+      toast.error(payload?.error ?? error?.message ?? "Incorrect code");
+      return;
+    }
+    const { error: signErr } = await supabase.auth.signInWithPassword({
+      phone: payload.phone ?? phone.trim(),
+      password: payload.password,
+    });
+    setOtpVerifying(false);
+    if (signErr) { toast.error(signErr.message); return; }
+    toast.success("Signed in");
+    navigate("/");
+  }
+
   if (!authLoading && user) return <Navigate to="/" replace />;
 
   const isSignup = mode === "signup";
