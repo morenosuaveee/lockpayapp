@@ -81,7 +81,9 @@ export default function UnlockTransaction() {
   const myAttempts = isSender ? tx.sender_attempts : tx.receiver_attempts;
   const attemptsLeft = tx.max_attempts - myAttempts;
   const blocked = attemptsLeft <= 0 && !myConfirmed;
-  const finalState = tx.status === "completed" || tx.status === "expired" || tx.status === "cancelled";
+  const releasedStates = ["unlocked", "completed"] as const;
+  const isReleased = (releasedStates as readonly string[]).includes(tx.status);
+  const finalState = isReleased || tx.status === "expired" || tx.status === "cancelled" || tx.status === "refunded";
 
   async function submitCode() {
     if (!tx || code.length !== 4) return;
