@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PhoneVerificationCard } from "@/components/PhoneVerificationCard";
+import { PushNotificationsCard } from "@/components/PushNotificationsCard";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -91,6 +92,10 @@ export default function Profile() {
             verifiedAt={phoneVerifiedAt}
             onVerified={(p, at) => { setPhone(p); setPhoneVerifiedAt(at); }}
           />
+        </div>
+
+        <div className="mt-5">
+          <PushNotificationsCard />
         </div>
 
         <div className="mt-5 rounded-3xl bg-card p-5 shadow-card">

@@ -7,6 +7,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { CodeInput } from "@/components/CodeInput";
 import { StatusBadge } from "@/components/StatusBadge";
+import { Countdown } from "@/components/Countdown";
 import { verifyCode } from "@/lib/unlock-code";
 import { getProvider } from "@/lib/payments/providers";
 import { toast } from "sonner";
@@ -163,6 +164,11 @@ export default function UnlockTransaction() {
             {isSender ? `To ${tx.recipient_identifier}` : `From ${tx.sender_paypal_email ?? "sender"}`}
           </p>
           <div className="mt-3 flex justify-center"><StatusBadge status={tx.status} /></div>
+          {(tx.status === "locked" || tx.status === "awaiting_confirmation") && (
+            <div className="mt-3 flex justify-center">
+              <Countdown expiresAt={tx.expires_at} label="Auto-refund in" />
+            </div>
+          )}
           {tx.note && <p className="mt-3 text-sm italic text-muted-foreground">"{tx.note}"</p>}
         </div>
 
