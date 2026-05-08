@@ -62,6 +62,8 @@ export function PhoneVerificationCard({ initialPhone, verifiedAt, onVerified }: 
     }
     const now = new Date().toISOString();
     toast.success("Phone verified");
+    setVerifiedPhone(phone.trim());
+    setVerifiedTs(now);
     onVerified(phone.trim(), now);
     setStep("idle");
     setCode("");
