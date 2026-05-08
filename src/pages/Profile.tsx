@@ -94,6 +94,10 @@ export default function Profile() {
           />
         </div>
 
+        <div className="mt-5">
+          <PushNotificationsCard />
+        </div>
+
         <div className="mt-5 rounded-3xl bg-card p-5 shadow-card">
           <h2 className="flex items-center gap-2 text-sm font-semibold"><CreditCard className="h-4 w-4" />Linked payment methods</h2>
           <div className="mt-3 flex items-center justify-between rounded-2xl bg-accent-soft p-3">
