@@ -11,6 +11,9 @@ const config: Record<Status, { label: string; icon: typeof Lock; className: stri
   completed: { label: "Released", icon: CheckCircle2, className: "bg-accent-soft text-accent-foreground" },
   expired: { label: "Expired", icon: Clock, className: "bg-muted text-muted-foreground" },
   cancelled: { label: "Cancelled", icon: XCircle, className: "bg-destructive-soft text-destructive" },
+  pending: { label: "Pending", icon: Clock, className: "bg-muted text-muted-foreground" },
+  unlocked: { label: "Unlocked", icon: Unlock, className: "bg-accent-soft text-accent-foreground" },
+  refunded: { label: "Refunded", icon: Undo2, className: "bg-muted text-muted-foreground" },
 };
 
 export function StatusBadge({ status, className }: { status: Status; className?: string }) {
