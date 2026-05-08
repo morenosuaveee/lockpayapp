@@ -47,6 +47,16 @@ export function ExpoPushTokenCard({ userId }: { userId: string }) {
       }
     }
     window.addEventListener("message", onMsg);
+
+    // On Capacitor iOS/Android, request permission and register for push.
+    if (isNative()) {
+      registerPushNotifications((nativeToken) => {
+        // Store native APNs/FCM token in same column for backend dispatch.
+        setToken(nativeToken);
+        save(nativeToken);
+      }).catch(() => {});
+    }
+
     return () => {
       cancelled = true;
       window.removeEventListener("message", onMsg);
