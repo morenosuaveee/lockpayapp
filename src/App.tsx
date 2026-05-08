@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import UnlockTransaction from "./pages/UnlockTransaction";
 import CheckoutReturn from "./pages/CheckoutReturn";
 import AuthPage from "./pages/Auth";
+import Welcome from "./pages/Welcome";
 import NotFound from "./pages/NotFound.tsx";
 import Unsubscribe from "./pages/Unsubscribe";
 
@@ -23,6 +24,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
+            <Route path="/welcome" element={<Welcome />} />
             <Route path="/login" element={<AuthPage mode="login" />} />
             <Route path="/signup" element={<AuthPage mode="signup" />} />
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
