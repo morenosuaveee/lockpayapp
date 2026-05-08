@@ -22,12 +22,14 @@ interface Props {
 
 export function PhoneVerificationCard({ initialPhone, verifiedAt, onVerified }: Props) {
   const [phone, setPhone] = useState(initialPhone ?? "");
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(verifiedAt ? initialPhone : null);
+  const [verifiedTs, setVerifiedTs] = useState<string | null>(verifiedAt);
   const [step, setStep] = useState<"idle" | "code">("idle");
   const [code, setCode] = useState("");
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
-  const isVerified = !!verifiedAt && phone === initialPhone;
+  const isVerified = !!verifiedTs && phone.trim() === verifiedPhone;
 
   async function sendCode() {
     const parsed = phoneSchema.safeParse(phone);
@@ -60,6 +62,8 @@ export function PhoneVerificationCard({ initialPhone, verifiedAt, onVerified }: 
     }
     const now = new Date().toISOString();
     toast.success("Phone verified");
+    setVerifiedPhone(phone.trim());
+    setVerifiedTs(now);
     onVerified(phone.trim(), now);
     setStep("idle");
     setCode("");
@@ -104,7 +108,7 @@ export function PhoneVerificationCard({ initialPhone, verifiedAt, onVerified }: 
           {isVerified ? (
             <>
               <p className="text-[11px] text-muted-foreground">
-                Verified {verifiedAt ? format(new Date(verifiedAt), "MMM d, yyyy") : ""}.
+                Verified {verifiedTs ? format(new Date(verifiedTs), "MMM d, yyyy") : ""}.
               </p>
               <Button
                 variant="outline"
