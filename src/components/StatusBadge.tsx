@@ -1,4 +1,4 @@
-import { Lock, CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react";
+import { Lock, CheckCircle2, Clock, XCircle, AlertCircle, Unlock, Undo2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
 
