@@ -374,6 +374,40 @@ export type Database = {
           read_ct: number
         }[]
       }
+      unlock_transaction: {
+        Args: { _txn_id: string }
+        Returns: {
+          amount: number
+          created_at: string
+          currency: string
+          expires_at: string
+          fee_amount: number
+          id: string
+          max_attempts: number
+          note: string | null
+          provider: Database["public"]["Enums"]["payment_provider"]
+          receiver_attempts: number
+          receiver_confirmed: boolean
+          recipient_id: string | null
+          recipient_identifier: string
+          released_at: string | null
+          sender_attempts: number
+          sender_confirmed: boolean
+          sender_id: string
+          sender_paypal_email: string | null
+          status: Database["public"]["Enums"]["transaction_status"]
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          unlock_code_hash: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       payment_provider: "paypal" | "venmo" | "bank"
@@ -384,6 +418,9 @@ export type Database = {
         | "completed"
         | "expired"
         | "cancelled"
+        | "pending"
+        | "unlocked"
+        | "refunded"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -519,6 +556,9 @@ export const Constants = {
         "completed",
         "expired",
         "cancelled",
+        "pending",
+        "unlocked",
+        "refunded",
       ],
     },
   },

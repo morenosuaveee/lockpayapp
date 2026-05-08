@@ -20,7 +20,7 @@ interface Tx {
   recipient_id: string | null;
   recipient_identifier: string;
   amount: number; currency: string;
-  status: "locked" | "awaiting_confirmation" | "completed" | "expired" | "cancelled";
+  status: "pending" | "locked" | "awaiting_confirmation" | "unlocked" | "completed" | "refunded" | "expired" | "cancelled";
   unlock_code_hash: string;
   sender_confirmed: boolean; receiver_confirmed: boolean;
   sender_attempts: number; receiver_attempts: number; max_attempts: number;
@@ -81,7 +81,9 @@ export default function UnlockTransaction() {
   const myAttempts = isSender ? tx.sender_attempts : tx.receiver_attempts;
   const attemptsLeft = tx.max_attempts - myAttempts;
   const blocked = attemptsLeft <= 0 && !myConfirmed;
-  const finalState = tx.status === "completed" || tx.status === "expired" || tx.status === "cancelled";
+  const releasedStates = ["unlocked", "completed"] as const;
+  const isReleased = (releasedStates as readonly string[]).includes(tx.status);
+  const finalState = isReleased || tx.status === "expired" || tx.status === "cancelled" || tx.status === "refunded";
 
   async function submitCode() {
     if (!tx || code.length !== 4) return;
@@ -128,13 +130,13 @@ export default function UnlockTransaction() {
         ? { sender_confirmed: true }
         : { receiver_confirmed: true, recipient_id: user!.id };
 
-      const newStatus = otherConfirmed ? "completed" : "awaiting_confirmation";
+      const newStatus = otherConfirmed ? "unlocked" : "awaiting_confirmation";
       await supabase.from("transactions").update({
         ...update, status: newStatus,
-        ...(newStatus === "completed" ? { released_at: new Date().toISOString() } : {}),
+        ...(newStatus === "unlocked" ? { released_at: new Date().toISOString() } : {}),
       }).eq("id", tx.id);
 
-      if (newStatus === "completed") {
+      if (newStatus === "unlocked") {
         const provider = getProvider("paypal");
         await provider.releasePayment({
           providerRef: tx.id,
@@ -170,12 +172,13 @@ export default function UnlockTransaction() {
         {/* Status hero */}
         <div className="mt-6 text-center">
           <div className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full ${
-            tx.status === "completed" ? "gradient-accent animate-unlock-burst" :
-            tx.status === "expired" || tx.status === "cancelled" ? "bg-muted" :
+            isReleased ? "gradient-accent animate-unlock-burst" :
+            tx.status === "expired" || tx.status === "cancelled" || tx.status === "refunded" ? "bg-muted" :
             "gradient-lock animate-lock-pulse"
           }`}>
-            {tx.status === "completed" ? <CheckCircle2 className="h-10 w-10 text-accent-foreground" /> :
+            {isReleased ? <CheckCircle2 className="h-10 w-10 text-accent-foreground" /> :
              tx.status === "expired" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
+             tx.status === "refunded" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
              tx.status === "cancelled" ? <AlertTriangle className="h-10 w-10 text-muted-foreground" /> :
              <Lock className="h-10 w-10 text-lock-foreground" />}
           </div>
@@ -226,14 +229,19 @@ export default function UnlockTransaction() {
           </div>
         )}
 
-        {tx.status === "completed" && (
+        {isReleased && (
           <div className="mt-6 rounded-3xl bg-accent-soft p-6 text-center">
             <p className="text-sm font-semibold text-accent-foreground">Funds released to {tx.recipient_identifier}.</p>
           </div>
         )}
+        {tx.status === "refunded" && (
+          <div className="mt-6 rounded-3xl bg-secondary p-6 text-center">
+            <p className="text-sm font-semibold">Expired — refund issued to sender.</p>
+          </div>
+        )}
         {tx.status === "expired" && (
           <div className="mt-6 rounded-3xl bg-secondary p-6 text-center">
-            <p className="text-sm font-semibold">Expired — refunded to sender (mock).</p>
+            <p className="text-sm font-semibold">Expired.</p>
           </div>
         )}
         {tx.status === "cancelled" && (
