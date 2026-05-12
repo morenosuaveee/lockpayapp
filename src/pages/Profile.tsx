@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { LogOut, Mail, User as UserIcon, CreditCard, Sparkles } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { LogOut, Mail, User as UserIcon, CreditCard, Sparkles, ShieldCheck, FileText, LifeBuoy, UserX, ChevronRight } from "lucide-react";
+import { LegalFooter } from "@/components/layout/LegalFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppShell } from "@/components/layout/AppShell";
@@ -139,6 +140,14 @@ export default function Profile() {
             </div>
           </div>
 
+          <p className="eyebrow mt-6">Help &amp; legal</p>
+          <div className="overflow-hidden rounded-3xl bg-card shadow-card">
+            <ProfileLink to="/support" icon={LifeBuoy} label="Support" />
+            <ProfileLink to="/privacy" icon={ShieldCheck} label="Privacy Policy" />
+            <ProfileLink to="/terms" icon={FileText} label="Terms of Service" />
+            <ProfileLink to="/delete-account" icon={UserX} label="Delete account" tone="destructive" last />
+          </div>
+
           <Button onClick={signOut} variant="outline" className="mt-6 w-full h-12 rounded-xl text-destructive hover:bg-destructive-soft hover:text-destructive">
             <LogOut className="mr-2 h-4 w-4" /> Sign out
           </Button>
@@ -148,6 +157,36 @@ export default function Profile() {
           </p>
         </div>
       </div>
+      <LegalFooter />
     </AppShell>
+  );
+}
+
+function ProfileLink({
+  to,
+  icon: Icon,
+  label,
+  tone,
+  last,
+}: {
+  to: string;
+  icon: typeof ShieldCheck;
+  label: string;
+  tone?: "destructive";
+  last?: boolean;
+}) {
+  return (
+    <Link
+      to={to}
+      className={`flex items-center justify-between px-5 py-3.5 transition hover:bg-secondary/40 ${
+        last ? "" : "border-b border-border/60"
+      }`}
+    >
+      <span className={`flex items-center gap-3 text-sm font-medium ${tone === "destructive" ? "text-destructive" : ""}`}>
+        <Icon className={`h-4 w-4 ${tone === "destructive" ? "text-destructive" : "text-muted-foreground"}`} />
+        {label}
+      </span>
+      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+    </Link>
   );
 }
