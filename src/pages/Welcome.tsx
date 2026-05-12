@@ -77,7 +77,9 @@ export default function Welcome() {
             <Link to="/login">Log in</Link>
           </Button>
           <p className="pt-2 text-center text-[11px] text-muted-foreground">
-            By continuing you agree to LockPay's terms & privacy.
+            By continuing you agree to LockPay's{" "}
+            <Link to="/terms" className="underline">Terms</Link> &amp;{" "}
+            <Link to="/privacy" className="underline">Privacy</Link>.
           </p>
           <div className="flex items-center justify-center gap-4 pt-1 text-[10px] uppercase tracking-wider text-muted-foreground/80">
             <span className="inline-flex items-center gap-1"><Shield className="h-3 w-3" /> 256-bit secure</span>
