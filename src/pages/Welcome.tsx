@@ -2,6 +2,7 @@ import { Link, Navigate } from "react-router-dom";
 import { Lock, Shield, Zap, KeyRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { TrustStrip } from "@/components/TrustStrip";
 
 export default function Welcome() {
   const { user, loading } = useAuth();
@@ -61,8 +62,9 @@ export default function Welcome() {
           />
         </div>
 
-        {/* CTAs */}
+        {/* Trust strip + CTAs */}
         <div className="mt-auto pt-10 space-y-3 animate-slide-up" style={{ animationDelay: "120ms" }}>
+          <TrustStrip className="mb-2" />
           <Button
             asChild
             className="h-14 w-full rounded-2xl text-base font-semibold gradient-primary text-primary-foreground shadow-elevated hover:opacity-95"
