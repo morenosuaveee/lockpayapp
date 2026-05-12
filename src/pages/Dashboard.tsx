@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AppShell } from "@/components/layout/AppShell";
 import { NotificationsBell, type NotifTx } from "@/components/NotificationsBell";
+import { TrustStrip } from "@/components/TrustStrip";
+import { LegalFooter } from "@/components/layout/LegalFooter";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
@@ -55,7 +57,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">Welcome back</p>
-            <h1 className="text-2xl font-bold">{profile?.display_name ?? "Friend"} 👋</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{profile?.display_name ?? "Friend"}</h1>
           </div>
           <div className="flex items-center gap-2">
             {user && <NotificationsBell txs={txs} userId={user.id} />}
@@ -72,7 +74,7 @@ export default function Dashboard() {
         <div className="mt-6 overflow-hidden rounded-3xl gradient-balance p-6 text-primary-foreground shadow-elevated">
           <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-80">
             <Wallet className="h-3.5 w-3.5" />
-            PayPal Balance · simulated
+            Available balance
           </div>
           <div className="mt-2 text-4xl font-bold tabular-nums">$2,480.<span className="text-2xl opacity-70">00</span></div>
           <div className="mt-1 text-xs opacity-70">{profile?.paypal_email ?? "Link your PayPal"}</div>
@@ -84,7 +86,7 @@ export default function Dashboard() {
                   <LockIcon className="h-4 w-4 text-lock" />
                 </div>
                 <div>
-                  <div className="text-xs opacity-80">Locked in escrow</div>
+                  <div className="text-xs opacity-80">Funds locked</div>
                   <div className="text-sm font-semibold tabular-nums">${lockedAmount.toFixed(2)}</div>
                 </div>
               </div>
@@ -102,6 +104,9 @@ export default function Dashboard() {
             <Link to="/transactions"><LockIcon className="mr-1 h-5 w-5" /> Vault</Link>
           </Button>
         </div>
+
+        {/* Trust strip */}
+        <TrustStrip className="mt-5" />
       </div>
 
       {/* Recent transactions */}
@@ -129,7 +134,7 @@ export default function Dashboard() {
               <LockIcon className="h-6 w-6 text-accent-foreground" />
             </div>
             <p className="text-sm font-medium">No transfers yet</p>
-            <p className="mt-1 text-xs text-muted-foreground">Send your first dual-locked payment.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Create your first conditional transfer.</p>
             <Button asChild className="mt-4 rounded-xl"><Link to="/send">Send money</Link></Button>
           </div>
         ) : (
@@ -138,6 +143,7 @@ export default function Dashboard() {
           </ul>
         )}
       </section>
+      <LegalFooter />
     </AppShell>
   );
 }
