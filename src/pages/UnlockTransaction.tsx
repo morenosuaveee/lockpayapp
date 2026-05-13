@@ -241,10 +241,13 @@ export default function UnlockTransaction() {
               <CodeInput value={code} onChange={setCode} masked invalid={invalid} disabled={blocked || submitting} autoFocus />
             </div>
             <Button onClick={submitCode} disabled={blocked || submitting || code.length !== 4}
-              className="mt-5 w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90">
-              <ShieldCheck className="mr-2 h-5 w-5" />
-              {submitting ? "Verifying…" : "Confirm"}
+              className="mt-5 w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90 active:scale-[0.98] transition-transform">
+              {submitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <ShieldCheck className="mr-2 h-5 w-5" />}
+              {submitting ? "Verifying…" : "Confirm & release"}
             </Button>
+            <p className="mt-3 text-center text-[11px] text-muted-foreground">
+              Both parties must confirm. Funds release only after a match.
+            </p>
           </div>
         )}
 
