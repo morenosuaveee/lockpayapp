@@ -194,18 +194,25 @@ export default function UnlockTransaction() {
 
         {/* Status hero */}
         <div className="mt-6 text-center">
-          <div className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full ${
-            isReleased ? "gradient-accent animate-unlock-burst" :
-            tx.status === "expired" || tx.status === "cancelled" || tx.status === "refunded" ? "bg-muted" :
-            "gradient-lock animate-lock-pulse"
-          }`}>
-            {isReleased ? <CheckCircle2 className="h-10 w-10 text-accent-foreground" /> :
-             tx.status === "expired" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
-             tx.status === "refunded" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
-             tx.status === "cancelled" ? <AlertTriangle className="h-10 w-10 text-muted-foreground" /> :
-             <Lock className="h-10 w-10 text-lock-foreground" />}
+          {isReleased ? (
+            <SuccessMark tone="accent" size={104} />
+          ) : (
+            <div className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full ${
+              tx.status === "expired" || tx.status === "cancelled" || tx.status === "refunded" ? "bg-muted" :
+              "gradient-lock animate-lock-pulse"
+            }`}>
+              {tx.status === "expired" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
+               tx.status === "refunded" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
+               tx.status === "cancelled" ? <AlertTriangle className="h-10 w-10 text-muted-foreground" /> :
+               <Lock className="h-10 w-10 text-lock-foreground" />}
+            </div>
+          )}
+          {isReleased && (
+            <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Released</p>
+          )}
+          <div className={`${isReleased ? "mt-2" : "mt-4"} text-4xl font-bold tabular-nums tracking-tight`}>
+            ${Number(tx.amount).toFixed(2)}
           </div>
-          <div className="mt-4 text-4xl font-bold tabular-nums tracking-tight">${Number(tx.amount).toFixed(2)}</div>
           <p className="mt-1 text-sm text-muted-foreground">
             {isSender ? `To ${tx.recipient_identifier}` : `From ${tx.sender_paypal_email ?? "sender"}`}
           </p>
@@ -214,7 +221,7 @@ export default function UnlockTransaction() {
               <ShieldCheck className="h-3 w-3 text-accent" /> Held securely in escrow
             </p>
           )}
-          <div className="mt-3 flex justify-center"><StatusBadge status={tx.status} /></div>
+          {!isReleased && <div className="mt-3 flex justify-center"><StatusBadge status={tx.status} /></div>}
           {(tx.status === "locked" || tx.status === "awaiting_confirmation") && (
             <div className="mt-3 flex justify-center">
               <Countdown expiresAt={tx.expires_at} label="Auto-refund in" />
