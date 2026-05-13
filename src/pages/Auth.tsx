@@ -112,11 +112,11 @@ export default function AuthPage({ mode }: Props) {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-background to-secondary/60 px-6 py-12">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-background to-secondary/60 px-6 pt-safe pb-8">
       <div className="pointer-events-none absolute -top-32 -right-20 h-72 w-72 rounded-full bg-accent/15 blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 -left-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
 
-      <div className="relative w-full max-w-sm space-y-6">
+      <div className="page-enter relative w-full max-w-sm space-y-5">
         <Link to="/welcome" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3.5 w-3.5" /> Back
         </Link>
