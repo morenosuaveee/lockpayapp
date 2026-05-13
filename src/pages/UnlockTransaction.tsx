@@ -69,7 +69,7 @@ export default function UnlockTransaction() {
   if (loading) {
     return (
       <AppShell>
-        <div className="px-5 pt-12 pb-6 stagger">
+        <div className="px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-6 stagger">
           <div className="h-10 w-10 rounded-full skeleton-shimmer" />
           <div className="mx-auto mt-6 h-20 w-20 rounded-full skeleton-shimmer" />
           <div className="mx-auto mt-4 h-8 w-32 rounded-lg skeleton-shimmer" />
@@ -186,7 +186,7 @@ export default function UnlockTransaction() {
 
   return (
     <AppShell>
-      <div className="px-5 pt-12 pb-6">
+      <div className="px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-6">
         <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card active:scale-95 transition-transform">
           <ArrowLeft className="h-5 w-5" />
         </button>

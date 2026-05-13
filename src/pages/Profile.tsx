@@ -60,7 +60,7 @@ export default function Profile() {
   if (loading) {
     return (
       <AppShell>
-        <div className="px-5 pt-12 pb-6 stagger">
+        <div className="px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-6 stagger">
           <div className="h-8 w-32 rounded-lg skeleton-shimmer" />
           <div className="mt-6 h-24 rounded-3xl skeleton-shimmer" />
           <div className="mt-5 h-56 rounded-3xl skeleton-shimmer" />
@@ -73,7 +73,7 @@ export default function Profile() {
 
   return (
     <AppShell>
-      <div className="px-5 pt-12 pb-6">
+      <div className="px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-6">
         <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">Manage your identity, security, and payouts.</p>
 
