@@ -83,14 +83,29 @@ export default function SendMoney() {
     setCopied(true); setTimeout(() => setCopied(false), 1500);
   };
 
+  const stepIndex = step === "details" ? 0 : step === "code" ? 1 : 2;
+  const stepLabels = ["Details", "Code", "Pay"];
+
   return (
     <AppShell>
       <PaymentTestModeBanner />
       <div className="px-5 pt-6 pb-6">
-        <button onClick={() => step === "details" ? navigate(-1) : setStep(step === "code" ? "details" : "code")}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => step === "details" ? navigate(-1) : setStep(step === "code" ? "details" : "code")}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card active:scale-95 transition-transform"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div className="flex flex-1 items-center gap-1.5">
+            {stepLabels.map((lbl, i) => (
+              <div key={lbl} className="flex flex-1 items-center gap-1.5">
+                <div className={`h-1.5 flex-1 rounded-full transition-all ${i <= stepIndex ? "bg-primary" : "bg-secondary"}`} />
+              </div>
+            ))}
+          </div>
+          <span className="text-xs font-semibold tabular-nums text-muted-foreground">{stepIndex + 1}/3</span>
+        </div>
 
         {step === "details" && (
           <div className="mt-6 animate-slide-up">
