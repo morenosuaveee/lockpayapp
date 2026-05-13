@@ -187,7 +187,7 @@ export default function UnlockTransaction() {
   return (
     <AppShell>
       <div className="px-5 pt-12 pb-6">
-        <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card">
+        <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card active:scale-95 transition-transform">
           <ArrowLeft className="h-5 w-5" />
         </button>
 
@@ -204,10 +204,15 @@ export default function UnlockTransaction() {
              tx.status === "cancelled" ? <AlertTriangle className="h-10 w-10 text-muted-foreground" /> :
              <Lock className="h-10 w-10 text-lock-foreground" />}
           </div>
-          <div className="mt-4 text-4xl font-bold tabular-nums">${Number(tx.amount).toFixed(2)}</div>
+          <div className="mt-4 text-4xl font-bold tabular-nums tracking-tight">${Number(tx.amount).toFixed(2)}</div>
           <p className="mt-1 text-sm text-muted-foreground">
             {isSender ? `To ${tx.recipient_identifier}` : `From ${tx.sender_paypal_email ?? "sender"}`}
           </p>
+          {!finalState && (
+            <p className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
+              <ShieldCheck className="h-3 w-3 text-accent" /> Held securely in escrow
+            </p>
+          )}
           <div className="mt-3 flex justify-center"><StatusBadge status={tx.status} /></div>
           {(tx.status === "locked" || tx.status === "awaiting_confirmation") && (
             <div className="mt-3 flex justify-center">
