@@ -190,11 +190,13 @@ export default function SendMoney() {
               </div>
             </div>
 
-            <Button onClick={handleConfirm} disabled={loading || code.length !== 4}
-              className="mt-5 w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90 active:scale-[0.98] transition-transform">
-              {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Lock className="mr-2 h-5 w-5" />}
-              {loading ? "Preparing…" : "Continue to payment"}
-            </Button>
+            <div className="sticky bottom-[calc(5.5rem+var(--safe-bottom))] z-20 mt-5 -mx-5 px-5 pb-2 pt-3 bg-gradient-to-t from-surface via-surface/95 to-transparent">
+              <Button onClick={handleConfirm} disabled={loading || code.length !== 4}
+                className="w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90 active:scale-[0.98] transition-transform shadow-elevated">
+                {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Lock className="mr-2 h-5 w-5" />}
+                {loading ? "Preparing…" : "Continue to payment"}
+              </Button>
+            </div>
           </div>
         )}
 
