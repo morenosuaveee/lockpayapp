@@ -53,7 +53,7 @@ export default function Dashboard() {
 
   return (
     <AppShell>
-      <div className="px-5 pt-12 pb-6">
+      <div className="px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">Welcome back</p>
