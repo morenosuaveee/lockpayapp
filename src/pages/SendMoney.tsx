@@ -116,20 +116,23 @@ export default function SendMoney() {
               <div className="space-y-1.5">
                 <Label htmlFor="rec">Recipient</Label>
                 <Input id="rec" value={recipient} onChange={(e) => setRecipient(e.target.value)}
-                  placeholder="email, phone, or @username" />
+                  placeholder="email, phone, or @username"
+                  autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false}
+                  enterKeyHint="next" />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="amt">Amount (USD)</Label>
                 <div className="relative">
                   <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-muted-foreground">$</span>
                   <Input id="amt" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0.00" className="h-16 pl-9 text-3xl font-bold tabular-nums" />
+                    placeholder="0.00" className="h-16 pl-9 text-3xl font-bold tabular-nums"
+                    enterKeyHint="next" autoComplete="off" />
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="note">Note (optional)</Label>
                 <Textarea id="note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={140}
-                  placeholder="Concert tickets — split" rows={2} />
+                  placeholder="Concert tickets — split" rows={2} enterKeyHint="done" />
               </div>
               <div className="flex items-center gap-2 rounded-xl bg-secondary p-3 text-xs text-muted-foreground">
                 <Sparkles className="h-4 w-4 text-accent" />

@@ -63,7 +63,8 @@ export default function Dashboard() {
             {user && <NotificationsBell txs={txs} userId={user.id} />}
             <button
               onClick={() => navigate("/profile")}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
+              aria-label="Open profile"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold transition-transform active:scale-[0.94]"
             >
               {(profile?.display_name?.[0] ?? "?").toUpperCase()}
             </button>
