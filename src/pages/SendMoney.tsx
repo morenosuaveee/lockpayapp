@@ -136,7 +136,7 @@ export default function SendMoney() {
               </div>
               <div className="flex items-center gap-2 rounded-xl bg-secondary p-3 text-xs text-muted-foreground">
                 <Sparkles className="h-4 w-4 text-accent" />
-                Payment processor: <span className="font-semibold text-foreground">Stripe</span>
+                Securely processed by <span className="font-semibold text-foreground">Stripe</span>. Your card is never stored on LockPay.
               </div>
             </div>
 
