@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Lock, CheckCircle2, Clock, ShieldCheck, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Lock, CheckCircle2, Clock, ShieldCheck, AlertTriangle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppShell } from "@/components/layout/AppShell";
@@ -67,10 +67,32 @@ export default function UnlockTransaction() {
   }, [id, user]);
 
   if (loading) {
-    return <AppShell><div className="flex h-screen items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" /></div></AppShell>;
+    return (
+      <AppShell>
+        <div className="px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-6 stagger">
+          <div className="h-10 w-10 rounded-full skeleton-shimmer" />
+          <div className="mx-auto mt-6 h-20 w-20 rounded-full skeleton-shimmer" />
+          <div className="mx-auto mt-4 h-8 w-32 rounded-lg skeleton-shimmer" />
+          <div className="mx-auto mt-2 h-4 w-40 rounded-full skeleton-shimmer" />
+          <div className="mt-6 h-44 rounded-3xl skeleton-shimmer" />
+          <div className="mt-4 h-32 rounded-3xl skeleton-shimmer" />
+        </div>
+      </AppShell>
+    );
   }
   if (!tx) {
-    return <AppShell><div className="p-6 pt-12"><Button onClick={() => navigate(-1)} variant="outline">Back</Button><p className="mt-6 text-center text-muted-foreground">Transaction not found.</p></div></AppShell>;
+    return (
+      <AppShell>
+        <div className="p-6 pt-12 text-center animate-slide-up">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary">
+            <AlertTriangle className="h-7 w-7 text-muted-foreground" />
+          </div>
+          <p className="text-base font-semibold">Transaction not found</p>
+          <p className="mt-1 text-sm text-muted-foreground">It may have been removed or you don't have access.</p>
+          <Button onClick={() => navigate(-1)} className="mt-5 h-12 rounded-2xl px-6">Go back</Button>
+        </div>
+      </AppShell>
+    );
   }
 
   const isSender = tx.sender_id === user?.id;
@@ -164,8 +186,8 @@ export default function UnlockTransaction() {
 
   return (
     <AppShell>
-      <div className="px-5 pt-12 pb-6">
-        <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card">
+      <div className="px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-6">
+        <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card active:scale-95 transition-transform">
           <ArrowLeft className="h-5 w-5" />
         </button>
 
@@ -182,10 +204,15 @@ export default function UnlockTransaction() {
              tx.status === "cancelled" ? <AlertTriangle className="h-10 w-10 text-muted-foreground" /> :
              <Lock className="h-10 w-10 text-lock-foreground" />}
           </div>
-          <div className="mt-4 text-4xl font-bold tabular-nums">${Number(tx.amount).toFixed(2)}</div>
+          <div className="mt-4 text-4xl font-bold tabular-nums tracking-tight">${Number(tx.amount).toFixed(2)}</div>
           <p className="mt-1 text-sm text-muted-foreground">
             {isSender ? `To ${tx.recipient_identifier}` : `From ${tx.sender_paypal_email ?? "sender"}`}
           </p>
+          {!finalState && (
+            <p className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
+              <ShieldCheck className="h-3 w-3 text-accent" /> Held securely in escrow
+            </p>
+          )}
           <div className="mt-3 flex justify-center"><StatusBadge status={tx.status} /></div>
           {(tx.status === "locked" || tx.status === "awaiting_confirmation") && (
             <div className="mt-3 flex justify-center">
@@ -214,10 +241,13 @@ export default function UnlockTransaction() {
               <CodeInput value={code} onChange={setCode} masked invalid={invalid} disabled={blocked || submitting} autoFocus />
             </div>
             <Button onClick={submitCode} disabled={blocked || submitting || code.length !== 4}
-              className="mt-5 w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90">
-              <ShieldCheck className="mr-2 h-5 w-5" />
-              {submitting ? "Verifying…" : "Confirm"}
+              className="mt-5 w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90 active:scale-[0.98] transition-transform">
+              {submitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <ShieldCheck className="mr-2 h-5 w-5" />}
+              {submitting ? "Verifying…" : "Confirm & release"}
             </Button>
+            <p className="mt-3 text-center text-[11px] text-muted-foreground">
+              Both parties must confirm. Funds release only after a match.
+            </p>
           </div>
         )}
 
