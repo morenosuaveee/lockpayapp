@@ -241,9 +241,11 @@ export default function UnlockTransaction() {
         {/* Code entry */}
         {!finalState && !myConfirmed && (
           <div className="mt-6 rounded-3xl bg-card p-6 shadow-card">
-            <h2 className="text-center text-base font-semibold">Enter the 4-digit unlock code</h2>
+            <h2 className="text-center text-base font-semibold">Enter the 4-digit code</h2>
             <p className="mt-1 text-center text-xs text-muted-foreground">
-              {blocked ? "Attempts exhausted." : `${attemptsLeft} ${attemptsLeft === 1 ? "attempt" : "attempts"} left`}
+              {blocked
+                ? "No attempts left — this transfer was cancelled and will be refunded."
+                : `Get the code from ${isSender ? "the recipient" : "the sender"}. ${attemptsLeft} ${attemptsLeft === 1 ? "try" : "tries"} left.`}
             </p>
             <div className="mt-5">
               <CodeInput value={code} onChange={setCode} masked invalid={invalid} disabled={blocked || submitting} autoFocus />
@@ -254,7 +256,7 @@ export default function UnlockTransaction() {
               {submitting ? "Verifying…" : "Confirm & release"}
             </Button>
             <p className="mt-3 text-center text-[11px] text-muted-foreground">
-              Both parties must confirm. Funds release only after a match.
+              Funds release only when both of you enter the same code. Nothing happens until then.
             </p>
           </div>
         )}
@@ -262,8 +264,8 @@ export default function UnlockTransaction() {
         {!finalState && myConfirmed && !otherConfirmed && (
           <div className="mt-6 rounded-3xl bg-accent-soft p-6 text-center">
             <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-accent" />
-            <p className="text-sm font-semibold">You've confirmed. Waiting on the other party.</p>
-            <p className="mt-1 text-xs text-muted-foreground">They'll be notified to enter the code.</p>
+            <p className="text-sm font-semibold">You're confirmed</p>
+            <p className="mt-1 text-xs text-muted-foreground">We've notified the other party. Funds release the moment they enter the same code.</p>
           </div>
         )}
 

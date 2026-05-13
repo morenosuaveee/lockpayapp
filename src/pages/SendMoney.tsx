@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, RefreshCw, Sparkles, Copy, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Lock, RefreshCw, Sparkles, Copy, Check, Loader2, ShieldCheck } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -110,7 +110,7 @@ export default function SendMoney() {
         {step === "details" && (
           <div className="mt-6 animate-slide-up">
             <h1 className="text-2xl font-bold">Send money</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Funds stay locked until both of you enter the code.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Funds are held in escrow and only released once you and the recipient both enter the same 4-digit code. Auto-refunded in 48h if not unlocked.</p>
 
             <div className="mt-6 space-y-5 rounded-3xl bg-card p-5 shadow-card">
               <div className="space-y-1.5">
@@ -136,7 +136,7 @@ export default function SendMoney() {
               </div>
               <div className="flex items-center gap-2 rounded-xl bg-secondary p-3 text-xs text-muted-foreground">
                 <Sparkles className="h-4 w-4 text-accent" />
-                Payment processor: <span className="font-semibold text-foreground">Stripe</span>
+                Securely processed by <span className="font-semibold text-foreground">Stripe</span>. Your card is never stored on LockPay.
               </div>
             </div>
 
@@ -151,7 +151,7 @@ export default function SendMoney() {
         {step === "code" && (
           <div className="mt-6 animate-slide-up">
             <h1 className="text-2xl font-bold">Set unlock code</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Both of you must enter this 4-digit code to release the funds.</p>
+            <p className="mt-1 text-sm text-muted-foreground">A 4-digit code that you and the recipient must both enter to release the funds. Keep it private.</p>
 
             <div className="mt-8 rounded-3xl bg-card p-6 shadow-card">
               <CodeInput value={code} onChange={setCode} masked={false} autoFocus />
@@ -166,8 +166,9 @@ export default function SendMoney() {
                   </Button>
                 )}
               </div>
-              <p className="mt-4 text-center text-xs text-muted-foreground">
-                💡 Share this code with the recipient outside the app (text, in person…).
+              <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-accent" />
+                Share this code with the recipient privately — text, in person, anywhere off-app.
               </p>
             </div>
 
