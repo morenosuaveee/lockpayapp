@@ -14,7 +14,7 @@ export default function Welcome() {
       <div className="pointer-events-none absolute -top-32 -left-20 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
       <div className="pointer-events-none absolute top-40 -right-20 h-80 w-80 rounded-full bg-primary/15 blur-3xl" />
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-md flex-col px-6 py-10">
+      <div className="page-enter relative mx-auto flex min-h-screen w-full max-w-md flex-col px-6 pt-[max(env(safe-area-inset-top),2rem)] pb-[max(env(safe-area-inset-bottom),1.5rem)]">
         {/* Logo */}
         <div className="flex items-center gap-2 animate-slide-up">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl gradient-primary shadow-elevated">
