@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, RefreshCw, Sparkles, Copy, Check } from "lucide-react";
+import { ArrowLeft, Lock, RefreshCw, Sparkles, Copy, Check, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -171,8 +171,8 @@ export default function SendMoney() {
             </div>
 
             <Button onClick={handleConfirm} disabled={loading || code.length !== 4}
-              className="mt-5 w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90">
-              <Lock className="mr-2 h-5 w-5" />
+              className="mt-5 w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90 active:scale-[0.98] transition-transform">
+              {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Lock className="mr-2 h-5 w-5" />}
               {loading ? "Preparing…" : "Continue to payment"}
             </Button>
           </div>

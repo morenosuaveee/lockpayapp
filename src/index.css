@@ -234,6 +234,23 @@ button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
 input, textarea, [contenteditable] { -webkit-user-select: text; user-select: text; }
 .scroll-smooth-native { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
 
+/* Native-feel page transition */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-enter { animation: page-enter 0.32s var(--ease-smooth); }
+
+/* Prevent iOS zoom on input focus */
+input, select, textarea { font-size: 16px; }
+@media (min-width: 768px) {
+  input, select, textarea { font-size: inherit; }
+}
+
+/* Hide scrollbars in native shell while preserving scroll */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
 .pt-safe { padding-top: var(--safe-top); }
 .pb-safe { padding-bottom: var(--safe-bottom); }
 .pl-safe { padding-left: var(--safe-left); }
