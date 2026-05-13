@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Mail, User as UserIcon, CreditCard, Sparkles, ShieldCheck, FileText, LifeBuoy, UserX, ChevronRight } from "lucide-react";
+import { LogOut, Mail, User as UserIcon, CreditCard, Sparkles, ShieldCheck, FileText, LifeBuoy, UserX, ChevronRight, Loader2 } from "lucide-react";
 import { LegalFooter } from "@/components/layout/LegalFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
