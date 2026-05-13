@@ -67,10 +67,32 @@ export default function UnlockTransaction() {
   }, [id, user]);
 
   if (loading) {
-    return <AppShell><div className="flex h-screen items-center justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" /></div></AppShell>;
+    return (
+      <AppShell>
+        <div className="px-5 pt-12 pb-6 stagger">
+          <div className="h-10 w-10 rounded-full skeleton-shimmer" />
+          <div className="mx-auto mt-6 h-20 w-20 rounded-full skeleton-shimmer" />
+          <div className="mx-auto mt-4 h-8 w-32 rounded-lg skeleton-shimmer" />
+          <div className="mx-auto mt-2 h-4 w-40 rounded-full skeleton-shimmer" />
+          <div className="mt-6 h-44 rounded-3xl skeleton-shimmer" />
+          <div className="mt-4 h-32 rounded-3xl skeleton-shimmer" />
+        </div>
+      </AppShell>
+    );
   }
   if (!tx) {
-    return <AppShell><div className="p-6 pt-12"><Button onClick={() => navigate(-1)} variant="outline">Back</Button><p className="mt-6 text-center text-muted-foreground">Transaction not found.</p></div></AppShell>;
+    return (
+      <AppShell>
+        <div className="p-6 pt-12 text-center animate-slide-up">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary">
+            <AlertTriangle className="h-7 w-7 text-muted-foreground" />
+          </div>
+          <p className="text-base font-semibold">Transaction not found</p>
+          <p className="mt-1 text-sm text-muted-foreground">It may have been removed or you don't have access.</p>
+          <Button onClick={() => navigate(-1)} className="mt-5 h-12 rounded-2xl px-6">Go back</Button>
+        </div>
+      </AppShell>
+    );
   }
 
   const isSender = tx.sender_id === user?.id;
