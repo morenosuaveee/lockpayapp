@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Lock, Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, ShieldCheck, Clock, Receipt } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
+import { SuccessMark } from "@/components/SuccessMark";
 
 type State = "polling" | "locked" | "timeout" | "error";
 
