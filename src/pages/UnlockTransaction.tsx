@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Lock, CheckCircle2, Clock, ShieldCheck, AlertTriangle, Loader2 } from "lucide-react";
+import { ArrowLeft, Lock, CheckCircle2, Clock, ShieldCheck, AlertTriangle, Loader2, Sparkles } from "lucide-react";
+import { SuccessMark } from "@/components/SuccessMark";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppShell } from "@/components/layout/AppShell";
@@ -193,18 +194,25 @@ export default function UnlockTransaction() {
 
         {/* Status hero */}
         <div className="mt-6 text-center">
-          <div className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full ${
-            isReleased ? "gradient-accent animate-unlock-burst" :
-            tx.status === "expired" || tx.status === "cancelled" || tx.status === "refunded" ? "bg-muted" :
-            "gradient-lock animate-lock-pulse"
-          }`}>
-            {isReleased ? <CheckCircle2 className="h-10 w-10 text-accent-foreground" /> :
-             tx.status === "expired" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
-             tx.status === "refunded" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
-             tx.status === "cancelled" ? <AlertTriangle className="h-10 w-10 text-muted-foreground" /> :
-             <Lock className="h-10 w-10 text-lock-foreground" />}
+          {isReleased ? (
+            <SuccessMark tone="accent" size={104} />
+          ) : (
+            <div className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full ${
+              tx.status === "expired" || tx.status === "cancelled" || tx.status === "refunded" ? "bg-muted" :
+              "gradient-lock animate-lock-pulse"
+            }`}>
+              {tx.status === "expired" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
+               tx.status === "refunded" ? <Clock className="h-10 w-10 text-muted-foreground" /> :
+               tx.status === "cancelled" ? <AlertTriangle className="h-10 w-10 text-muted-foreground" /> :
+               <Lock className="h-10 w-10 text-lock-foreground" />}
+            </div>
+          )}
+          {isReleased && (
+            <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Released</p>
+          )}
+          <div className={`${isReleased ? "mt-2" : "mt-4"} text-4xl font-bold tabular-nums tracking-tight`}>
+            ${Number(tx.amount).toFixed(2)}
           </div>
-          <div className="mt-4 text-4xl font-bold tabular-nums tracking-tight">${Number(tx.amount).toFixed(2)}</div>
           <p className="mt-1 text-sm text-muted-foreground">
             {isSender ? `To ${tx.recipient_identifier}` : `From ${tx.sender_paypal_email ?? "sender"}`}
           </p>
@@ -213,7 +221,7 @@ export default function UnlockTransaction() {
               <ShieldCheck className="h-3 w-3 text-accent" /> Held securely in escrow
             </p>
           )}
-          <div className="mt-3 flex justify-center"><StatusBadge status={tx.status} /></div>
+          {!isReleased && <div className="mt-3 flex justify-center"><StatusBadge status={tx.status} /></div>}
           {(tx.status === "locked" || tx.status === "awaiting_confirmation") && (
             <div className="mt-3 flex justify-center">
               <Countdown expiresAt={tx.expires_at} label="Auto-refund in" />
@@ -260,8 +268,26 @@ export default function UnlockTransaction() {
         )}
 
         {isReleased && (
-          <div className="mt-6 rounded-3xl bg-accent-soft p-6 text-center">
-            <p className="text-sm font-semibold text-accent-foreground">Funds released to {tx.recipient_identifier}.</p>
+          <div className="mt-6 overflow-hidden rounded-3xl bg-card p-5 shadow-card animate-slide-up">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent-soft">
+                <Sparkles className="h-5 w-5 text-accent-foreground" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Transfer complete</p>
+                <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">
+                  ${Number(tx.amount).toFixed(2)} released to <span className="font-medium text-foreground">{tx.recipient_identifier}</span>. Both parties confirmed — funds are on their way.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
+              <div className="flex items-center gap-1.5 rounded-xl bg-accent-soft px-3 py-2 font-medium text-accent-foreground">
+                <ShieldCheck className="h-3.5 w-3.5" /> Verified escrow
+              </div>
+              <div className="flex items-center gap-1.5 rounded-xl bg-secondary px-3 py-2 font-medium text-foreground/80">
+                <CheckCircle2 className="h-3.5 w-3.5 text-accent" /> Receipt logged
+              </div>
+            </div>
           </div>
         )}
         {tx.status === "refunded" && (

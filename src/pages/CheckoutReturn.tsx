@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Lock, Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, ShieldCheck, Clock, Receipt } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
+import { SuccessMark } from "@/components/SuccessMark";
 
 type State = "polling" | "locked" | "timeout" | "error";
 
@@ -55,22 +56,30 @@ export default function CheckoutReturn() {
         )}
 
         {state === "locked" && (
-          <div className="animate-unlock-burst flex flex-col items-center">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full gradient-lock animate-lock-pulse">
-              <Lock className="h-10 w-10 text-lock-foreground" strokeWidth={2.4} />
-            </div>
-            <h1 className="mt-6 text-2xl font-bold">Locked & on hold</h1>
-            <p className="mt-2 max-w-xs text-sm text-muted-foreground">
-              {amount !== null && <>${amount.toFixed(2)} </>}
-              held in escrow for <span className="font-semibold text-foreground">{recipient}</span>. Share the unlock code to release.
+          <div className="flex w-full max-w-sm flex-col items-center">
+            <SuccessMark tone="lock" size={104} />
+            <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.16em] text-lock">Funds secured</p>
+            <h1 className="mt-2 text-[28px] font-bold tracking-tight">Locked in escrow</h1>
+            {amount !== null && (
+              <div className="mt-3 text-4xl font-bold tabular-nums tracking-tight">
+                ${amount.toFixed(2)}
+              </div>
+            )}
+            <p className="mt-2 max-w-xs text-sm text-muted-foreground text-balance">
+              Held safely for <span className="font-semibold text-foreground">{recipient}</span>. Share the unlock code to release.
             </p>
-            <p className="mt-2 text-xs text-muted-foreground">Auto-refunds in 48h if not unlocked.</p>
 
-            <div className="mt-8 w-full space-y-2 max-w-sm">
-              <Button onClick={() => navigate(`/unlock/${txnId}`)} className="w-full h-14 rounded-2xl text-base font-semibold">
+            <div className="mt-6 w-full space-y-2 rounded-2xl bg-card p-4 shadow-card text-left">
+              <TrustRow icon={ShieldCheck} title="Bank-grade encryption" subtitle="Your card details never touch our servers." />
+              <TrustRow icon={Clock} title="Auto-refund in 48h" subtitle="If unlock isn't completed, you're refunded automatically." />
+              <TrustRow icon={Receipt} title="Receipt sent" subtitle="A confirmation email is on its way." />
+            </div>
+
+            <div className="mt-6 w-full space-y-2">
+              <Button onClick={() => navigate(`/unlock/${txnId}`)} className="w-full h-14 rounded-2xl text-base font-semibold active:scale-[0.98] transition-transform">
                 View transaction
               </Button>
-              <Button variant="outline" onClick={() => navigate("/")} className="w-full h-14 rounded-2xl text-base font-semibold bg-card">
+              <Button variant="outline" onClick={() => navigate("/")} className="w-full h-12 rounded-2xl text-sm font-semibold bg-card">
                 Back home
               </Button>
             </div>
@@ -91,5 +100,19 @@ export default function CheckoutReturn() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+function TrustRow({ icon: Icon, title, subtitle }: { icon: typeof ShieldCheck; title: string; subtitle: string }) {
+  return (
+    <div className="flex items-start gap-3 py-1.5">
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent-soft">
+        <Icon className="h-4 w-4 text-accent-foreground" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold leading-tight">{title}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground leading-snug">{subtitle}</p>
+      </div>
+    </div>
   );
 }
