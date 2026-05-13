@@ -264,8 +264,8 @@ export default function UnlockTransaction() {
         {!finalState && myConfirmed && !otherConfirmed && (
           <div className="mt-6 rounded-3xl bg-accent-soft p-6 text-center">
             <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-accent" />
-            <p className="text-sm font-semibold">You've confirmed. Waiting on the other party.</p>
-            <p className="mt-1 text-xs text-muted-foreground">They'll be notified to enter the code.</p>
+            <p className="text-sm font-semibold">You're confirmed</p>
+            <p className="mt-1 text-xs text-muted-foreground">We've notified the other party. Funds release the moment they enter the same code.</p>
           </div>
         )}
 
