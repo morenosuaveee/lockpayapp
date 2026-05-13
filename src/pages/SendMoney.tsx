@@ -110,7 +110,7 @@ export default function SendMoney() {
         {step === "details" && (
           <div className="mt-6 animate-slide-up">
             <h1 className="text-2xl font-bold">Send money</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Funds stay locked until both of you enter the code.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Funds are held in escrow and only released once you and the recipient both enter the same 4-digit code. Auto-refunded in 48h if not unlocked.</p>
 
             <div className="mt-6 space-y-5 rounded-3xl bg-card p-5 shadow-card">
               <div className="space-y-1.5">
