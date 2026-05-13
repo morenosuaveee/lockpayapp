@@ -230,12 +230,13 @@ export default function AuthPage({ mode }: Props) {
           Add SMS verification for transfer alerts after sign-in.
         </p>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <Link
+          to={isSignup ? "/login" : "/signup"}
+          className="flex h-12 items-center justify-center rounded-2xl bg-card text-sm font-medium text-muted-foreground shadow-card active:scale-[0.98] transition-transform"
+        >
           {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
-          <Link to={isSignup ? "/login" : "/signup"} className="font-semibold text-primary hover:underline">
-            {isSignup ? "Sign in" : "Sign up"}
-          </Link>
-        </p>
+          <span className="ml-1 font-semibold text-primary">{isSignup ? "Sign in" : "Sign up"}</span>
+        </Link>
         <p className="text-center text-[11px] text-muted-foreground">
           Powered by <span className="font-medium">PayPal</span> · Prototype build
         </p>
