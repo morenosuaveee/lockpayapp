@@ -151,7 +151,8 @@ export default function AuthPage({ mode }: Props) {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
+                <Input id="password" type="password" autoComplete={isSignup ? "new-password" : "current-password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
+                {isSignup && <p className="text-[11px] text-muted-foreground">Use at least 6 characters. We hash &amp; encrypt every credential.</p>}
               </div>
               <Button type="submit" className="w-full h-12 rounded-2xl text-base font-semibold" disabled={loading}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
