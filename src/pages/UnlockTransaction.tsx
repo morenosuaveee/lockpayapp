@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Lock, CheckCircle2, Clock, ShieldCheck, AlertTriangle, Loader2 } from "lucide-react";
+import { ArrowLeft, Lock, CheckCircle2, Clock, ShieldCheck, AlertTriangle, Loader2, Sparkles } from "lucide-react";
+import { SuccessMark } from "@/components/SuccessMark";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppShell } from "@/components/layout/AppShell";
