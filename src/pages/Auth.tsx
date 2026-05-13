@@ -117,8 +117,12 @@ export default function AuthPage({ mode }: Props) {
       <div className="pointer-events-none absolute bottom-0 -left-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
 
       <div className="page-enter relative w-full max-w-sm space-y-5">
-        <Link to="/welcome" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-3.5 w-3.5" /> Back
+        <Link
+          to="/welcome"
+          className="-ml-1 inline-flex h-10 items-center gap-1 rounded-full px-3 text-sm font-medium text-muted-foreground active:scale-95 transition-transform"
+          aria-label="Back to welcome"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back
         </Link>
 
         <div className="text-center">
