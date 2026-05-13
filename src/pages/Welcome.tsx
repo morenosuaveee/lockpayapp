@@ -24,25 +24,25 @@ export default function Welcome() {
         </div>
 
         {/* Hero */}
-        <div className="mt-12 animate-slide-up">
+        <div className="mt-8 animate-slide-up">
           <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent-soft px-3 py-1 text-[11px] font-medium text-accent-foreground">
             <Shield className="h-3 w-3" /> Escrow-protected transfers
           </div>
-          <h1 className="mt-5 text-balance text-4xl font-bold leading-tight tracking-tight">
+          <h1 className="mt-4 text-balance text-[34px] font-bold leading-[1.1] tracking-tight">
             Send Securely.
             <br />
             <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
               Release Confidently.
             </span>
           </h1>
-          <p className="mt-4 text-balance text-base leading-relaxed text-muted-foreground">
+          <p className="mt-3 text-balance text-[15px] leading-relaxed text-muted-foreground">
             Every payment is locked with a code only you and your recipient know.
             Funds release the moment you both unlock — never before.
           </p>
         </div>
 
         {/* Feature cards */}
-        <div className="mt-10 space-y-3 animate-slide-up" style={{ animationDelay: "60ms" }}>
+        <div className="mt-6 space-y-2.5 animate-slide-up" style={{ animationDelay: "60ms" }}>
           <Feature
             icon={<KeyRound className="h-5 w-5" />}
             title="Dual-key release"
@@ -63,7 +63,7 @@ export default function Welcome() {
         </div>
 
         {/* Trust strip + CTAs */}
-        <div className="mt-auto pt-10 space-y-3 animate-slide-up" style={{ animationDelay: "120ms" }}>
+        <div className="mt-auto pt-6 space-y-2.5 animate-slide-up" style={{ animationDelay: "120ms" }}>
           <TrustStrip className="mb-2" />
           <Button
             asChild
