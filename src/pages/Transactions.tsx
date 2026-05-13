@@ -47,16 +47,18 @@ export default function Transactions() {
 
   return (
     <AppShell>
-      <div className="px-5 pt-12 pb-4">
-        <h1 className="text-2xl font-bold">Vault</h1>
-        <p className="mt-1 text-sm text-muted-foreground">All your locked & released transfers.</p>
+      <div className="px-5 pt-12 pb-3">
+        <h1 className="text-2xl font-bold tracking-tight">Vault</h1>
+        <p className="mt-1 text-sm text-muted-foreground">All your locked &amp; released transfers.</p>
+      </div>
 
-        <div className="mt-5 flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+      <div className="sticky top-0 z-10 -mt-1 bg-surface/85 px-5 pb-3 pt-2 backdrop-blur-xl">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
           {FILTERS.map((f) => (
             <button key={f.id}
               onClick={() => { setFilter(f.id); setParams(f.id === "all" ? {} : { filter: f.id }); }}
-              className={cn("whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-                filter === f.id ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground border border-border")}>
+              className={cn("whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-semibold transition-all active:scale-95",
+                filter === f.id ? "bg-primary text-primary-foreground shadow-card" : "bg-card text-muted-foreground border border-border")}>
               {f.label}
             </button>
           ))}
@@ -65,11 +67,25 @@ export default function Transactions() {
 
       <div className="px-5">
         {loading ? (
-          <div className="space-y-2">{[1,2,3,4].map((i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-muted" />)}</div>
+          <ul className="space-y-2 stagger">
+            {[1,2,3,4].map((i) => (
+              <li key={i} className="flex items-center gap-3 rounded-2xl bg-card p-4 shadow-card">
+                <div className="h-11 w-11 shrink-0 rounded-xl skeleton-shimmer" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3.5 w-2/3 rounded-full skeleton-shimmer" />
+                  <div className="h-3 w-1/3 rounded-full skeleton-shimmer" />
+                </div>
+              </li>
+            ))}
+          </ul>
         ) : filtered.length === 0 ? (
-          <div className="rounded-3xl bg-card p-10 text-center shadow-card">
-            <Lock className="mx-auto h-8 w-8 text-muted-foreground" />
-            <p className="mt-3 text-sm font-medium">No {filter !== "all" ? filter : ""} transactions</p>
+          <div className="rounded-3xl bg-card p-8 text-center shadow-card animate-slide-up">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft">
+              <Lock className="h-6 w-6 text-accent-foreground" />
+            </div>
+            <p className="text-sm font-semibold">No {filter !== "all" ? filter : ""} transfers yet</p>
+            <p className="mt-1 text-xs text-muted-foreground">Your activity will appear here once you send or receive a payment.</p>
+            <Button asChild className="mt-4 rounded-xl"><Link to="/send"><Plus className="mr-1 h-4 w-4" /> New transfer</Link></Button>
           </div>
         ) : (
           <ul className="space-y-2">
