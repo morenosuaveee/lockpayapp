@@ -166,8 +166,9 @@ export default function SendMoney() {
                   </Button>
                 )}
               </div>
-              <p className="mt-4 text-center text-xs text-muted-foreground">
-                💡 Share this code with the recipient outside the app (text, in person…).
+              <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-accent" />
+                Share this code with the recipient privately — text, in person, anywhere off-app.
               </p>
             </div>
 
