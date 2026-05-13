@@ -233,6 +233,7 @@ body {
 button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
 input, textarea, [contenteditable] { -webkit-user-select: text; user-select: text; }
 .scroll-smooth-native { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+html, body { -webkit-overflow-scrolling: touch; }
 
 /* Native-feel page transition */
 @keyframes page-enter {
