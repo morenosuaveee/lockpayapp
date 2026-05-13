@@ -268,8 +268,26 @@ export default function UnlockTransaction() {
         )}
 
         {isReleased && (
-          <div className="mt-6 rounded-3xl bg-accent-soft p-6 text-center">
-            <p className="text-sm font-semibold text-accent-foreground">Funds released to {tx.recipient_identifier}.</p>
+          <div className="mt-6 overflow-hidden rounded-3xl bg-card p-5 shadow-card animate-slide-up">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent-soft">
+                <Sparkles className="h-5 w-5 text-accent-foreground" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Transfer complete</p>
+                <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">
+                  ${Number(tx.amount).toFixed(2)} released to <span className="font-medium text-foreground">{tx.recipient_identifier}</span>. Both parties confirmed — funds are on their way.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
+              <div className="flex items-center gap-1.5 rounded-xl bg-accent-soft px-3 py-2 font-medium text-accent-foreground">
+                <ShieldCheck className="h-3.5 w-3.5" /> Verified escrow
+              </div>
+              <div className="flex items-center gap-1.5 rounded-xl bg-secondary px-3 py-2 font-medium text-foreground/80">
+                <CheckCircle2 className="h-3.5 w-3.5 text-accent" /> Receipt logged
+              </div>
+            </div>
           </div>
         )}
         {tx.status === "refunded" && (
