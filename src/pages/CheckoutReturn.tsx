@@ -102,3 +102,17 @@ export default function CheckoutReturn() {
     </AppShell>
   );
 }
+
+function TrustRow({ icon: Icon, title, subtitle }: { icon: typeof ShieldCheck; title: string; subtitle: string }) {
+  return (
+    <div className="flex items-start gap-3 py-1.5">
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent-soft">
+        <Icon className="h-4 w-4 text-accent-foreground" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold leading-tight">{title}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground leading-snug">{subtitle}</p>
+      </div>
+    </div>
+  );
+}
