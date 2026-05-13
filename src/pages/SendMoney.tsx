@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, RefreshCw, Sparkles, Copy, Check } from "lucide-react";
+import { ArrowLeft, Lock, RefreshCw, Sparkles, Copy, Check, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
