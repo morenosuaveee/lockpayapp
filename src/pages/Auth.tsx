@@ -117,8 +117,12 @@ export default function AuthPage({ mode }: Props) {
       <div className="pointer-events-none absolute bottom-0 -left-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
 
       <div className="page-enter relative w-full max-w-sm space-y-5">
-        <Link to="/welcome" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-3.5 w-3.5" /> Back
+        <Link
+          to="/welcome"
+          className="-ml-1 inline-flex h-10 items-center gap-1 rounded-full px-3 text-sm font-medium text-muted-foreground active:scale-95 transition-transform"
+          aria-label="Back to welcome"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back
         </Link>
 
         <div className="text-center">
@@ -226,12 +230,13 @@ export default function AuthPage({ mode }: Props) {
           Add SMS verification for transfer alerts after sign-in.
         </p>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <Link
+          to={isSignup ? "/login" : "/signup"}
+          className="flex h-12 items-center justify-center rounded-2xl bg-card text-sm font-medium text-muted-foreground shadow-card active:scale-[0.98] transition-transform"
+        >
           {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
-          <Link to={isSignup ? "/login" : "/signup"} className="font-semibold text-primary hover:underline">
-            {isSignup ? "Sign in" : "Sign up"}
-          </Link>
-        </p>
+          <span className="ml-1 font-semibold text-primary">{isSignup ? "Sign in" : "Sign up"}</span>
+        </Link>
         <p className="text-center text-[11px] text-muted-foreground">
           Powered by <span className="font-medium">PayPal</span> · Prototype build
         </p>

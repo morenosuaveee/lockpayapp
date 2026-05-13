@@ -270,6 +270,12 @@ input, select, textarea { font-size: 16px; }
   input, select, textarea { font-size: inherit; }
 }
 
+/* Keyboard overlap: keep focused fields above sticky CTAs / soft keyboard */
+input:focus, textarea:focus, select:focus, [contenteditable]:focus {
+  scroll-margin-top: 96px;
+  scroll-margin-bottom: 180px;
+}
+
 /* Hide scrollbars in native shell while preserving scroll */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
