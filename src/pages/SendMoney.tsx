@@ -151,7 +151,7 @@ export default function SendMoney() {
         {step === "code" && (
           <div className="mt-6 animate-slide-up">
             <h1 className="text-2xl font-bold">Set unlock code</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Both of you must enter this 4-digit code to release the funds.</p>
+            <p className="mt-1 text-sm text-muted-foreground">A 4-digit code that you and the recipient must both enter to release the funds. Keep it private.</p>
 
             <div className="mt-8 rounded-3xl bg-card p-6 shadow-card">
               <CodeInput value={code} onChange={setCode} masked={false} autoFocus />
