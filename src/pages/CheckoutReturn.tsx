@@ -50,8 +50,8 @@ export default function CheckoutReturn() {
         {state === "polling" && (
           <>
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <h1 className="mt-6 text-2xl font-bold">Confirming payment…</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Locking your funds in escrow.</p>
+            <h1 className="mt-6 text-2xl font-bold">Confirming your payment</h1>
+            <p className="mt-2 max-w-xs text-sm text-muted-foreground text-balance">Securing your funds in escrow. This usually takes just a few seconds — please don't close the app.</p>
           </>
         )}
 
