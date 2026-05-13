@@ -88,10 +88,12 @@ export default function CheckoutReturn() {
 
         {(state === "timeout" || state === "error") && (
           <>
-            <AlertCircle className="h-12 w-12 text-destructive" />
-            <h1 className="mt-6 text-2xl font-bold">Still confirming…</h1>
-            <p className="mt-2 max-w-xs text-sm text-muted-foreground">
-              Your payment may still be processing. Check the transactions tab in a moment.
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary">
+              <AlertCircle className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <h1 className="mt-6 text-2xl font-bold">Taking a little longer</h1>
+            <p className="mt-2 max-w-xs text-sm text-muted-foreground text-balance">
+              Your payment is still processing with our bank partner. You haven't been charged twice — it'll appear in your transactions shortly.
             </p>
             <Button onClick={() => navigate("/transactions")} className="mt-8 w-full max-w-sm h-14 rounded-2xl text-base font-semibold">
               View transactions
