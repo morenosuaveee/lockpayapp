@@ -140,9 +140,11 @@ export default function SendMoney() {
               </div>
             </div>
 
-            <Button onClick={handleNext} className="mt-5 w-full h-14 rounded-2xl text-base font-semibold">
-              Continue
-            </Button>
+            <div className="sticky bottom-[calc(5.5rem+var(--safe-bottom))] z-20 mt-5 -mx-5 px-5 pb-2 pt-3 bg-gradient-to-t from-surface via-surface/95 to-transparent">
+              <Button onClick={handleNext} className="w-full h-14 rounded-2xl text-base font-semibold active:scale-[0.98] transition-transform shadow-elevated">
+                Continue
+              </Button>
+            </div>
           </div>
         )}
 
