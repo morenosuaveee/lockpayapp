@@ -108,7 +108,8 @@ export default function Profile() {
               <Label htmlFor="pp"><Mail className="mr-1 inline h-3.5 w-3.5" />PayPal email</Label>
               <Input id="pp" type="email" value={paypal} onChange={(e) => setPaypal(e.target.value)} className="h-11 rounded-xl" />
             </div>
-            <Button onClick={save} disabled={saving} className="w-full h-12 rounded-xl text-base font-semibold">
+            <Button onClick={save} disabled={saving} className="w-full h-12 rounded-2xl text-base font-semibold active:scale-[0.98] transition-transform">
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {saving ? "Saving…" : "Save changes"}
             </Button>
           </div>
