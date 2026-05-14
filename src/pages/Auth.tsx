@@ -100,13 +100,6 @@ export default function AuthPage({ mode }: Props) {
         if (error) throw error;
       }
       navigate("/");
-        const { error } = await supabase.auth.signInWithPassword({
-          email: parsed.data.email,
-          password: parsed.data.password,
-        });
-        if (error) throw error;
-      }
-      navigate("/");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
     } finally { setLoading(false); }
