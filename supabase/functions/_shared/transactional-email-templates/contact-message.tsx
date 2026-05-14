@@ -58,6 +58,7 @@ const ContactMessageEmail = ({
           <Section style={panel}>
             <Row label="Name" value={name} />
             <Row label="Email" value={email} />
+            <Row label="Topic" value={topicLabel} />
             <Row label="Subject" value={subject} />
           </Section>
 
