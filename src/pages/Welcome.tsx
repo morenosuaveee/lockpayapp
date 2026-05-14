@@ -375,33 +375,49 @@ function Security() {
 /* ------------------------- Trust ------------------------- */
 
 function Trust() {
-  const reviews = [
-    { name: "Maya R.", text: "I sent to the wrong handle once and panicked. Lock Pay caught it before release. Game-changer.", rating: 5 },
-    { name: "Devon K.", text: "Love that the recipient has to verify. Feels safer than every other transfer app I've used.", rating: 5 },
-    { name: "Priya S.", text: "Clean, fast, and the protection layer just makes sense. Use it for every payment now.", rating: 5 },
+  const pillars = [
+    {
+      icon: <ShieldCheck className="h-5 w-5" />,
+      title: "Built on accountability",
+      desc: "Every transfer is tied to a verified sender and recipient — no anonymous payouts.",
+    },
+    {
+      icon: <Lock className="h-5 w-5" />,
+      title: "Funds-protection model",
+      desc: "Money is held under a confirmation layer and only released after the recipient is verified.",
+    },
+    {
+      icon: <BadgeCheck className="h-5 w-5" />,
+      title: "Backed by trusted infrastructure",
+      desc: "Payment processing through Stripe and authentication built on industry-standard providers.",
+    },
   ];
   return (
     <section className="mt-24">
-      <SectionHeader eyebrow="Trusted by senders" title="Confidence, on every transfer." />
+      <SectionHeader eyebrow="Why senders trust Lock Pay" title="Designed around accountability, not assumptions." />
       <div className="mt-8 grid gap-3 md:grid-cols-3">
-        {reviews.map((r) => (
-          <div key={r.name} className="rounded-2xl border border-border/70 bg-card p-5 shadow-card">
-            <div className="flex gap-0.5">
-              {Array.from({ length: r.rating }).map((_, i) => (
-                <Star key={i} className="h-4 w-4 fill-accent text-accent" />
-              ))}
+        {pillars.map((p) => (
+          <div key={p.title} className="rounded-2xl border border-border/70 bg-card p-5 shadow-card">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent-foreground">
+              {p.icon}
             </div>
-            <p className="mt-3 text-sm leading-relaxed text-foreground/90">"{r.text}"</p>
-            <p className="mt-3 text-xs font-semibold text-muted-foreground">{r.name}</p>
+            <p className="mt-4 text-sm font-semibold">{p.title}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
           </div>
         ))}
       </div>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5" /> Encrypted transfers</span>
+        <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5" /> Encrypted in transit</span>
         <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-3.5 w-3.5" /> Verified recipients</span>
-        <span className="inline-flex items-center gap-1.5"><Lock className="h-3.5 w-3.5" /> Protected release</span>
-        <span className="inline-flex items-center gap-1.5"><Fingerprint className="h-3.5 w-3.5" /> Secure auth</span>
+        <span className="inline-flex items-center gap-1.5"><Lock className="h-3.5 w-3.5" /> Confirmation-based release</span>
+        <span className="inline-flex items-center gap-1.5"><Fingerprint className="h-3.5 w-3.5" /> Secure authentication</span>
       </div>
+      <p className="mx-auto mt-6 max-w-2xl text-center text-[11px] leading-relaxed text-muted-foreground/80">
+        Lock Pay is a technology platform that coordinates peer-to-peer payments with a
+        confirmation-based protection layer. Lock Pay is not a bank and does not hold deposits.
+        Funds movement is processed by our payment partners. Availability and protection features
+        may vary by region and account status.
+      </p>
     </section>
   );
 }
