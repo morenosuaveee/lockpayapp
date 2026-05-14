@@ -12,6 +12,7 @@ import UnlockTransaction from "./pages/UnlockTransaction";
 import CheckoutReturn from "./pages/CheckoutReturn";
 import AuthPage from "./pages/Auth";
 import Welcome from "./pages/Welcome";
+import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound.tsx";
 import Unsubscribe from "./pages/Unsubscribe";
 import Privacy from "./pages/Privacy";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/login" element={<AuthPage mode="login" />} />
             <Route path="/signup" element={<AuthPage mode="signup" />} />
+            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/send" element={<ProtectedRoute><SendMoney /></ProtectedRoute>} />
             <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
