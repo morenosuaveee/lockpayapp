@@ -426,11 +426,38 @@ function Trust() {
 
 function Faq() {
   const items = [
-    { q: "How does Lock Pay protect transfers?", a: "Funds are held under a protection layer until the recipient is verified and confirms the transfer. If something looks wrong, the transfer never releases." },
-    { q: "What happens if I send to the wrong person?", a: "Because recipients must be verified before funds release, mistyped or unverified destinations don't complete — your money stays protected." },
-    { q: "How fast are transfers?", a: "Most transfers release instantly after the recipient is verified. Standard transfers may take a few minutes during peak times." },
-    { q: "Are recipients verified?", a: "Yes. Every recipient is matched against verified account data before any funds are released." },
-    { q: "Is Lock Pay secure?", a: "We use 256-bit encryption, secure authentication, and continuous fraud monitoring on every transfer." },
+    {
+      q: "How does Lock Pay protect my transfer?",
+      a: "When you send, your payment is captured by our payment processor and held in a confirmation state instead of releasing immediately. Lock Pay waits until the recipient is matched to a verified account and confirms the transfer. Only then are funds released. If the recipient cannot be verified within the protection window, the transfer is automatically reversed back to your original payment method.",
+    },
+    {
+      q: "What happens if I send to the wrong username, email, or phone?",
+      a: "If the destination doesn't match a verified Lock Pay account, the transfer never releases. You'll see the transfer in a 'awaiting verification' state, and if it isn't claimed and confirmed within 48 hours it's automatically refunded to your original payment method. You can also cancel an unclaimed transfer at any time before it's confirmed.",
+    },
+    {
+      q: "How fast are transfers?",
+      a: "Once both sides are verified and the recipient confirms, the release itself is near-instant. The total time depends on how quickly your recipient opens the app and confirms. Bank or card settlement times after release follow standard processor timelines and may take 1–3 business days to appear in the recipient's external account.",
+    },
+    {
+      q: "Are recipients actually verified?",
+      a: "Yes. Recipients must have a Lock Pay account with a verified phone number and identity details before any funds release to them. Unverified destinations cannot accept a Lock Pay transfer.",
+    },
+    {
+      q: "Is Lock Pay secure?",
+      a: "All traffic is encrypted in transit with TLS 1.2+, sensitive data is encrypted at rest, and authentication uses industry-standard providers with phone-based verification. Card details are tokenized by our PCI-compliant payment processor — Lock Pay never stores raw card numbers. You can review or delete your account at any time from Profile.",
+    },
+    {
+      q: "Is Lock Pay a bank?",
+      a: "No. Lock Pay is a technology platform that coordinates peer-to-peer payments with a confirmation-based protection layer. We do not hold deposits or provide banking services. Funds movement is processed by our regulated payment partners.",
+    },
+    {
+      q: "What are the fees?",
+      a: "Lock Pay charges a small per-transfer service fee that's shown clearly before you confirm any payment. There are no monthly fees, no membership tiers, and no hidden charges. Standard payment-processor fees may also apply depending on your funding source.",
+    },
+    {
+      q: "How do I get help?",
+      a: "Reach our team any time at support@getlockpayapp.com or through the Contact page. We typically respond within one business day.",
+    },
   ];
   return (
     <section id="faq" className="mt-24">
