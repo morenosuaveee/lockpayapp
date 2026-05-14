@@ -8,18 +8,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+
+const TOPICS = [
+  { value: "payments", label: "Payments & transfers" },
+  { value: "onboarding", label: "Account & onboarding" },
+  { value: "security", label: "Security & fraud" },
+  { value: "billing", label: "Billing & fees" },
+  { value: "technical", label: "Technical issue" },
+  { value: "other", label: "Something else" },
+] as const;
+
+const TOPIC_VALUES = TOPICS.map((t) => t.value) as [string, ...string[]];
 
 const schema = z.object({
   name: z.string().trim().min(1, "Please enter your name").max(100),
   email: z.string().trim().email("Please enter a valid email").max(255),
+  topic: z.enum(TOPIC_VALUES, { errorMap: () => ({ message: "Please choose a topic" }) }),
   subject: z.string().trim().min(1, "Please add a subject").max(150),
   message: z.string().trim().min(1, "Please write a message").max(2000),
 });
 
 export default function Contact() {
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", topic: "", subject: "", message: "" });
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -44,7 +59,7 @@ export default function Contact() {
       if (error) throw error;
       if (data && (data as any).error) throw new Error((data as any).error);
       setSent(true);
-      setForm({ name: "", email: "", subject: "", message: "" });
+      setForm({ name: "", email: "", topic: "", subject: "", message: "" });
     } catch (err) {
       console.error("Contact form send failed", err);
       toast.error("We couldn't send your message. Please email us directly.");
@@ -122,6 +137,22 @@ export default function Contact() {
             <div className="space-y-1.5">
               <Label htmlFor="email">Email address</Label>
               <Input id="email" type="email" autoComplete="email" value={form.email} onChange={update("email")} placeholder="you@example.com" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="topic">Support topic</Label>
+              <Select
+                value={form.topic}
+                onValueChange={(v) => setForm((f) => ({ ...f, topic: v }))}
+              >
+                <SelectTrigger id="topic" className="h-12 rounded-xl">
+                  <SelectValue placeholder="Choose a topic" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TOPICS.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="subject">Subject</Label>

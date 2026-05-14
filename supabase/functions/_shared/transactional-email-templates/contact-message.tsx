@@ -15,16 +15,28 @@ const TEXT_DIM = '#9ca3af'
 interface ContactMessageProps {
   name?: string
   email?: string
+  topic?: string
   subject?: string
   message?: string
+}
+
+const TOPIC_LABELS: Record<string, string> = {
+  payments: 'Payments & transfers',
+  onboarding: 'Account & onboarding',
+  security: 'Security & fraud',
+  billing: 'Billing & fees',
+  technical: 'Technical issue',
+  other: 'Something else',
 }
 
 const ContactMessageEmail = ({
   name = 'Anonymous',
   email = 'unknown',
+  topic = 'other',
   subject = '(no subject)',
   message = '',
 }: ContactMessageProps) => {
+  const topicLabel = TOPIC_LABELS[topic] || topic
   return (
     <Html lang="en" dir="ltr">
       <Head />
@@ -46,6 +58,7 @@ const ContactMessageEmail = ({
           <Section style={panel}>
             <Row label="Name" value={name} />
             <Row label="Email" value={email} />
+            <Row label="Topic" value={topicLabel} />
             <Row label="Subject" value={subject} />
           </Section>
 
@@ -76,12 +89,16 @@ const Row = ({ label, value }: { label: string; value: string }) => (
 export const template = {
   component: ContactMessageEmail,
   to: 'support@getlockpayapp.com',
-  subject: (d: Record<string, any>) =>
-    `[Lock Pay Contact] ${(d.subject || '(no subject)').toString().slice(0, 120)}`,
+  subject: (d: Record<string, any>) => {
+    const topic = TOPIC_LABELS[d.topic] || 'General'
+    const subj = (d.subject || '(no subject)').toString().slice(0, 120)
+    return `[Lock Pay · ${topic}] ${subj}`
+  },
   displayName: 'Contact form message',
   previewData: {
     name: 'Jane Doe',
     email: 'jane@example.com',
+    topic: 'payments',
     subject: 'Question about my transfer',
     message: 'Hi, I have a question about a recent payment...',
   },
