@@ -15,16 +15,28 @@ const TEXT_DIM = '#9ca3af'
 interface ContactMessageProps {
   name?: string
   email?: string
+  topic?: string
   subject?: string
   message?: string
+}
+
+const TOPIC_LABELS: Record<string, string> = {
+  payments: 'Payments & transfers',
+  onboarding: 'Account & onboarding',
+  security: 'Security & fraud',
+  billing: 'Billing & fees',
+  technical: 'Technical issue',
+  other: 'Something else',
 }
 
 const ContactMessageEmail = ({
   name = 'Anonymous',
   email = 'unknown',
+  topic = 'other',
   subject = '(no subject)',
   message = '',
 }: ContactMessageProps) => {
+  const topicLabel = TOPIC_LABELS[topic] || topic
   return (
     <Html lang="en" dir="ltr">
       <Head />
