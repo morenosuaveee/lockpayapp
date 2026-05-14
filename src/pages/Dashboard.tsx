@@ -30,10 +30,17 @@ export default function Dashboard() {
     let mounted = true;
     (async () => {
       const [{ data: prof }, { data: list }] = await Promise.all([
-        supabase.from("profiles").select("display_name,paypal_email").eq("id", user.id).maybeSingle(),
+        supabase.from("profiles").select("display_name,paypal_email,phone_verified_at").eq("id", user.id).maybeSingle(),
         supabase.from("transactions").select("*").order("created_at", { ascending: false }).limit(8),
       ]);
       if (!mounted) return;
+      const onboarded =
+        localStorage.getItem(`lp_onboarded_${user.id}`) === "1" ||
+        !!(prof as { phone_verified_at?: string | null } | null)?.phone_verified_at;
+      if (!onboarded) {
+        navigate("/onboarding", { replace: true });
+        return;
+      }
       setProfile(prof);
       setTxs((list as Tx[]) ?? []);
       setLoading(false);
@@ -46,7 +53,7 @@ export default function Dashboard() {
       })
       .subscribe();
     return () => { mounted = false; supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user, navigate]);
 
   const lockedAmount = txs.filter((t) => t.status === "locked" || t.status === "awaiting_confirmation")
     .filter((t) => t.sender_id === user?.id).reduce((s, t) => s + Number(t.amount), 0);
