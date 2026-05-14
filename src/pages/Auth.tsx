@@ -90,7 +90,16 @@ export default function AuthPage({ mode }: Props) {
         });
         if (error) throw error;
         toast.success("Account created — welcome to LockPay");
+        navigate("/onboarding");
+        return;
       } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: parsed.data.email,
+          password: parsed.data.password,
+        });
+        if (error) throw error;
+      }
+      navigate("/");
         const { error } = await supabase.auth.signInWithPassword({
           email: parsed.data.email,
           password: parsed.data.password,
