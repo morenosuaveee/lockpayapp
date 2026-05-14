@@ -137,7 +137,7 @@ export default function Profile() {
             </div>
             <div className="mt-2 flex items-center gap-2 rounded-2xl border border-dashed border-border p-3 text-xs text-muted-foreground">
               <Sparkles className="h-4 w-4 text-accent" />
-              More providers (Venmo, bank) coming soon.
+              Additional payment providers are added regularly.
             </div>
           </div>
 
