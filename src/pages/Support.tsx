@@ -5,16 +5,20 @@ import { LegalFooter, SUPPORT_EMAIL } from "@/components/layout/LegalFooter";
 
 const FAQS = [
   {
-    q: "How do conditional transfers work?",
-    a: "A sender locks funds against an agreement. The funds release to the recipient only when both parties confirm the agreed condition has been met.",
+    q: "How do secure transfers work?",
+    a: "Enter your recipient's phone or email. We verify their identity, then hold the funds safely until you both enter a shared 4-digit release code — so money always reaches the right person.",
   },
   {
-    q: "What happens if the agreement isn't completed?",
-    a: "If the agreement expires without both parties confirming release, funds are returned to the sender, minus non-refundable processing fees.",
+    q: "How does recipient verification protect me?",
+    a: "Before any funds move, we confirm the recipient matches a verified LockPay account. This prevents typos, mismatched accounts, and fraudulent payment requests.",
   },
   {
-    q: "Is LockPay a betting or gambling app?",
-    a: "No. LockPay is a peer accountability and conditional payment platform. It does not facilitate gambling, wagering, or games of chance.",
+    q: "What if the transfer isn't completed?",
+    a: "If the release code isn't entered within the window, funds are returned to the sender, minus non-refundable processing fees.",
+  },
+  {
+    q: "Will I receive SMS messages?",
+    a: "Yes — for verification codes, transfer status, and security alerts. Message & data rates may apply. Reply STOP at any time to unsubscribe.",
   },
   {
     q: "How do I delete my account?",

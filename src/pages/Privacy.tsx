@@ -5,8 +5,9 @@ export default function Privacy() {
   return (
     <LegalPage title="Privacy Policy" updated="May 12, 2026">
       <p>
-        LockPay ("we", "us") provides a peer accountability and conditional payment platform. This
-        policy explains what information we collect, how we use it, and the choices you have.
+        LockPay ("we", "us") provides a secure peer-to-peer money transfer platform focused on
+        recipient verification and intentional payments. This policy explains what information we
+        collect, how we use it, and the choices you have.
       </p>
 
       <h2>Information we collect</h2>
@@ -36,6 +37,15 @@ export default function Privacy() {
         You may request deletion of your account and personal data at any time from
         Profile → Delete Account. We process deletion requests within 7 days, subject to
         regulatory retention requirements for completed financial transactions.
+      </p>
+
+      <h2>SMS communications</h2>
+      <p>
+        By providing your phone number, you agree to receive transactional and account-related SMS
+        messages from LockPay (verification codes, transfer status, security alerts). Message &amp;
+        data rates may apply. Message frequency varies by your activity. Reply STOP to unsubscribe at
+        any time, or HELP for assistance. We do not share your phone number with third parties for
+        marketing.
       </p>
 
       <h2>Security</h2>
