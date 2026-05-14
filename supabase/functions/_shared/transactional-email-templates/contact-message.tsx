@@ -89,12 +89,16 @@ const Row = ({ label, value }: { label: string; value: string }) => (
 export const template = {
   component: ContactMessageEmail,
   to: 'support@getlockpayapp.com',
-  subject: (d: Record<string, any>) =>
-    `[Lock Pay Contact] ${(d.subject || '(no subject)').toString().slice(0, 120)}`,
+  subject: (d: Record<string, any>) => {
+    const topic = TOPIC_LABELS[d.topic] || 'General'
+    const subj = (d.subject || '(no subject)').toString().slice(0, 120)
+    return `[Lock Pay · ${topic}] ${subj}`
+  },
   displayName: 'Contact form message',
   previewData: {
     name: 'Jane Doe',
     email: 'jane@example.com',
+    topic: 'payments',
     subject: 'Question about my transfer',
     message: 'Hi, I have a question about a recent payment...',
   },
