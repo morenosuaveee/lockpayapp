@@ -136,7 +136,11 @@ export default function Contact() {
               disabled={submitting}
               className="h-12 w-full rounded-2xl text-sm font-semibold gradient-primary text-primary-foreground shadow-elevated active:scale-[0.98]"
             >
-              <Send className="mr-2 h-4 w-4" /> Send message
+              {submitting ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending…</>
+              ) : (
+                <><Send className="mr-2 h-4 w-4" /> Send message</>
+              )}
             </Button>
             <p className="text-center text-[11px] text-muted-foreground">
               Our support team typically responds within 24–48 business hours.
