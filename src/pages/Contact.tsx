@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, Mail, Globe, Send, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, Mail, Globe, Send, CheckCircle2, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { AppShell } from "@/components/layout/AppShell";
 import { LegalFooter, SUPPORT_EMAIL } from "@/components/layout/LegalFooter";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Please enter your name").max(100),
@@ -25,7 +26,7 @@ export default function Contact() {
   const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = schema.safeParse(form);
     if (!result.success) {
@@ -33,15 +34,23 @@ export default function Contact() {
       return;
     }
     setSubmitting(true);
-    const subject = encodeURIComponent(`[Lock Pay Support] ${result.data.subject}`);
-    const body = encodeURIComponent(
-      `Name: ${result.data.name}\nEmail: ${result.data.email}\n\n${result.data.message}`
-    );
-    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "contact-message",
+          templateData: result.data,
+        },
+      });
+      if (error) throw error;
+      if (data && (data as any).error) throw new Error((data as any).error);
       setSent(true);
+      setForm({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      console.error("Contact form send failed", err);
+      toast.error("We couldn't send your message. Please email us directly.");
+    } finally {
       setSubmitting(false);
-    }, 600);
+    }
   };
 
   return (
