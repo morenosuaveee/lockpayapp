@@ -100,11 +100,18 @@ export default function Contact() {
         {sent ? (
           <div className="mt-8 rounded-2xl border border-border bg-card p-5 text-center shadow-card">
             <CheckCircle2 className="mx-auto h-10 w-10 text-accent" />
-            <p className="mt-3 text-sm font-semibold">Message ready to send</p>
+            <p className="mt-3 text-sm font-semibold">Message sent</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Your email app should open with your message prefilled. Our support team typically
-              responds within 24–48 business hours.
+              Thanks for reaching out. Our support team typically responds within 24–48 business hours
+              to <span className="font-medium text-foreground">{SUPPORT_EMAIL}</span>.
             </p>
+            <Button
+              variant="outline"
+              onClick={() => setSent(false)}
+              className="mt-4 h-10 rounded-xl text-sm"
+            >
+              Send another message
+            </Button>
           </div>
         ) : (
           <form onSubmit={onSubmit} className="mt-8 space-y-4">
