@@ -139,6 +139,22 @@ export default function Contact() {
               <Input id="email" type="email" autoComplete="email" value={form.email} onChange={update("email")} placeholder="you@example.com" />
             </div>
             <div className="space-y-1.5">
+              <Label htmlFor="topic">Support topic</Label>
+              <Select
+                value={form.topic}
+                onValueChange={(v) => setForm((f) => ({ ...f, topic: v }))}
+              >
+                <SelectTrigger id="topic" className="h-12 rounded-xl">
+                  <SelectValue placeholder="Choose a topic" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TOPICS.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
               <Label htmlFor="subject">Subject</Label>
               <Input id="subject" value={form.subject} onChange={update("subject")} placeholder="How can we help?" />
             </div>
