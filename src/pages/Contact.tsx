@@ -59,7 +59,7 @@ export default function Contact() {
       if (error) throw error;
       if (data && (data as any).error) throw new Error((data as any).error);
       setSent(true);
-      setForm({ name: "", email: "", subject: "", message: "" });
+      setForm({ name: "", email: "", topic: "", subject: "", message: "" });
     } catch (err) {
       console.error("Contact form send failed", err);
       toast.error("We couldn't send your message. Please email us directly.");
