@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, Mail, Globe, Send, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, Mail, Globe, Send, CheckCircle2, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { AppShell } from "@/components/layout/AppShell";
 import { LegalFooter, SUPPORT_EMAIL } from "@/components/layout/LegalFooter";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Please enter your name").max(100),
@@ -25,7 +26,7 @@ export default function Contact() {
   const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = schema.safeParse(form);
     if (!result.success) {
@@ -33,15 +34,23 @@ export default function Contact() {
       return;
     }
     setSubmitting(true);
-    const subject = encodeURIComponent(`[Lock Pay Support] ${result.data.subject}`);
-    const body = encodeURIComponent(
-      `Name: ${result.data.name}\nEmail: ${result.data.email}\n\n${result.data.message}`
-    );
-    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "contact-message",
+          templateData: result.data,
+        },
+      });
+      if (error) throw error;
+      if (data && (data as any).error) throw new Error((data as any).error);
       setSent(true);
+      setForm({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      console.error("Contact form send failed", err);
+      toast.error("We couldn't send your message. Please email us directly.");
+    } finally {
       setSubmitting(false);
-    }, 600);
+    }
   };
 
   return (
@@ -91,11 +100,18 @@ export default function Contact() {
         {sent ? (
           <div className="mt-8 rounded-2xl border border-border bg-card p-5 text-center shadow-card">
             <CheckCircle2 className="mx-auto h-10 w-10 text-accent" />
-            <p className="mt-3 text-sm font-semibold">Message ready to send</p>
+            <p className="mt-3 text-sm font-semibold">Message sent</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Your email app should open with your message prefilled. Our support team typically
-              responds within 24–48 business hours.
+              Thanks for reaching out. Our support team typically responds within 24–48 business hours
+              to <span className="font-medium text-foreground">{SUPPORT_EMAIL}</span>.
             </p>
+            <Button
+              variant="outline"
+              onClick={() => setSent(false)}
+              className="mt-4 h-10 rounded-xl text-sm"
+            >
+              Send another message
+            </Button>
           </div>
         ) : (
           <form onSubmit={onSubmit} className="mt-8 space-y-4">
@@ -120,7 +136,11 @@ export default function Contact() {
               disabled={submitting}
               className="h-12 w-full rounded-2xl text-sm font-semibold gradient-primary text-primary-foreground shadow-elevated active:scale-[0.98]"
             >
-              <Send className="mr-2 h-4 w-4" /> Send message
+              {submitting ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending…</>
+              ) : (
+                <><Send className="mr-2 h-4 w-4" /> Send message</>
+              )}
             </Button>
             <p className="text-center text-[11px] text-muted-foreground">
               Our support team typically responds within 24–48 business hours.
