@@ -8,18 +8,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+
+const TOPICS = [
+  { value: "payments", label: "Payments & transfers" },
+  { value: "onboarding", label: "Account & onboarding" },
+  { value: "security", label: "Security & fraud" },
+  { value: "billing", label: "Billing & fees" },
+  { value: "technical", label: "Technical issue" },
+  { value: "other", label: "Something else" },
+] as const;
+
+const TOPIC_VALUES = TOPICS.map((t) => t.value) as [string, ...string[]];
 
 const schema = z.object({
   name: z.string().trim().min(1, "Please enter your name").max(100),
   email: z.string().trim().email("Please enter a valid email").max(255),
+  topic: z.enum(TOPIC_VALUES, { errorMap: () => ({ message: "Please choose a topic" }) }),
   subject: z.string().trim().min(1, "Please add a subject").max(150),
   message: z.string().trim().min(1, "Please write a message").max(2000),
 });
 
 export default function Contact() {
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", topic: "", subject: "", message: "" });
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
