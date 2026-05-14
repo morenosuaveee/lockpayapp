@@ -62,7 +62,7 @@ export function PushNotificationsCard() {
         </span>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Get alerts when funds lock, codes are needed, or transfers are released. Native iOS & Android push coming soon.
+        Get alerts the moment funds lock, codes are needed, or payments are released.
       </p>
 
       {!granted && perm !== "unsupported" && (
