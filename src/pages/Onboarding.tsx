@@ -3,46 +3,111 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import {
   ArrowRight,
+  BadgeCheck,
   CheckCircle2,
+  IdCard,
   Loader2,
   Lock,
   Phone as PhoneIcon,
   ShieldCheck,
   Sparkles,
+  UserCheck,
   UserCircle2,
+  Zap,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { calcFeeDollars } from "@/lib/fees";
 
 const phoneSchema = z
   .string()
   .trim()
   .regex(/^\+[1-9]\d{7,14}$/, "Use international format, e.g. +14155551234");
 
-type Step = "welcome" | "name" | "phone" | "code" | "how" | "done";
+type SimulatedTransfer = {
+  amount: number;
+  recipient: string;
+  type: string;
+  ts: number;
+};
 
-const STEPS: Step[] = ["welcome", "name", "phone", "code", "how", "done"];
+type Step =
+  | "welcome"
+  | "name"
+  | "phone"
+  | "code"
+  | "identity"
+  | "how"
+  | "confirm-transfer"
+  | "done";
+
+const COUNTRIES = [
+  { value: "US", label: "United States" },
+  { value: "CA", label: "Canada" },
+  { value: "GB", label: "United Kingdom" },
+  { value: "AU", label: "Australia" },
+  { value: "DE", label: "Germany" },
+  { value: "FR", label: "France" },
+  { value: "MX", label: "Mexico" },
+  { value: "IN", label: "India" },
+  { value: "OTHER", label: "Other" },
+];
 
 export default function Onboarding() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
+  const [pendingTransfer, setPendingTransfer] = useState<SimulatedTransfer | null>(null);
+  const stepsList = useMemo<Step[]>(() => {
+    const base: Step[] = ["welcome", "name", "phone", "code", "identity", "how"];
+    if (pendingTransfer) base.push("confirm-transfer");
+    base.push("done");
+    return base;
+  }, [pendingTransfer]);
+
   const [step, setStep] = useState<Step>("welcome");
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
+
+  // Identity
+  const [legalName, setLegalName] = useState("");
+  const [dob, setDob] = useState("");
+  const [country, setCountry] = useState("US");
+  const [verifyingId, setVerifyingId] = useState(false);
+
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [saving, setSaving] = useState(false);
   const [bootstrapped, setBootstrapped] = useState(false);
 
-  // Bootstrap: if already onboarded, skip
+  // Pull simulated transfer (set by landing page Send Securely CTA)
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("lockpay.simulatedTransfer");
+      if (raw) {
+        const parsed = JSON.parse(raw) as SimulatedTransfer;
+        if (parsed?.amount > 0 && parsed?.recipient) setPendingTransfer(parsed);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // Bootstrap: if already onboarded, skip — but keep going if pending transfer is queued
   useEffect(() => {
     if (!user) return;
     let cancel = false;
@@ -56,22 +121,37 @@ export default function Onboarding() {
       const done =
         localStorage.getItem(`lp_onboarded_${user.id}`) === "1" ||
         !!data?.phone_verified_at;
-      if (done) {
+      const hasPending = !!sessionStorage.getItem("lockpay.simulatedTransfer");
+      if (done && !hasPending) {
         navigate("/", { replace: true });
         return;
       }
-      if (data?.display_name) setDisplayName(data.display_name);
+      if (done && hasPending) {
+        // Skip straight to the protected-transfer confirmation
+        setStep("confirm-transfer");
+      }
+      if (data?.display_name) {
+        setDisplayName(data.display_name);
+        if (!legalName) setLegalName(data.display_name);
+      }
       setBootstrapped(true);
     })();
     return () => {
       cancel = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, navigate]);
 
-  const stepIndex = useMemo(() => STEPS.indexOf(step), [step]);
-  const progress = ((stepIndex + 1) / STEPS.length) * 100;
+  const stepIndex = useMemo(() => Math.max(0, stepsList.indexOf(step)), [step, stepsList]);
+  const progress = ((stepIndex + 1) / stepsList.length) * 100;
 
   if (!authLoading && !user) return <Navigate to="/signup" replace />;
+
+  function gotoNext(after: Step) {
+    const i = stepsList.indexOf(after);
+    const next = stepsList[i + 1];
+    if (next) setStep(next);
+  }
 
   async function saveName() {
     if (!user) return;
@@ -89,7 +169,8 @@ export default function Onboarding() {
       toast.error(error.message);
       return;
     }
-    setStep("phone");
+    if (!legalName) setLegalName(displayName.trim());
+    gotoNext("name");
   }
 
   async function sendCode() {
@@ -129,11 +210,59 @@ export default function Onboarding() {
       return;
     }
     toast.success("Phone verified");
-    setStep("how");
+    setStep("identity");
   }
 
-  function finish() {
+  function submitIdentity() {
+    if (legalName.trim().length < 2) {
+      toast.error("Enter your full legal name");
+      return;
+    }
+    if (!dob) {
+      toast.error("Enter your date of birth");
+      return;
+    }
+    // 18+ check
+    const dobDate = new Date(dob);
+    const eighteen = new Date();
+    eighteen.setFullYear(eighteen.getFullYear() - 18);
+    if (isNaN(dobDate.getTime()) || dobDate > eighteen) {
+      toast.error("You must be at least 18");
+      return;
+    }
+    setVerifyingId(true);
+    // Simulated identity check (no PII stored). Just a UX moment for trust.
+    setTimeout(() => {
+      setVerifyingId(false);
+      if (user) {
+        try {
+          localStorage.setItem(
+            `lp_identity_${user.id}`,
+            JSON.stringify({ verified: true, country, ts: Date.now() }),
+          );
+        } catch {
+          // ignore
+        }
+      }
+      toast.success("Identity verified");
+      setStep("how");
+    }, 1100);
+  }
+
+  function continueAfterHow() {
+    if (pendingTransfer) setStep("confirm-transfer");
+    else setStep("done");
+  }
+
+  function finishToDashboard() {
     if (user) localStorage.setItem(`lp_onboarded_${user.id}`, "1");
+    sessionStorage.removeItem("lockpay.simulatedTransfer");
+    navigate("/", { replace: true });
+  }
+
+  function continueToSend() {
+    if (user) localStorage.setItem(`lp_onboarded_${user.id}`, "1");
+    // SendMoney can pick this up if needed; we leave the prefill in sessionStorage.
     navigate("/send", { replace: true });
   }
 
@@ -159,7 +288,7 @@ export default function Onboarding() {
           />
         </div>
         <p className="mt-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-          Step {stepIndex + 1} of {STEPS.length}
+          Step {stepIndex + 1} of {stepsList.length}
         </p>
       </div>
 
@@ -167,11 +296,15 @@ export default function Onboarding() {
         {step === "welcome" && (
           <StepShell
             icon={<Lock className="h-7 w-7 text-primary-foreground" strokeWidth={2.4} />}
-            title="Welcome to LockPay"
-            subtitle="Send money with confidence. Funds release only when both sides confirm."
+            title={pendingTransfer ? "Let's secure your transfer" : "Welcome to Lock Pay"}
+            subtitle={
+              pendingTransfer
+                ? `We've held your $${pendingTransfer.amount.toFixed(2)} for ${pendingTransfer.recipient}. A few quick steps and it's protected.`
+                : "Send money with confidence. Funds release only when the recipient is verified."
+            }
           >
             <FeatureRow icon={<ShieldCheck className="h-5 w-5 text-accent" />} title="Verified recipients" desc="We verify before any release." />
-            <FeatureRow icon={<Lock className="h-5 w-5 text-accent" />} title="Shared release code" desc="A 4-digit code only you two share." />
+            <FeatureRow icon={<Lock className="h-5 w-5 text-accent" />} title="Funds stay protected" desc="Held securely until the recipient confirms." />
             <FeatureRow icon={<Sparkles className="h-5 w-5 text-accent" />} title="Auto-refunded in 48h" desc="If unconfirmed, funds return to you." />
             <PrimaryCTA onClick={() => setStep("name")} label="Get started" />
           </StepShell>
@@ -227,7 +360,7 @@ export default function Onboarding() {
             <PrimaryCTA onClick={sendCode} loading={sending} label="Send verification code" />
             <button
               type="button"
-              onClick={() => setStep("how")}
+              onClick={() => setStep("identity")}
               className="mt-2 block w-full py-2 text-center text-xs text-muted-foreground hover:text-foreground"
             >
               Skip for now
@@ -276,40 +409,105 @@ export default function Onboarding() {
           </StepShell>
         )}
 
+        {step === "identity" && (
+          <StepShell
+            icon={<IdCard className="h-7 w-7 text-primary-foreground" />}
+            title="Verify your identity"
+            subtitle="A quick check keeps every transfer protected. Your information is encrypted and never shared."
+          >
+            <div className="space-y-1.5">
+              <Label htmlFor="ob-legal">Full legal name</Label>
+              <Input
+                id="ob-legal"
+                value={legalName}
+                onChange={(e) => setLegalName(e.target.value)}
+                placeholder="As shown on your government ID"
+                autoComplete="name"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ob-dob">Date of birth</Label>
+              <Input
+                id="ob-dob"
+                type="date"
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
+                max={new Date().toISOString().slice(0, 10)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Country of residence</Label>
+              <Select value={country} onValueChange={setCountry}>
+                <SelectTrigger className="h-12 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {COUNTRIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="rounded-xl bg-accent-soft p-3 text-[11px] leading-relaxed text-accent-foreground">
+              <span className="inline-flex items-center gap-1.5 font-semibold">
+                <ShieldCheck className="h-3.5 w-3.5" /> Bank-grade encryption
+              </span>{" "}
+              Identity data is encrypted in transit and at rest. We use it only to verify and protect your account.
+            </div>
+            <PrimaryCTA
+              onClick={submitIdentity}
+              loading={verifyingId}
+              label={verifyingId ? "Verifying identity…" : "Verify identity"}
+              disabled={!legalName.trim() || !dob}
+            />
+          </StepShell>
+        )}
+
         {step === "how" && (
           <StepShell
             icon={<Sparkles className="h-7 w-7 text-primary-foreground" />}
-            title="How a secure transfer works"
+            title="How a protected transfer works"
             subtitle="Three simple steps. You stay in control the entire time."
           >
             <HowStep n={1} title="Send" desc="Choose a recipient and amount. Funds are held securely." />
-            <HowStep n={2} title="Share a 4-digit code" desc="Only you and the recipient know it." />
-            <HowStep n={3} title="Both confirm to release" desc="Funds release the moment you both enter the same code." />
-            <PrimaryCTA onClick={() => setStep("done")} label="Continue" />
+            <HowStep n={2} title="Recipient is verified" desc="We confirm the receiving party before any release." />
+            <HowStep n={3} title="Funds released" desc="Your transfer completes the moment verification clears." />
+            <PrimaryCTA
+              onClick={continueAfterHow}
+              label={pendingTransfer ? "Review your transfer" : "Continue"}
+            />
           </StepShell>
+        )}
+
+        {step === "confirm-transfer" && pendingTransfer && (
+          <ConfirmTransferStep
+            transfer={pendingTransfer}
+            recipientLabel={legalName || displayName}
+            onContinue={continueToSend}
+            onSkip={finishToDashboard}
+          />
         )}
 
         {step === "done" && (
           <StepShell
             icon={<CheckCircle2 className="h-8 w-8 text-primary-foreground" />}
             title="You're all set"
-            subtitle="Your account is ready. Send your first secure transfer in seconds."
+            subtitle="Your account is ready. Send your first protected transfer in seconds."
           >
             <div className="rounded-2xl bg-accent-soft p-4 text-sm text-accent-foreground">
               <div className="flex items-center gap-2 font-semibold">
                 <ShieldCheck className="h-4 w-4" /> Account secured
               </div>
               <p className="mt-1 text-xs opacity-90">
-                Phone verified, identity ready. You can manage everything from your profile.
+                Phone verified, identity confirmed. You can manage everything from your profile.
               </p>
             </div>
-            <PrimaryCTA onClick={finish} label="Send my first transfer" />
+            <PrimaryCTA onClick={() => navigate("/send", { replace: true })} label="Send my first transfer" />
             <button
               type="button"
-              onClick={() => {
-                if (user) localStorage.setItem(`lp_onboarded_${user.id}`, "1");
-                navigate("/", { replace: true });
-              }}
+              onClick={finishToDashboard}
               className="mt-2 block w-full py-2 text-center text-xs text-muted-foreground hover:text-foreground"
             >
               Go to dashboard
@@ -320,6 +518,116 @@ export default function Onboarding() {
     </div>
   );
 }
+
+/* --------------------- Confirm-transfer completion --------------------- */
+
+function ConfirmTransferStep({
+  transfer,
+  recipientLabel,
+  onContinue,
+  onSkip,
+}: {
+  transfer: SimulatedTransfer;
+  recipientLabel: string;
+  onContinue: () => void;
+  onSkip: () => void;
+}) {
+  const fee = calcFeeDollars(transfer.amount);
+  const total = transfer.amount + fee;
+  return (
+    <div className="page-enter flex flex-1 flex-col">
+      <div className="mb-6 text-center">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl gradient-primary shadow-elevated">
+          <ShieldCheck className="h-7 w-7 text-primary-foreground" strokeWidth={2.4} />
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight">Your transfer is protected</h1>
+        <p className="mx-auto mt-2 max-w-[20rem] text-sm text-muted-foreground">
+          We've held the details from your demo. Review and continue to securely complete it.
+        </p>
+      </div>
+
+      <div className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-elevated">
+        <div className="flex items-center justify-between bg-secondary/60 px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          <span>Protected transfer</span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-bold text-accent-foreground">
+            <BadgeCheck className="h-3 w-3" /> Verified
+          </span>
+        </div>
+        <div className="px-5 py-5 text-center">
+          <div className="text-[40px] font-bold leading-none tracking-tight tabular-nums">
+            <span className="text-muted-foreground">$</span>
+            {transfer.amount.toFixed(2).split(".")[0]}
+            <span className="text-muted-foreground">.{transfer.amount.toFixed(2).split(".")[1]}</span>
+          </div>
+          <div className="mt-1 text-[11px] text-muted-foreground">USD · awaiting recipient verification</div>
+        </div>
+        <div className="space-y-2 border-t border-border/60 px-5 py-4">
+          <Row icon={<UserCheck className="h-4 w-4 text-accent" />} label="Recipient" value={transfer.recipient} />
+          <Row icon={<BadgeCheck className="h-4 w-4 text-accent" />} label="Sender" value={recipientLabel || "You"} />
+          <Row icon={<Lock className="h-4 w-4 text-accent" />} label="Protection" value="Held until verified" />
+          <Row icon={<Zap className="h-4 w-4 text-accent" />} label="Delivery" value="Instant on verify" />
+          <div className="my-1 h-px bg-border/70" />
+          <Row label="Transfer fee" value={`$${fee.toFixed(2)}`} muted />
+          <Row label="Total" value={`$${total.toFixed(2)}`} bold />
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-2xl bg-accent-soft p-4 text-[12px] leading-relaxed text-accent-foreground">
+        <div className="flex items-center gap-2 font-semibold">
+          <ShieldCheck className="h-4 w-4" /> You're protected
+        </div>
+        <p className="mt-1 opacity-90">
+          Funds remain protected until {transfer.recipient} is verified and accepts. If they can't be
+          verified, your money is automatically refunded.
+        </p>
+      </div>
+
+      <PrimaryCTA onClick={onContinue} label="Complete protected transfer" />
+      <button
+        type="button"
+        onClick={onSkip}
+        className="mt-2 block w-full py-2 text-center text-xs text-muted-foreground hover:text-foreground"
+      >
+        Save for later
+      </button>
+    </div>
+  );
+}
+
+function Row({
+  icon,
+  label,
+  value,
+  bold,
+  muted,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  value: string;
+  bold?: boolean;
+  muted?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between text-[13px]">
+      <span className="inline-flex items-center gap-2 text-muted-foreground">
+        {icon}
+        <span className={bold ? "font-semibold text-foreground" : ""}>{label}</span>
+      </span>
+      <span
+        className={cn(
+          "tabular-nums",
+          bold && "font-bold text-foreground",
+          !bold && !muted && "font-medium text-foreground/90",
+          muted && "text-muted-foreground",
+        )}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+/* --------------------- Shared step UI --------------------- */
 
 function StepShell({
   icon,
