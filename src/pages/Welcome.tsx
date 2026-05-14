@@ -12,7 +12,7 @@ import {
   Zap,
   Fingerprint,
   EyeOff,
-  Star,
+  
   ChevronDown,
   LifeBuoy,
   Mail,
