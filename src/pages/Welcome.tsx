@@ -164,14 +164,12 @@ function PhoneMock() {
             </div>
             <div className="mt-5 rounded-2xl glass p-5">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Code</div>
-              <div className="mt-2 flex items-center gap-2 font-mono text-3xl font-bold tracking-[0.3em] tabular-nums">
-                <span>847</span>
-                <span className="text-muted-foreground/40">·</span>
-                <span>291</span>
+              <div className="mt-2 text-center text-[48px] font-bold tracking-[0.08em] text-foreground tabular-nums">
+                4821
               </div>
               <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                 <Clock className="h-3.5 w-3.5" />
-                Expires in 9:47
+                Code expires in 10:00
               </div>
             </div>
             <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/[0.08] bg-card p-4">
@@ -180,7 +178,7 @@ function PhoneMock() {
                 <div className="text-sm font-semibold">Sarah K.</div>
               </div>
               <span className="rounded-full bg-primary/15 px-3 py-1 text-[11px] font-medium text-primary">
-                Awaiting Confirmation
+                Pending Verification
               </span>
             </div>
             <div className="mt-4 flex items-center justify-between text-sm">
