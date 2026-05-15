@@ -12,8 +12,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { haptic } from "@/lib/native";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import type { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 type Status = Database["public"]["Enums"]["transaction_status"];
 interface Tx {
@@ -121,8 +123,24 @@ export default function Transactions() {
     return true;
   });
 
+  const { pull, refreshing } = usePullToRefresh(fetchTxs);
+
   return (
     <AppShell>
+      {/* Pull-to-refresh indicator */}
+      <div
+        aria-hidden
+        className="pointer-events-none flex items-center justify-center overflow-hidden transition-[height] duration-150"
+        style={{ height: refreshing ? 44 : pull }}
+      >
+        <Loader2
+          className={cn(
+            "h-5 w-5 text-muted-foreground transition-transform",
+            refreshing ? "animate-spin" : ""
+          )}
+          style={{ transform: refreshing ? undefined : `rotate(${pull * 4}deg)`, opacity: Math.min(1, pull / 60) }}
+        />
+      </div>
       <div className="px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-3">
         <h1 className="text-2xl font-bold tracking-tight">Activity</h1>
         <p className="mt-1 text-sm text-muted-foreground">All your transfers — pending, locked, and completed.</p>

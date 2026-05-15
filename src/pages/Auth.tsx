@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { Lock, Mail, ArrowLeft, Phone as PhoneIcon, ShieldCheck, Loader2 } from "lucide-react";
+import { Lock, Mail, ArrowLeft, Phone as PhoneIcon, ShieldCheck, Loader2, Apple } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/contexts/AuthContext";
@@ -156,6 +156,14 @@ export default function AuthPage({ mode }: Props) {
     navigate("/");
   }
 
+  async function handleApple() {
+    setLoading(true);
+    const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: window.location.origin });
+    if (result.error) { toast.error(result.error.message ?? "Apple sign-in failed"); setLoading(false); return; }
+    if (result.redirected) return;
+    navigate("/");
+  }
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-background to-secondary/60 px-6 pt-safe pb-8">
       <div className="pointer-events-none absolute -top-32 -right-20 h-72 w-72 rounded-full bg-accent/15 blur-3xl" />
@@ -225,6 +233,16 @@ export default function AuthPage({ mode }: Props) {
                 <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
                 <div className="relative flex justify-center"><span className="bg-card px-2 text-xs text-muted-foreground">or</span></div>
               </div>
+
+              <Button
+                type="button"
+                className="w-full h-12 rounded-2xl bg-black text-white hover:bg-black/90"
+                onClick={handleApple}
+                disabled={loading}
+              >
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Apple className="mr-2 h-4 w-4 fill-white" />}
+                Continue with Apple
+              </Button>
 
               <Button type="button" variant="outline" className="w-full h-12 rounded-2xl" onClick={handleGoogle} disabled={loading}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (
