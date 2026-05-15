@@ -24,6 +24,7 @@ import Compliance from "./pages/Compliance";
 import HowItWorks from "./pages/HowItWorks";
 import SmsPolicy from "./pages/SmsPolicy";
 import DeleteAccount from "./pages/DeleteAccount";
+import Claim from "./pages/Claim";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/compliance" element={<Compliance />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/sms-policy" element={<SmsPolicy />} />
+            <Route path="/claim/:token" element={<Claim />} />
             <Route path="/delete-account" element={<ProtectedRoute><DeleteAccount /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

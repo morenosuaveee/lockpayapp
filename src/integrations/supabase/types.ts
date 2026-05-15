@@ -259,16 +259,20 @@ export type Database = {
       transactions: {
         Row: {
           amount: number
+          claim_token: string | null
           created_at: string
           currency: string
           expires_at: string
           fee_amount: number
           id: string
+          invite_sent_at: string | null
           max_attempts: number
           note: string | null
           provider: Database["public"]["Enums"]["payment_provider"]
           receiver_attempts: number
           receiver_confirmed: boolean
+          recipient_channel: string | null
+          recipient_confirmed_at: string | null
           recipient_id: string | null
           recipient_identifier: string
           released_at: string | null
@@ -284,16 +288,20 @@ export type Database = {
         }
         Insert: {
           amount: number
+          claim_token?: string | null
           created_at?: string
           currency?: string
           expires_at?: string
           fee_amount?: number
           id?: string
+          invite_sent_at?: string | null
           max_attempts?: number
           note?: string | null
           provider?: Database["public"]["Enums"]["payment_provider"]
           receiver_attempts?: number
           receiver_confirmed?: boolean
+          recipient_channel?: string | null
+          recipient_confirmed_at?: string | null
           recipient_id?: string | null
           recipient_identifier: string
           released_at?: string | null
@@ -309,16 +317,20 @@ export type Database = {
         }
         Update: {
           amount?: number
+          claim_token?: string | null
           created_at?: string
           currency?: string
           expires_at?: string
           fee_amount?: number
           id?: string
+          invite_sent_at?: string | null
           max_attempts?: number
           note?: string | null
           provider?: Database["public"]["Enums"]["payment_provider"]
           receiver_attempts?: number
           receiver_confirmed?: boolean
+          recipient_channel?: string | null
+          recipient_confirmed_at?: string | null
           recipient_id?: string | null
           recipient_identifier?: string
           released_at?: string | null
@@ -374,6 +386,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_lookup: {
+        Args: { _token: string }
+        Returns: {
+          amount: number
+          currency: string
+          expires_at: string
+          fee_amount: number
+          id: string
+          invite_sent_at: string
+          note: string
+          recipient_channel: string
+          recipient_confirmed_at: string
+          recipient_identifier: string
+          sender_display_name: string
+          status: Database["public"]["Enums"]["transaction_status"]
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -386,6 +415,44 @@ export type Database = {
       is_txn_party: {
         Args: { _txn: Database["public"]["Tables"]["transactions"]["Row"] }
         Returns: boolean
+      }
+      mark_invite_pending_payment: {
+        Args: { _txn_id: string }
+        Returns: {
+          amount: number
+          claim_token: string | null
+          created_at: string
+          currency: string
+          expires_at: string
+          fee_amount: number
+          id: string
+          invite_sent_at: string | null
+          max_attempts: number
+          note: string | null
+          provider: Database["public"]["Enums"]["payment_provider"]
+          receiver_attempts: number
+          receiver_confirmed: boolean
+          recipient_channel: string | null
+          recipient_confirmed_at: string | null
+          recipient_id: string | null
+          recipient_identifier: string
+          released_at: string | null
+          sender_attempts: number
+          sender_confirmed: boolean
+          sender_id: string
+          sender_paypal_email: string | null
+          status: Database["public"]["Enums"]["transaction_status"]
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          unlock_code_hash: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       move_to_dlq: {
         Args: {
@@ -404,20 +471,62 @@ export type Database = {
           read_ct: number
         }[]
       }
-      unlock_transaction: {
-        Args: { _txn_id: string }
+      recipient_confirm_claim: {
+        Args: { _code_hash: string; _token: string }
         Returns: {
           amount: number
+          claim_token: string | null
           created_at: string
           currency: string
           expires_at: string
           fee_amount: number
           id: string
+          invite_sent_at: string | null
           max_attempts: number
           note: string | null
           provider: Database["public"]["Enums"]["payment_provider"]
           receiver_attempts: number
           receiver_confirmed: boolean
+          recipient_channel: string | null
+          recipient_confirmed_at: string | null
+          recipient_id: string | null
+          recipient_identifier: string
+          released_at: string | null
+          sender_attempts: number
+          sender_confirmed: boolean
+          sender_id: string
+          sender_paypal_email: string | null
+          status: Database["public"]["Enums"]["transaction_status"]
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          unlock_code_hash: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      unlock_transaction: {
+        Args: { _txn_id: string }
+        Returns: {
+          amount: number
+          claim_token: string | null
+          created_at: string
+          currency: string
+          expires_at: string
+          fee_amount: number
+          id: string
+          invite_sent_at: string | null
+          max_attempts: number
+          note: string | null
+          provider: Database["public"]["Enums"]["payment_provider"]
+          receiver_attempts: number
+          receiver_confirmed: boolean
+          recipient_channel: string | null
+          recipient_confirmed_at: string | null
           recipient_id: string | null
           recipient_identifier: string
           released_at: string | null
@@ -451,6 +560,9 @@ export type Database = {
         | "pending"
         | "unlocked"
         | "refunded"
+        | "pending_invite"
+        | "awaiting_recipient"
+        | "recipient_confirmed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -589,6 +701,9 @@ export const Constants = {
         "pending",
         "unlocked",
         "refunded",
+        "pending_invite",
+        "awaiting_recipient",
+        "recipient_confirmed",
       ],
     },
   },
