@@ -23,6 +23,8 @@ import Security from "./pages/Security";
 import Compliance from "./pages/Compliance";
 import SmsPolicy from "./pages/SmsPolicy";
 import DeleteAccount from "./pages/DeleteAccount";
+import GetStarted from "./pages/GetStarted";
+import HowItWorks from "./pages/HowItWorks";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +36,8 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/welcome" element={<Welcome />} />
+            <Route path="/get-started" element={<GetStarted />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/login" element={<AuthPage mode="login" />} />
             <Route path="/signup" element={<AuthPage mode="signup" />} />
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
