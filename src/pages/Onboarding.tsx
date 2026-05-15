@@ -247,7 +247,7 @@ export default function Onboarding() {
         }
       }
       toast.success("Identity verified");
-      setStep("how");
+      setShowVerified("identity");
     }, 1100);
   }
 
@@ -278,6 +278,26 @@ export default function Onboarding() {
 
   return (
     <div className="relative flex min-h-screen flex-col bg-gradient-to-b from-background to-secondary/60 pt-safe">
+      {showVerified === "phone" && (
+        <VerifiedSuccess
+          title="Phone verified"
+          subtitle="Your account is secured. One quick identity step and you're transfer-ready."
+          onDone={() => {
+            setShowVerified(null);
+            setStep("identity");
+          }}
+        />
+      )}
+      {showVerified === "identity" && (
+        <VerifiedSuccess
+          title="You're verified"
+          subtitle="Your account is secured. Transfers are now protected by LockPay."
+          onDone={() => {
+            setShowVerified(null);
+            setStep("how");
+          }}
+        />
+      )}
       <div className="pointer-events-none absolute -top-32 -right-20 h-72 w-72 rounded-full bg-accent/15 blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 -left-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
 
