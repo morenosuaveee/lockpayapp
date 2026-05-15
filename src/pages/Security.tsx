@@ -3,25 +3,25 @@ import { LegalPage } from "@/components/layout/LegalPage";
 import { SUPPORT_EMAIL } from "@/components/layout/LegalFooter";
 
 const PILLARS = [
-  { icon: BadgeCheck, title: "Recipient verification", desc: "Every payee must be matched to a verified Lock Pay account before any funds release. Unverified destinations cannot accept a transfer." },
-  { icon: Lock, title: "Encryption everywhere", desc: "Traffic is encrypted in transit with TLS 1.2+ and sensitive data is encrypted at rest. Card details are tokenized by our PCI-compliant processor — Lock Pay never stores raw card numbers." },
-  { icon: EyeOff, title: "Fraud prevention", desc: "Behavioral and velocity signals flag risky transfers in real time. We may delay, hold, or reverse a transaction to protect users." },
+  { icon: BadgeCheck, title: "Recipient verification", desc: "Every payee must be matched to a verified Lock Pay account before a transfer is initiated. Unverified destinations cannot receive a Lock Pay transfer." },
+  { icon: Lock, title: "Encryption everywhere", desc: "Traffic is encrypted in transit with TLS 1.2+ and sensitive data is encrypted at rest. Card details are tokenized by our PCI-compliant payment processor — Lock Pay never stores raw card numbers." },
+  { icon: EyeOff, title: "Mistake prevention", desc: "Identity confirmation is required before a transfer is initiated, designed to help reduce mistaken transfers and impersonation attempts." },
   { icon: Fingerprint, title: "Account protection", desc: "Phone-verified accounts, device-bound sessions, and biometric unlock options keep account access tightly scoped to you." },
   { icon: KeyRound, title: "Secure authentication", desc: "Authentication runs on industry-standard providers with one-time codes and session rotation, with optional Apple and Google sign-in." },
-  { icon: Activity, title: "Transaction monitoring", desc: "Every transfer flows through risk checks — anomalous patterns trigger additional verification before release." },
+  { icon: Activity, title: "Activity monitoring", desc: "Account and transfer activity is monitored for anomalous patterns and may require additional verification." },
 ];
 
 export default function Security() {
   return (
     <LegalPage
       title="Security"
-      subtitle="Security is built into every transfer."
+      subtitle="Verification and encryption are built into every transfer."
       updated="May 15, 2026"
     >
       <p>
-        Lock Pay coordinates peer-to-peer payments with a confirmation-based protection layer.
-        Funds remain protected until the recipient is verified and accepts the transfer — so money
-        only reaches the right person.
+        Lock Pay is a secure transfer coordination platform. Recipient identity is confirmed
+        before a transfer is initiated, and every transfer is logged with a clear audit trail —
+        designed to help reduce mistaken transfers.
       </p>
 
       <div className="not-prose mt-6 grid gap-3 sm:grid-cols-2">
@@ -38,9 +38,10 @@ export default function Security() {
 
       <h2>Infrastructure</h2>
       <p>
-        Payment processing is performed by Stripe, a PCI-DSS Level 1 certified provider. Identity,
-        SMS verification, and notifications are delivered through industry-standard providers under
-        contract to protect your data.
+        Payment movement is performed by Stripe, an independent PCI-DSS Level 1 certified payment
+        processor. Identity, SMS verification, and notifications are delivered through
+        industry-standard providers under contract to protect your data. Lock Pay does not hold
+        customer funds.
       </p>
 
       <div className="not-prose mt-3 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
@@ -50,19 +51,19 @@ export default function Security() {
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card px-3 py-1"><BadgeCheck className="h-3.5 w-3.5" /> Verified recipients</span>
       </div>
 
-      <h2>Reporting a security issue</h2>
+      <h2>Reporting suspicious activity or vulnerabilities</h2>
       <p>
-        If you believe you've found a vulnerability, please email{" "}
-        <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> with details and steps to reproduce.
-        We respond to legitimate reports within one business day and will keep you updated as we
-        investigate.
+        If you notice suspicious activity on your account or believe you've found a vulnerability,
+        please email <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> with details. We
+        respond to legitimate reports within one business day.
       </p>
 
       <h2>What we will never do</h2>
       <ul>
         <li>Ask for your password, full card number, or one-time code over SMS, email, or phone.</li>
-        <li>Ask you to move funds to a different account "for safekeeping."</li>
+        <li>Ask you to move money to a different account "for safekeeping."</li>
         <li>Request remote access to your device.</li>
+        <li>Promise insurance, guarantees, or any custodial holding of your funds — Lock Pay does not offer these.</li>
       </ul>
       <p>
         If anyone contacts you claiming to be Lock Pay and asks for these things, do not respond —

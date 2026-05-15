@@ -4,18 +4,26 @@ import { SUPPORT_EMAIL } from "@/components/layout/LegalFooter";
 export default function Compliance() {
   return (
     <LegalPage title="Compliance & Legal" updated="May 15, 2026">
+      <h2>What Lock Pay is</h2>
       <p>
-        Lock Pay is a technology platform that coordinates peer-to-peer payments with a
-        confirmation-based protection layer. Lock Pay is not a bank, broker-dealer, money
-        transmitter, or escrow agent in any jurisdiction where licensure would be required for such
-        activity. Payment movement is performed by our regulated payment partners.
+        Lock Pay is a technology platform for secure transfer coordination and recipient
+        verification. Lock Pay helps users confirm a recipient's identity before initiating a
+        peer-to-peer transfer through an independent third-party payment processor.
+      </p>
+
+      <h2>What Lock Pay is not</h2>
+      <p>
+        Lock Pay is <strong>not</strong> a bank, broker-dealer, money transmitter, escrow agent,
+        custodian, or insured financial institution. Lock Pay does not hold customer funds, accept
+        deposits, lend money, or provide banking, custody, or escrow services. Payment movement is
+        performed exclusively by independent third-party payment processors.
       </p>
 
       <h2>Anti-fraud commitments</h2>
       <ul>
-        <li>Every transfer is tied to a verified sender and recipient — no anonymous payouts.</li>
-        <li>We monitor for fraud, account takeover, chargeback abuse, and coercive confirmations.</li>
-        <li>We may delay, hold, reverse, or refund a transaction to protect users or comply with law.</li>
+        <li>Every transfer is tied to a verified sender and recipient — no anonymous transfers.</li>
+        <li>We monitor for fraud, account takeover, and abuse of the verification system.</li>
+        <li>We may delay, decline, or cancel a transfer to protect users or comply with law.</li>
         <li>We cooperate with lawful requests from regulators and law enforcement.</li>
       </ul>
 
@@ -23,15 +31,16 @@ export default function Compliance() {
       <p>
         Accounts must be opened by a real person, age 18 or older, with a verified phone number and
         accurate identifying information. We may require additional verification at our discretion
-        before releasing funds, especially for higher-value or higher-risk transfers.
+        before a transfer can be initiated, especially for higher-value or higher-risk activity.
       </p>
 
-      <h2>Transaction protection</h2>
+      <h2>Transfer workflow</h2>
       <p>
-        Funds are captured by our payment processor and held in a confirmation state until the
-        recipient is verified and accepts the transfer. If verification or acceptance does not occur
-        within the protection window, the transfer is automatically reversed to the sender's
-        original payment method.
+        When a transfer is initiated, Lock Pay first verifies the recipient's identity and asks
+        them to confirm in-app. Payment movement itself is performed by an independent third-party
+        payment processor under that processor's terms. If the recipient is not verified or does
+        not confirm within the configured window, the transfer request is cancelled and any
+        pending charge is reversed by the processor according to its standard timelines.
       </p>
 
       <h2>Restricted activities</h2>
@@ -41,34 +50,34 @@ export default function Compliance() {
         <li>Cryptocurrency exchange or trading.</li>
         <li>Illegal goods or services, money laundering, or sanctions evasion.</li>
         <li>Adult content, weapons, or any activity prohibited by our payment processor.</li>
-        <li>Coercive, deceptive, or non-consensual payment requests.</li>
+        <li>Coercive, deceptive, or non-consensual transfer requests.</li>
       </ul>
 
       <h2>Sanctions and geographic availability</h2>
       <p>
-        Lock Pay screens accounts and transactions against sanctions and watchlists maintained by
+        Lock Pay screens accounts and activity against sanctions and watchlists maintained by
         authorities including OFAC. Availability of features may vary by region and account status.
       </p>
 
       <h2>Data and record retention</h2>
       <p>
-        We retain account and transaction records for as long as required to meet financial-services,
-        tax, and anti-money-laundering obligations. See our <a href="/privacy">Privacy Policy</a> for
-        full details.
+        We retain account and transfer records for as long as required to meet applicable legal,
+        tax, and anti-money-laundering obligations. See our <a href="/privacy">Privacy Policy</a>{" "}
+        for full details.
       </p>
 
-      <h2>Consumer protection</h2>
+      <h2>Consumer dispute support</h2>
       <p>
-        Lock Pay supports the dispute and chargeback rights provided by your payment method. If you
-        believe a transaction was unauthorized, contact us immediately at{" "}
+        Lock Pay supports the dispute and chargeback rights provided by your payment method. If
+        you believe a transfer was unauthorized, contact us at{" "}
         <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> and notify your card issuer or bank.
       </p>
 
       <h2>Regulatory contact</h2>
       <p>
-        Regulators, payment partners, and law-enforcement personnel can reach our compliance team at{" "}
-        <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. Please include your jurisdiction and
-        the nature of the request.
+        Regulators, payment partners, and law-enforcement personnel can reach our compliance team
+        at <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. Please include your jurisdiction
+        and the nature of the request.
       </p>
     </LegalPage>
   );
