@@ -19,6 +19,8 @@ export function LegalFooter({ className = "" }: { className?: string }) {
         <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
         <Link to="/compliance" className="hover:text-foreground">Compliance</Link>
         <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+        <Link to="/how-it-works" className="hover:text-foreground">How it works</Link>
+        <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
         <Link to="/support" className="hover:text-foreground">Support</Link>
         <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
         <Link to="/contact" className="hover:text-foreground">Contact</Link>
