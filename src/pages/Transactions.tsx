@@ -50,13 +50,53 @@ export default function Transactions() {
   const [filter, setFilter] = useState<FilterId>(initial);
   const [txs, setTxs] = useState<Tx[]>([]);
   const [loading, setLoading] = useState(true);
+  // Track per-row state for animated insertion + status-change pulse.
+  const prevStatusRef = useRef<Map<string, Status>>(new Map());
+  const seenIdsRef = useRef<Set<string>>(new Set());
+  const [pulsedIds, setPulsedIds] = useState<Set<string>>(new Set());
+  const [freshIds, setFreshIds] = useState<Set<string>>(new Set());
 
   const fetchTxs = useCallback(async () => {
     const { data } = await supabase
       .from("transactions")
       .select("id,sender_id,recipient_id,amount,status,recipient_identifier,recipient_channel,created_at,sender_paypal_email")
       .order("created_at", { ascending: false });
-    setTxs((data as Tx[]) ?? []);
+    const next = (data as Tx[]) ?? [];
+
+    const newlyInserted: string[] = [];
+    const statusChanged: string[] = [];
+    for (const tx of next) {
+      if (!seenIdsRef.current.has(tx.id)) {
+        if (seenIdsRef.current.size > 0) newlyInserted.push(tx.id);
+        seenIdsRef.current.add(tx.id);
+      }
+      const prev = prevStatusRef.current.get(tx.id);
+      if (prev && prev !== tx.status) statusChanged.push(tx.id);
+      prevStatusRef.current.set(tx.id, tx.status);
+    }
+    setTxs(next);
+
+    if (statusChanged.length) {
+      haptic("light");
+      setPulsedIds((s) => new Set([...s, ...statusChanged]));
+      setTimeout(() => {
+        setPulsedIds((s) => {
+          const n = new Set(s);
+          statusChanged.forEach((id) => n.delete(id));
+          return n;
+        });
+      }, 1500);
+    }
+    if (newlyInserted.length) {
+      setFreshIds((s) => new Set([...s, ...newlyInserted]));
+      setTimeout(() => {
+        setFreshIds((s) => {
+          const n = new Set(s);
+          newlyInserted.forEach((id) => n.delete(id));
+          return n;
+        });
+      }, 600);
+    }
     setLoading(false);
   }, []);
 
