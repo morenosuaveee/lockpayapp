@@ -15,11 +15,15 @@ export function LegalFooter({ className = "" }: { className?: string }) {
         <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
         <Link to="/terms" className="hover:text-foreground">Terms of Service</Link>
         <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+        <Link to="/security" className="hover:text-foreground">Security</Link>
+        <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+        <Link to="/compliance" className="hover:text-foreground">Compliance</Link>
+        <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+        <Link to="/support" className="hover:text-foreground">Support</Link>
+        <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
         <Link to="/contact" className="hover:text-foreground">Contact</Link>
         <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
         <Link to="/sms-policy" className="hover:text-foreground">SMS Policy</Link>
-        <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
-        <Link to="/support" className="hover:text-foreground">Support</Link>
       </nav>
       <p className="mt-4 text-center text-[10.5px] leading-relaxed text-muted-foreground/85">
         <span className="font-semibold text-foreground/80">SMS notice.</span>{" "}
