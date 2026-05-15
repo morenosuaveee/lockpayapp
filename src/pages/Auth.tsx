@@ -184,7 +184,7 @@ export default function AuthPage({ mode }: Props) {
           </div>
           <h1 className="text-3xl font-bold tracking-tight">LockPay</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isSignup ? "Create your secure transfer account" : "Welcome back"}
+            {isSignup ? "Smarter. Safer. Verified." : "Welcome back"}
           </p>
         </div>
 

@@ -15,28 +15,28 @@ import { Button } from "@/components/ui/button";
 const STEPS = [
   {
     icon: UserCheck,
-    title: "Recipient verification",
-    desc: "Before any transfer is initiated, we confirm the recipient's identity through phone-based verification and account checks. Anonymous transfers are never allowed.",
+    title: "Enter recipient details",
+    desc: "Add a username, email, or phone. We'll match it to a verified LockPay account so you know exactly who you're paying.",
   },
   {
     icon: ShieldCheck,
-    title: "Secure transfer coordination",
-    desc: "Lock Pay coordinates the transfer between sender and recipient. Payment movement itself is performed by an independent, PCI-DSS compliant third-party processor.",
+    title: "Recipient verifies identity",
+    desc: "The recipient confirms their identity in-app before any payment is initiated. No identity, no payment.",
   },
   {
     icon: KeyRound,
-    title: "Confirmation code",
-    desc: "The recipient receives a unique confirmation code in-app and must approve the transfer to continue. This ensures only the intended person can complete it.",
+    title: "Shared 4-digit verification code",
+    desc: "A unique verification code is shared between both parties. Both must confirm in-app for the payment to proceed.",
   },
   {
     icon: CheckCircle2,
-    title: "Transfer approval",
-    desc: "Once both sender and recipient are verified and the recipient confirms, the transfer is approved and processed by our payment partner. You receive a real-time receipt.",
+    title: "Payment completed securely",
+    desc: "Once both sides confirm, the payment is completed through our PCI-DSS compliant processing partner with an instant receipt.",
   },
   {
     icon: Clock,
     title: "Auto-cancel window",
-    desc: "If the recipient doesn't confirm within 48 hours, the transfer request is automatically cancelled and any pending charge is reversed by the processor.",
+    desc: "If the recipient doesn't confirm within 48 hours, the request is automatically cancelled and any pending charge is reversed.",
   },
 ];
 
@@ -56,11 +56,11 @@ export default function HowItWorks() {
             How it works
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight">
-            Verified transfers, one secure step at a time
+            Smarter. Safer. Verified.
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Lock Pay is a transfer coordination and recipient verification platform. Every transfer
-            is confirmed by both sides before it is processed.
+            LockPay helps confirm recipients before payment is completed. Every payment is
+            confirmed by both sides — calmly, clearly, and securely.
           </p>
         </div>
 
@@ -100,7 +100,7 @@ export default function HowItWorks() {
         <div className="mt-6">
           <Link to="/signup">
             <Button className="h-12 w-full rounded-2xl text-sm font-semibold gradient-primary text-primary-foreground shadow-elevated active:scale-[0.98]">
-              <Send className="mr-2 h-4 w-4" /> Start a verified transfer
+              <Send className="mr-2 h-4 w-4" /> Get Started
             </Button>
           </Link>
           <Link to="/security" className="mt-3 block text-center text-xs text-muted-foreground hover:text-foreground">
