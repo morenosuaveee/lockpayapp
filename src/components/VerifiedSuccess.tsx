@@ -18,7 +18,7 @@ interface Props {
  */
 export function VerifiedSuccess({
   title = "You're verified",
-  subtitle = "Your account is secured. Transfers are now protected by LockPay.",
+  subtitle = "Your account is secured. Pay with confidence on LockPay.",
   onDone,
   delayMs = 1600,
 }: Props) {

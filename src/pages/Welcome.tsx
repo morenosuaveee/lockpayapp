@@ -103,18 +103,17 @@ function Hero() {
     <section className="grid gap-10 pt-10 sm:pt-16 md:grid-cols-2 md:gap-12 md:pt-20">
       <div className="animate-slide-up">
         <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent-soft px-3 py-1 text-[11px] font-semibold text-accent-foreground">
-          <ShieldCheck className="h-3 w-3" /> Identity-confirmed transfer coordination
+          <ShieldCheck className="h-3 w-3" /> Verified payment experience
         </div>
         <h1 className="mt-5 text-balance text-[40px] sm:text-[52px] font-bold leading-[1.02] tracking-tight">
-          Verify before you{" "}
+          Smarter. Safer.{" "}
           <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-            send
+            Verified
           </span>
           .
         </h1>
         <p className="mt-4 text-balance text-[16px] sm:text-[17px] leading-relaxed text-muted-foreground max-w-lg">
-          Lock Pay is a secure transfer coordination app. We verify the recipient's identity
-          before a transfer is initiated — designed to help reduce mistaken transfers.
+          LockPay helps confirm recipients before payment is completed.
         </p>
 
         <div className="mt-6 hidden md:flex items-center gap-3">
@@ -123,12 +122,12 @@ function Hero() {
             size="lg"
             className="h-12 rounded-2xl px-6 text-sm font-semibold gradient-primary text-primary-foreground shadow-elevated hover:opacity-95"
           >
-            <a href="#simulator">
-              Send money <ArrowRight className="ml-1 h-4 w-4" />
-            </a>
+            <Link to="/signup">
+              Get Started <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="h-12 rounded-2xl px-6 text-sm font-semibold">
-            <Link to="/signup">Create account</Link>
+            <a href="#how">How It Works</a>
           </Button>
         </div>
 
@@ -473,14 +472,14 @@ function Row({
 
 function HowItWorks() {
   const steps = [
-    { n: 1, title: "Enter recipient details", desc: "Send to a username, email, or phone — we'll match it to a verified Lock Pay account.", icon: <Send className="h-5 w-5" /> },
-    { n: 2, title: "Recipient is verified", desc: "Lock Pay confirms the receiving party's identity before a transfer is initiated.", icon: <UserCheck className="h-5 w-5" /> },
-    { n: 3, title: "Recipient confirms", desc: "The recipient acknowledges and confirms the transfer in-app.", icon: <Lock className="h-5 w-5" /> },
-    { n: 4, title: "Transfer completes", desc: "Both parties get an instant in-app receipt with full transfer history.", icon: <CheckCircle2 className="h-5 w-5" /> },
+    { n: 1, title: "Enter recipient details", desc: "Add a username, email, or phone — we'll match it to a verified LockPay account.", icon: <Send className="h-5 w-5" /> },
+    { n: 2, title: "Recipient verifies identity", desc: "The recipient confirms who they are before any payment is initiated.", icon: <UserCheck className="h-5 w-5" /> },
+    { n: 3, title: "Shared 4-digit verification code", desc: "Both sides confirm the same code in-app. No code, no payment.", icon: <Lock className="h-5 w-5" /> },
+    { n: 4, title: "Payment completed securely", desc: "Once both parties confirm, the payment is completed with an instant receipt.", icon: <CheckCircle2 className="h-5 w-5" /> },
   ];
   return (
     <section id="how" className="mt-24">
-      <SectionHeader eyebrow="How it works" title="Four steps to a verified transfer." />
+      <SectionHeader eyebrow="How it works" title="Four calm steps to a confident payment." />
       <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map((s) => (
           <div key={s.n} className="relative rounded-2xl border border-border/70 bg-card p-5 shadow-card transition hover:shadow-elevated">
@@ -682,10 +681,10 @@ function FinalCta() {
             <Sparkles className="h-3 w-3" /> Ready when you are
           </div>
           <h3 className="mt-4 text-3xl sm:text-4xl font-bold tracking-tight">
-            Send your first verified transfer in under a minute.
+            Pay with confidence in under a minute.
           </h3>
           <p className="mt-3 text-sm sm:text-base text-primary-foreground/80">
-            Verify your phone, add a recipient, and send with confidence.
+            Verify your phone, confirm a recipient, and complete payment securely.
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button asChild size="lg" className="rounded-2xl bg-accent text-accent-foreground hover:bg-accent/90">
@@ -714,9 +713,9 @@ function StickyMobileCta() {
         asChild
         className="h-12 w-full rounded-2xl text-sm font-semibold gradient-primary text-primary-foreground shadow-elevated"
       >
-        <a href="#simulator">
-          Send money <ArrowRight className="ml-1 h-4 w-4" />
-        </a>
+        <Link to="/signup">
+          Get Started <ArrowRight className="ml-1 h-4 w-4" />
+        </Link>
       </Button>
     </div>
   );

@@ -54,11 +54,11 @@ function buildSteps(tx: TimelineTx): Step[] {
       label: "Payment ready",
       icon: Lock,
       state: done(paid),
-      hint: recipientConfirmed && !paid ? "Complete payment to release funds" : undefined,
+      hint: recipientConfirmed && !paid ? "Complete payment securely" : undefined,
     },
     {
       key: "released",
-      label: "Transfer completed",
+      label: "Payment completed",
       icon: ShieldCheck,
       state: done(released),
       ts: tx.released_at,

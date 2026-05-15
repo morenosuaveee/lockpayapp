@@ -189,13 +189,13 @@ export default function UnlockTransaction() {
           recipientAccount: tx.recipient_identifier,
           amount: Number(tx.amount),
         });
-        toast.success("Funds released! 🎉");
+        toast.success("Payment completed securely");
         const targets = [tx.sender_id, tx.recipient_id ?? user!.id].filter(Boolean) as string[];
         supabase.functions.invoke("send-push", {
           body: {
             user_ids: targets,
-            title: "Payment unlocked 🔓",
-            body: `$${Number(tx.amount).toFixed(2)} has been released to ${tx.recipient_identifier}.`,
+            title: "Payment completed",
+            body: `$${Number(tx.amount).toFixed(2)} has been sent to ${tx.recipient_identifier}.`,
             data: { transactionId: tx.id, type: "payment_unlocked" },
           },
         }).catch(() => {});
@@ -231,7 +231,7 @@ export default function UnlockTransaction() {
             </div>
           )}
           {isReleased && (
-            <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Released</p>
+            <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">Completed</p>
           )}
           <div className={`${isReleased ? "mt-2" : "mt-4"} text-4xl font-bold tabular-nums tracking-tight`}>
             ${Number(tx.amount).toFixed(2)}
@@ -272,7 +272,7 @@ export default function UnlockTransaction() {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-accent-foreground">Recipient verified</p>
                 <p className="mt-0.5 text-xs text-accent-foreground/80">
-                  They've confirmed the 4-digit code. Release ${Number(tx.amount).toFixed(2)} when you're ready.
+                  They've confirmed the verification code. Complete ${Number(tx.amount).toFixed(2)} securely when you're ready.
                 </p>
               </div>
             </div>
@@ -283,7 +283,7 @@ export default function UnlockTransaction() {
               }}
               className="mt-4 w-full h-12 rounded-2xl text-[15px] font-semibold gradient-accent text-accent-foreground"
             >
-              <ShieldCheck className="mr-2 h-4 w-4" /> Review & release
+              <ShieldCheck className="mr-2 h-4 w-4" /> Review & complete
             </Button>
           </div>
         )}
@@ -301,11 +301,11 @@ export default function UnlockTransaction() {
 
         {!finalState && !myConfirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation" || tx.status === "pending_payment") && (
           <div className="mt-6 rounded-3xl bg-card p-6 shadow-card">
-            <h2 className="text-center text-base font-semibold">Enter the 4-digit code</h2>
+            <h2 className="text-center text-base font-semibold">Enter the verification code</h2>
             <p className="mt-1 text-center text-xs text-muted-foreground">
               {blocked
-                ? "No attempts left — this transfer was cancelled and any pending charge will be reversed."
-                : `Get the code from ${isSender ? "the recipient" : "the sender"}. ${attemptsLeft} ${attemptsLeft === 1 ? "try" : "tries"} left.`}
+                ? "No attempts left — this payment was cancelled and any pending charge will be reversed."
+                : `Get the verification code from ${isSender ? "the recipient" : "the sender"}. ${attemptsLeft} ${attemptsLeft === 1 ? "try" : "tries"} left.`}
             </p>
             <div className="mt-5">
               <CodeInput value={code} onChange={setCode} masked invalid={invalid} disabled={blocked || submitting} autoFocus />
@@ -336,15 +336,15 @@ export default function UnlockTransaction() {
                 <Sparkles className="h-5 w-5 text-accent-foreground" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold">Transfer complete</p>
+                <p className="text-sm font-semibold">Payment completed</p>
                 <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">
-                  ${Number(tx.amount).toFixed(2)} sent to <span className="font-medium text-foreground">{tx.recipient_identifier}</span>. Both parties confirmed — the transfer is on its way.
+                  ${Number(tx.amount).toFixed(2)} sent to <span className="font-medium text-foreground">{tx.recipient_identifier}</span>. Both parties confirmed — your payment is on its way.
                 </p>
               </div>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
               <div className="flex items-center gap-1.5 rounded-xl bg-accent-soft px-3 py-2 font-medium text-accent-foreground">
-                <ShieldCheck className="h-3.5 w-3.5" /> Verified transfer
+                <ShieldCheck className="h-3.5 w-3.5" /> Verified payment
               </div>
               <div className="flex items-center gap-1.5 rounded-xl bg-secondary px-3 py-2 font-medium text-foreground/80">
                 <CheckCircle2 className="h-3.5 w-3.5 text-accent" /> Receipt logged

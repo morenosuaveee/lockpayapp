@@ -106,16 +106,16 @@ export function RecipientVerifiedSuccess({
 
           <p className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-foreground animate-scale-in">
             <ShieldCheck className="h-3.5 w-3.5" />
-            {done ? "Payment Released" : "Recipient Verified"}
+            {done ? "Payment Completed" : "Recipient Verified"}
           </p>
 
           <h2 className="mt-3 text-[28px] font-bold tracking-tight text-balance text-foreground">
-            {done ? "Funds Securely Released" : "Recipient Verified"}
+            {done ? "Payment Completed Securely" : "Recipient Verified"}
           </h2>
           <p className="mx-auto mt-2 max-w-[300px] text-[14px] leading-relaxed text-muted-foreground text-balance">
             {done
-              ? "The vault is open. Both parties confirmed the secure code — your funds are on their way."
-              : "The transfer has been securely confirmed and is ready for payment release."}
+              ? "Both parties confirmed the verification code. Your payment is on its way."
+              : "Identity confirmed. You can complete this payment with confidence."}
           </p>
         </div>
 
@@ -136,7 +136,7 @@ export function RecipientVerifiedSuccess({
             </div>
             <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-semibold text-accent-foreground">
               <ShieldCheck className="h-3 w-3" />
-              {done ? "Released" : "Verified"}
+              {done ? "Completed" : "Verified"}
             </span>
           </div>
 
@@ -172,12 +172,12 @@ export function RecipientVerifiedSuccess({
               {releasing ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Securing release…
+                  Completing securely…
                 </>
               ) : (
                 <>
                   <ShieldCheck className="mr-2 h-5 w-5" />
-                  Release Payment
+                  Complete Payment Securely
                 </>
               )}
             </Button>
@@ -191,11 +191,11 @@ export function RecipientVerifiedSuccess({
                 disabled={releasing}
                 className="w-full h-12 rounded-2xl text-[14px] font-medium text-muted-foreground hover:bg-secondary"
               >
-                Cancel Transfer
+                Cancel Payment
               </Button>
             )}
             <p className="pt-1 text-center text-[11px] text-muted-foreground">
-              Funds release instantly after you tap Release Payment.
+              Payment is completed only after both sides confirm.
             </p>
           </div>
         ) : (

@@ -291,7 +291,7 @@ export default function Onboarding() {
       {showVerified === "identity" && (
         <VerifiedSuccess
           title="You're verified"
-          subtitle="Your account is secured. Transfers are now protected by LockPay."
+          subtitle="Your account is secured. Pay with confidence on LockPay."
           onDone={() => {
             setShowVerified(null);
             setStep("how");
@@ -318,11 +318,11 @@ export default function Onboarding() {
         {step === "welcome" && (
           <StepShell
             icon={<Lock className="h-7 w-7 text-primary-foreground" strokeWidth={2.4} />}
-            title={pendingTransfer ? "Let's verify your transfer" : "Welcome to Lock Pay"}
+            title={pendingTransfer ? "Let's verify your payment" : "Welcome to LockPay"}
             subtitle={
               pendingTransfer
                 ? `We've saved your $${pendingTransfer.amount.toFixed(2)} to ${pendingTransfer.recipient}. A few quick steps to verify and continue.`
-                : "Send with confidence. Recipient identity is confirmed before every transfer."
+                : "Smarter. Safer. Verified. Confirm recipients before payment is completed."
             }
           >
             <FeatureRow icon={<ShieldCheck className="h-5 w-5 text-accent" />} title="Verified recipients" desc="Identity is confirmed before any transfer." />

@@ -90,7 +90,7 @@ export default function SendMoney() {
             try {
               await supabase.rpc("mark_invite_pending_payment", { _txn_id: createdId });
               setStep("pay");
-              toast.success("Recipient confirmed — complete payment to release funds");
+              toast.success("Recipient confirmed — complete payment securely");
             } catch (e) {
               toast.error(e instanceof Error ? e.message : "Could not advance to payment");
             }
