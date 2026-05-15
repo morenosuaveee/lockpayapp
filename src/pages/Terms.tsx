@@ -6,8 +6,8 @@ export default function Terms() {
     <LegalPage title="Terms of Service" updated="May 14, 2026">
       <p>
         Welcome to Lock Pay. These Terms of Service ("Terms") govern your access to and use of the
-        Lock Pay platform — a technology service for secure accountability-based payments with dual
-        confirmation protection. By creating an account or using Lock Pay you agree to these Terms.
+        Lock Pay platform — a technology service for secure transfer coordination and recipient
+        verification. By creating an account or using Lock Pay you agree to these Terms.
       </p>
 
       <h2>User eligibility</h2>
@@ -24,18 +24,20 @@ export default function Terms() {
         <li>Do not attempt to disrupt, reverse-engineer, or probe the platform's security.</li>
       </ul>
 
-      <h2>Payment coordination disclaimers</h2>
+      <h2>Transfer coordination disclaimers</h2>
       <p>
-        Lock Pay is a technology platform that helps two parties coordinate a payment that releases
-        only after dual confirmation. Lock Pay is not a bank, broker-dealer, money transmitter, or
-        escrow agent in any jurisdiction where licensure would be required for such activity.
-        Payment processing is performed by our third-party processor.
+        Lock Pay is a technology platform that helps two parties coordinate a peer-to-peer
+        transfer with recipient identity confirmation. Lock Pay is <strong>not</strong> a bank,
+        broker-dealer, money transmitter, escrow agent, custodian, or insured financial
+        institution, and does not hold customer funds, accept deposits, or guarantee any transfer.
+        Payment movement is performed by independent third-party payment processors under their
+        own terms.
       </p>
 
       <h2>Fraud and abuse prevention</h2>
       <p>
-        We monitor accounts and transactions for fraud, chargebacks, identity misuse, and abuse of
-        the confirmation system. We may delay, hold, reverse, or refund a transaction, and may
+        We monitor accounts and activity for fraud, chargebacks, identity misuse, and abuse of the
+        verification system. We may delay, decline, cancel, or reverse a transfer request, and may
         require additional verification at our discretion to protect users.
       </p>
 
