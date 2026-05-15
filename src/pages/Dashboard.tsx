@@ -99,7 +99,7 @@ export default function Dashboard() {
                   <LockIcon className="h-4 w-4 text-lock" />
                 </div>
                 <div>
-                  <div className="text-xs opacity-80">Funds locked</div>
+                  <div className="text-xs opacity-80">Awaiting confirmation</div>
                   <div className="text-sm font-semibold tabular-nums">${lockedAmount.toFixed(2)}</div>
                 </div>
               </div>
