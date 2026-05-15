@@ -2,8 +2,8 @@ import { ShieldCheck, Lock, BadgeCheck, Scale } from "lucide-react";
 
 const items = [
   { icon: Lock, label: "Encrypted" },
-  { icon: ShieldCheck, label: "Protected transfers" },
-  { icon: BadgeCheck, label: "Verified identity" },
+  { icon: ShieldCheck, label: "Verification first" },
+  { icon: BadgeCheck, label: "Identity-confirmed" },
   { icon: Scale, label: "Dispute support" },
 ];
 

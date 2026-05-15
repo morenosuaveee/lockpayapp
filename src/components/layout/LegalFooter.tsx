@@ -8,7 +8,7 @@ export function LegalFooter({ className = "" }: { className?: string }) {
     <footer className={`mt-10 border-t border-border/60 px-6 pb-6 pt-6 text-[11px] text-muted-foreground ${className}`}>
       <div className="mb-3 flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em]">
         <ShieldCheck className="h-3 w-3" />
-        Secure accountability-based payments
+        Identity-confirmed transfer coordination
       </div>
       <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
         <Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link>
