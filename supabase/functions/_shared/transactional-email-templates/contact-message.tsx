@@ -88,7 +88,7 @@ const Row = ({ label, value }: { label: string; value: string }) => (
 
 export const template = {
   component: ContactMessageEmail,
-  to: 'support@getlockpayapp.com',
+  to: 'support@getlockpay.com',
   subject: (d: Record<string, any>) => {
     const topic = TOPIC_LABELS[d.topic] || 'General'
     const subj = (d.subject || '(no subject)').toString().slice(0, 120)

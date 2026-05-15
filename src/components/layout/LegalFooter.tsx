@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 
-const SUPPORT_EMAIL = "support@getlockpayapp.com";
+const SUPPORT_EMAIL = "support@getlockpay.com";
 
 export function LegalFooter({ className = "" }: { className?: string }) {
   return (

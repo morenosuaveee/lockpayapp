@@ -628,7 +628,7 @@ function Faq() {
     },
     {
       q: "How do I get help?",
-      a: "Reach our team any time at support@getlockpayapp.com or through the Contact page. We typically respond within one business day.",
+      a: "Reach our team any time at support@getlockpay.com or through the Contact page. We typically respond within one business day.",
     },
   ];
   return (
