@@ -125,7 +125,15 @@ export default function Transactions() {
         ) : (
           <ul className="space-y-2">
             {filtered.map((t) => (
-              <TxRow key={t.id} tx={t} userId={user!.id} onAction={fetchTxs} navigate={navigate} />
+              <TxRow
+                key={t.id}
+                tx={t}
+                userId={user!.id}
+                onAction={fetchTxs}
+                navigate={navigate}
+                pulsing={pulsedIds.has(t.id)}
+                fresh={freshIds.has(t.id)}
+              />
             ))}
           </ul>
         )}
