@@ -110,7 +110,7 @@ export default function SendMoney() {
         {step === "details" && (
           <div className="mt-6 animate-slide-up">
             <h1 className="text-2xl font-bold">Send money</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Funds are held in escrow and only released once you and the recipient both enter the same 4-digit code. Auto-refunded in 48h if not unlocked.</p>
+            <p className="mt-1 text-sm text-muted-foreground">The transfer is initiated only after you and the recipient both enter the same 4-digit confirmation code. Auto-cancelled in 48h if not confirmed.</p>
 
             <div className="mt-6 space-y-5 rounded-3xl bg-card p-5 shadow-card">
               <div className="space-y-1.5">
@@ -151,7 +151,7 @@ export default function SendMoney() {
         {step === "code" && (
           <div className="mt-6 animate-slide-up">
             <h1 className="text-2xl font-bold">Set unlock code</h1>
-            <p className="mt-1 text-sm text-muted-foreground">A 4-digit code that you and the recipient must both enter to release the funds. Keep it private.</p>
+            <p className="mt-1 text-sm text-muted-foreground">A 4-digit code that you and the recipient must both enter to confirm the transfer. Keep it private.</p>
 
             <div className="mt-8 rounded-3xl bg-card p-6 shadow-card">
               <CodeInput value={code} onChange={setCode} masked={false} autoFocus />
@@ -203,9 +203,9 @@ export default function SendMoney() {
 
         {step === "pay" && createdId && (
           <div className="mt-6 animate-slide-up">
-            <h1 className="text-2xl font-bold">Pay & lock</h1>
+            <h1 className="text-2xl font-bold">Confirm & send</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              ${Number(amount).toFixed(2)} held in escrow + ${calcFeeDollars(Number(amount)).toFixed(2)} LockPay fee. Released when <span className="font-semibold text-foreground">{recipient}</span> enters code <span className="font-mono font-bold text-foreground">{code}</span> with you.
+              ${Number(amount).toFixed(2)} transfer to <span className="font-semibold text-foreground">{recipient}</span> + ${calcFeeDollars(Number(amount)).toFixed(2)} LockPay fee. Initiated when they enter code <span className="font-mono font-bold text-foreground">{code}</span> with you.
             </p>
 
             <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-card">
