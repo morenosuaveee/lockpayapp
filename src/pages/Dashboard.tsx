@@ -109,7 +109,7 @@ export default function Dashboard() {
             <Link to="/send"><Plus className="mr-1 h-5 w-5" /> Send</Link>
           </Button>
           <Button asChild variant="outline" className="h-14 rounded-2xl text-base font-semibold bg-card">
-            <Link to="/transactions"><LockIcon className="mr-1 h-5 w-5" /> Vault</Link>
+            <Link to="/transactions"><LockIcon className="mr-1 h-5 w-5" /> Activity</Link>
           </Button>
         </div>
 
