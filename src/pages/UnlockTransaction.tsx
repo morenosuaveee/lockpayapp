@@ -377,6 +377,25 @@ export default function UnlockTransaction() {
           <Row label="Reference" value={tx.id.slice(0, 8).toUpperCase()} mono />
         </div>
       </div>
+
+      {showVerifiedHero && isSender && (tx.status === "recipient_confirmed" || tx.status === "pending_payment") && (
+        <RecipientVerifiedSuccess
+          recipientName={tx.recipient_identifier}
+          amount={Number(tx.amount)}
+          currency={tx.currency}
+          timestamp={tx.recipient_confirmed_at ?? undefined}
+          released={tx.status === "pending_payment"}
+          onRelease={handleReleasePayment}
+          onCancel={() => {
+            setShowVerifiedHero(false);
+            setVerifiedDismissed(true);
+          }}
+          onDismiss={() => {
+            setShowVerifiedHero(false);
+            setVerifiedDismissed(true);
+          }}
+        />
+      )}
     </AppShell>
   );
 }
