@@ -206,10 +206,11 @@ function EmptyState({ filter }: { filter: FilterId }) {
 }
 
 function TxRow({
-  tx, userId, onAction, navigate,
+  tx, userId, onAction, navigate, pulsing = false, fresh = false,
 }: {
   tx: Tx; userId: string; onAction: () => void;
   navigate: (path: string) => void;
+  pulsing?: boolean; fresh?: boolean;
 }) {
   const out = tx.sender_id === userId;
   const Icon = out ? ArrowUpRight : ArrowDownLeft;
@@ -246,7 +247,11 @@ function TxRow({
   return (
     <button
       onClick={handleClick}
-      className="w-full flex items-center gap-3 rounded-2xl bg-card p-4 shadow-card transition-transform active:scale-[0.98] text-left"
+      className={cn(
+        "w-full flex items-center gap-3 rounded-2xl bg-card p-4 shadow-card transition-transform active:scale-[0.98] text-left",
+        fresh && "animate-row-insert",
+        pulsing && "animate-row-pulse",
+      )}
     >
       <div className={cn(
         "flex h-11 w-11 items-center justify-center rounded-xl shrink-0",
