@@ -22,7 +22,7 @@ const schema = z.object({
   note: z.string().max(140).optional(),
 });
 
-type Step = "details" | "code" | "pay";
+type Step = "details" | "code" | "pay" | "invited";
 
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 const isPhone = (v: string) => /^\+?[\d\s\-().]{7,}$/.test(v.trim());
@@ -73,24 +73,45 @@ export default function SendMoney() {
       const tempId = crypto.randomUUID();
       const hash = await hashCode(code, tempId);
 
+      // Pre-check: is the recipient a LockPay user?
+      const norm = recipientType === "email" ? recipient.trim().toLowerCase() : recipient.trim();
+      const lookupCol = recipientType === "email" ? "paypal_email" : "phone";
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq(lookupCol, norm)
+        .maybeSingle();
+      const isExistingUser = !!existing?.id;
+
       const { data: txn, error } = await supabase.from("transactions").insert({
         id: tempId,
         sender_id: user!.id,
         sender_paypal_email: prof?.paypal_email ?? null,
-        recipient_identifier: recipient.trim(),
+        recipient_identifier: norm,
         amount: amountNum,
         fee_amount: feeNum,
         currency: "USD",
         provider: "paypal",
-        status: "pending_payment",
+        status: isExistingUser ? "pending_payment" : "pending_invite",
         unlock_code_hash: hash,
         note: note.trim() || null,
+        recipient_channel: recipientType,
       }).select().single();
 
       if (error || !txn) throw error ?? new Error("Could not create transfer");
-
       setCreatedId(txn.id);
-      setStep("pay");
+
+      if (isExistingUser) {
+        setStep("pay");
+      } else {
+        // Send invite (channel auto-detected server-side)
+        const { error: invErr } = await supabase.functions.invoke("send-transfer-invite", {
+          body: { transactionId: txn.id },
+        });
+        if (invErr) throw invErr;
+        toast.success(`Invite sent via ${recipientType === "email" ? "email" : "SMS"}`);
+        setStep("invited");
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not create transfer");
     } finally { setLoading(false); }
