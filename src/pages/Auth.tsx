@@ -34,7 +34,8 @@ function SmsConsent({
         />
         <span className="text-[12.5px] font-medium leading-snug text-foreground">
           I agree to receive transactional SMS messages from LockPay related to account
-          verification, secure transfers, fraud alerts, and account activity.
+          verification, secure transfers, fraud alerts, payment activity, and account security
+          notifications.
         </span>
       </label>
       <p id={`${id}-desc`} className="mt-2 text-[10.5px] leading-[1.45] text-muted-foreground">
@@ -295,6 +296,20 @@ export default function AuthPage({ mode }: Props) {
           <Link to="/terms" className="underline">Terms</Link> and{" "}
           <Link to="/privacy" className="underline">Privacy Policy</Link>.
         </p>
+        <nav
+          aria-label="Compliance links"
+          className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 pt-1 text-[11px] text-muted-foreground"
+        >
+          <Link to="/terms" className="hover:text-foreground">Terms</Link>
+          <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+          <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+          <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+          <Link to="/sms-policy" className="hover:text-foreground">SMS Policy</Link>
+          <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+          <Link to="/security" className="hover:text-foreground">Security</Link>
+          <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+          <Link to="/support" className="hover:text-foreground">Support</Link>
+        </nav>
       </div>
     </div>
   );
