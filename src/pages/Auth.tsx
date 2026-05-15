@@ -39,9 +39,10 @@ function SmsConsent({
       <p id={`${id}-desc`} className="mt-2 text-[10.5px] leading-[1.45] text-muted-foreground">
         By continuing, you agree to receive transactional SMS messages from LockPay related to
         account verification, secure transfers, security alerts, payment activity, and transfer
-        confirmations. Message frequency varies. Message &amp; data rates may apply. Reply{" "}
-        <span className="font-semibold text-foreground">STOP</span> to opt out and{" "}
-        <span className="font-semibold text-foreground">HELP</span> for help. See our{" "}
+        confirmations. Message frequency varies based on account activity and transfers. Message
+        &amp; data rates may apply. Reply <span className="font-semibold text-foreground">STOP</span>{" "}
+        to opt out and <span className="font-semibold text-foreground">HELP</span> for help.
+        Consent is not a condition of purchase. See our{" "}
         <Link to="/sms-policy" className="underline underline-offset-2 hover:text-foreground">
           SMS Policy
         </Link>
