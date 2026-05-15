@@ -51,27 +51,27 @@ export default function CheckoutReturn() {
           <>
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
             <h1 className="mt-6 text-2xl font-bold">Confirming your payment</h1>
-            <p className="mt-2 max-w-xs text-sm text-muted-foreground text-balance">Securing your funds in escrow. This usually takes just a few seconds — please don't close the app.</p>
+            <p className="mt-2 max-w-xs text-sm text-muted-foreground text-balance">Confirming your transfer. This usually takes just a few seconds — please don't close the app.</p>
           </>
         )}
 
         {state === "locked" && (
           <div className="flex w-full max-w-sm flex-col items-center">
             <SuccessMark tone="lock" size={104} />
-            <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.16em] text-lock">Funds secured</p>
-            <h1 className="mt-2 text-[28px] font-bold tracking-tight">Locked in escrow</h1>
+            <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.16em] text-lock">Awaiting confirmation</p>
+            <h1 className="mt-2 text-[28px] font-bold tracking-tight">Transfer pending</h1>
             {amount !== null && (
               <div className="mt-3 text-4xl font-bold tabular-nums tracking-tight">
                 ${amount.toFixed(2)}
               </div>
             )}
             <p className="mt-2 max-w-xs text-sm text-muted-foreground text-balance">
-              Held safely for <span className="font-semibold text-foreground">{recipient}</span>. Share the unlock code to release.
+              Awaiting confirmation from <span className="font-semibold text-foreground">{recipient}</span>. Share the confirmation code to complete.
             </p>
 
             <div className="mt-6 w-full space-y-2 rounded-2xl bg-card p-4 shadow-card text-left">
-              <TrustRow icon={ShieldCheck} title="Bank-grade encryption" subtitle="Your card details never touch our servers." />
-              <TrustRow icon={Clock} title="Auto-refund in 48h" subtitle="If unlock isn't completed, you're refunded automatically." />
+              <TrustRow icon={ShieldCheck} title="Industry-standard encryption" subtitle="Your card details never touch our servers." />
+              <TrustRow icon={Clock} title="Auto-cancel in 48h" subtitle="If confirmation isn't completed, the request is cancelled automatically." />
               <TrustRow icon={Receipt} title="Receipt sent" subtitle="A confirmation email is on its way." />
             </div>
 

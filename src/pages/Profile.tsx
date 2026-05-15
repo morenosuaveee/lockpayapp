@@ -154,7 +154,7 @@ export default function Profile() {
           </Button>
 
           <p className="mt-6 text-center text-[11px] text-muted-foreground">
-            Protected by 256-bit encryption · LockPay v1.0
+            Encrypted with industry-standard 256-bit encryption · LockPay v1.0
           </p>
         </div>
       </div>

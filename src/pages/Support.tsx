@@ -5,16 +5,16 @@ import { LegalFooter, SUPPORT_EMAIL } from "@/components/layout/LegalFooter";
 
 const FAQS = [
   {
-    q: "How do secure transfers work?",
-    a: "Enter your recipient's phone or email. We verify their identity, then hold the funds safely until you both enter a shared 4-digit release code — so money always reaches the right person.",
+    q: "How do verified transfers work?",
+    a: "Enter your recipient's phone or email. We confirm their identity matches a verified LockPay account, then both sides enter a shared 4-digit confirmation code so the transfer reaches the person you actually intend to send to.",
   },
   {
-    q: "How does recipient verification protect me?",
-    a: "Before any funds move, we confirm the recipient matches a verified LockPay account. This prevents typos, mismatched accounts, and fraudulent payment requests.",
+    q: "How does recipient verification help me?",
+    a: "Before a transfer is initiated, we confirm the recipient matches a verified LockPay account. This is designed to help reduce mistaken transfers caused by typos, mismatched accounts, and impersonation attempts.",
   },
   {
     q: "What if the transfer isn't completed?",
-    a: "If the release code isn't entered within the window, funds are returned to the sender, minus non-refundable processing fees.",
+    a: "If the confirmation code isn't entered within the window, the transfer request is cancelled and any pending charge is reversed by the payment processor according to its standard timelines. Non-refundable processor fees may apply.",
   },
   {
     q: "Will I receive SMS messages?",

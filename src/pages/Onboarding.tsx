@@ -296,16 +296,16 @@ export default function Onboarding() {
         {step === "welcome" && (
           <StepShell
             icon={<Lock className="h-7 w-7 text-primary-foreground" strokeWidth={2.4} />}
-            title={pendingTransfer ? "Let's secure your transfer" : "Welcome to Lock Pay"}
+            title={pendingTransfer ? "Let's verify your transfer" : "Welcome to Lock Pay"}
             subtitle={
               pendingTransfer
-                ? `We've held your $${pendingTransfer.amount.toFixed(2)} for ${pendingTransfer.recipient}. A few quick steps and it's protected.`
-                : "Send money with confidence. Funds release only when the recipient is verified."
+                ? `We've saved your $${pendingTransfer.amount.toFixed(2)} to ${pendingTransfer.recipient}. A few quick steps to verify and continue.`
+                : "Send with confidence. Recipient identity is confirmed before every transfer."
             }
           >
-            <FeatureRow icon={<ShieldCheck className="h-5 w-5 text-accent" />} title="Verified recipients" desc="We verify before any release." />
-            <FeatureRow icon={<Lock className="h-5 w-5 text-accent" />} title="Funds stay protected" desc="Held securely until the recipient confirms." />
-            <FeatureRow icon={<Sparkles className="h-5 w-5 text-accent" />} title="Auto-refunded in 48h" desc="If unconfirmed, funds return to you." />
+            <FeatureRow icon={<ShieldCheck className="h-5 w-5 text-accent" />} title="Verified recipients" desc="Identity is confirmed before any transfer." />
+            <FeatureRow icon={<Lock className="h-5 w-5 text-accent" />} title="Encrypted end-to-end" desc="Your data is encrypted in transit and at rest." />
+            <FeatureRow icon={<Sparkles className="h-5 w-5 text-accent" />} title="Auto-cancelled in 48h" desc="Unconfirmed transfer requests are cancelled automatically." />
             <PrimaryCTA onClick={() => setStep("name")} label="Get started" />
           </StepShell>
         )}
@@ -413,7 +413,7 @@ export default function Onboarding() {
           <StepShell
             icon={<IdCard className="h-7 w-7 text-primary-foreground" />}
             title="Verify your identity"
-            subtitle="A quick check keeps every transfer protected. Your information is encrypted and never shared."
+            subtitle="A quick check confirms your identity. Your information is encrypted and used only to verify your account."
           >
             <div className="space-y-1.5">
               <Label htmlFor="ob-legal">Full legal name</Label>
@@ -452,9 +452,9 @@ export default function Onboarding() {
             </div>
             <div className="rounded-xl bg-accent-soft p-3 text-[11px] leading-relaxed text-accent-foreground">
               <span className="inline-flex items-center gap-1.5 font-semibold">
-                <ShieldCheck className="h-3.5 w-3.5" /> Bank-grade encryption
+                <ShieldCheck className="h-3.5 w-3.5" /> Industry-standard encryption
               </span>{" "}
-              Identity data is encrypted in transit and at rest. We use it only to verify and protect your account.
+              Identity data is encrypted in transit and at rest. We use it only to verify your account.
             </div>
             <PrimaryCTA
               onClick={submitIdentity}
@@ -468,12 +468,12 @@ export default function Onboarding() {
         {step === "how" && (
           <StepShell
             icon={<Sparkles className="h-7 w-7 text-primary-foreground" />}
-            title="How a protected transfer works"
+            title="How a verified transfer works"
             subtitle="Three simple steps. You stay in control the entire time."
           >
-            <HowStep n={1} title="Send" desc="Choose a recipient and amount. Funds are held securely." />
-            <HowStep n={2} title="Recipient is verified" desc="We confirm the receiving party before any release." />
-            <HowStep n={3} title="Funds released" desc="Your transfer completes the moment verification clears." />
+            <HowStep n={1} title="Send" desc="Choose a recipient and amount." />
+            <HowStep n={2} title="Recipient is verified" desc="We confirm the receiving party before the transfer is initiated." />
+            <HowStep n={3} title="Transfer completes" desc="The recipient confirms in-app and the transfer completes." />
             <PrimaryCTA
               onClick={continueAfterHow}
               label={pendingTransfer ? "Review your transfer" : "Continue"}
@@ -494,7 +494,7 @@ export default function Onboarding() {
           <StepShell
             icon={<CheckCircle2 className="h-8 w-8 text-primary-foreground" />}
             title="You're all set"
-            subtitle="Your account is ready. Send your first protected transfer in seconds."
+            subtitle="Your account is ready. Send your first verified transfer in seconds."
           >
             <div className="rounded-2xl bg-accent-soft p-4 text-sm text-accent-foreground">
               <div className="flex items-center gap-2 font-semibold">
@@ -540,15 +540,15 @@ function ConfirmTransferStep({
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl gradient-primary shadow-elevated">
           <ShieldCheck className="h-7 w-7 text-primary-foreground" strokeWidth={2.4} />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Your transfer is protected</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Review your transfer</h1>
         <p className="mx-auto mt-2 max-w-[20rem] text-sm text-muted-foreground">
-          We've held the details from your demo. Review and continue to securely complete it.
+          We've saved the details from your demo. Review and continue to verify and complete it.
         </p>
       </div>
 
       <div className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-elevated">
         <div className="flex items-center justify-between bg-secondary/60 px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          <span>Protected transfer</span>
+          <span>Verified transfer</span>
           <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-bold text-accent-foreground">
             <BadgeCheck className="h-3 w-3" /> Verified
           </span>
@@ -564,8 +564,8 @@ function ConfirmTransferStep({
         <div className="space-y-2 border-t border-border/60 px-5 py-4">
           <Row icon={<UserCheck className="h-4 w-4 text-accent" />} label="Recipient" value={transfer.recipient} />
           <Row icon={<BadgeCheck className="h-4 w-4 text-accent" />} label="Sender" value={recipientLabel || "You"} />
-          <Row icon={<Lock className="h-4 w-4 text-accent" />} label="Protection" value="Held until verified" />
-          <Row icon={<Zap className="h-4 w-4 text-accent" />} label="Delivery" value="Instant on verify" />
+          <Row icon={<Lock className="h-4 w-4 text-accent" />} label="Status" value="Awaiting verification" />
+          <Row icon={<Zap className="h-4 w-4 text-accent" />} label="Delivery" value="Instant on confirm" />
           <div className="my-1 h-px bg-border/70" />
           <Row label="Transfer fee" value={`$${fee.toFixed(2)}`} muted />
           <Row label="Total" value={`$${total.toFixed(2)}`} bold />
@@ -574,15 +574,15 @@ function ConfirmTransferStep({
 
       <div className="mt-4 rounded-2xl bg-accent-soft p-4 text-[12px] leading-relaxed text-accent-foreground">
         <div className="flex items-center gap-2 font-semibold">
-          <ShieldCheck className="h-4 w-4" /> You're protected
+          <ShieldCheck className="h-4 w-4" /> Verification first
         </div>
         <p className="mt-1 opacity-90">
-          Funds remain protected until {transfer.recipient} is verified and accepts. If they can't be
-          verified, your money is automatically refunded.
+          The transfer to {transfer.recipient} won't be initiated until their identity is confirmed.
+          If they can't be verified, the request is automatically cancelled.
         </p>
       </div>
 
-      <PrimaryCTA onClick={onContinue} label="Complete protected transfer" />
+      <PrimaryCTA onClick={onContinue} label="Continue to verified transfer" />
       <button
         type="button"
         onClick={onSkip}

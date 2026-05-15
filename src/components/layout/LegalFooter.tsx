@@ -8,7 +8,7 @@ export function LegalFooter({ className = "" }: { className?: string }) {
     <footer className={`mt-10 border-t border-border/60 px-6 pb-6 pt-6 text-[11px] text-muted-foreground ${className}`}>
       <div className="mb-3 flex items-center justify-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em]">
         <ShieldCheck className="h-3 w-3" />
-        Secure accountability-based payments
+        Identity-confirmed transfer coordination
       </div>
       <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
         <Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link>
@@ -31,8 +31,10 @@ export function LegalFooter({ className = "" }: { className?: string }) {
         messages from Lock Pay. Message &amp; data rates may apply. Reply STOP to unsubscribe, HELP for help.
       </p>
       <p className="mt-3 text-center text-[10px] leading-relaxed text-muted-foreground/70">
-        Lock Pay is a technology platform focused on secure payment coordination and user
-        transaction protection features. Availability and features may vary by region.
+        Lock Pay is a technology platform for secure transfer coordination and recipient
+        verification. Lock Pay is not a bank, money transmitter, escrow agent, or insured financial
+        institution. Payment movement is performed by independent third-party processors.
+        Availability and features may vary by region.
       </p>
       <p className="mt-3 text-center text-[10px] text-muted-foreground/60">
         © {new Date().getFullYear()} Lock Pay. All rights reserved.
