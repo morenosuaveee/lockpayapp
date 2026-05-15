@@ -33,16 +33,15 @@ function SmsConsent({
           aria-describedby={`${id}-desc`}
         />
         <span className="text-[12.5px] font-medium leading-snug text-foreground">
-          I agree to receive transactional SMS messages from LockPay
+          I agree to receive transactional SMS messages from LockPay related to account
+          verification, secure transfers, fraud alerts, and account activity.
         </span>
       </label>
       <p id={`${id}-desc`} className="mt-2 text-[10.5px] leading-[1.45] text-muted-foreground">
-        By continuing, you agree to receive transactional SMS messages from LockPay related to
-        account verification, secure transfers, security alerts, payment activity, and transfer
-        confirmations. Message frequency varies based on account activity and transfers. Message
-        &amp; data rates may apply. Reply <span className="font-semibold text-foreground">STOP</span>{" "}
-        to opt out and <span className="font-semibold text-foreground">HELP</span> for help.
-        Consent is not a condition of purchase. See our{" "}
+        Message frequency varies based on account activity and transfers. Message &amp; data rates
+        may apply. Reply <span className="font-semibold text-foreground">STOP</span> to opt out and{" "}
+        <span className="font-semibold text-foreground">HELP</span> for help. Consent is not a
+        condition of purchase. See our{" "}
         <Link to="/sms-policy" className="underline underline-offset-2 hover:text-foreground">
           SMS Policy
         </Link>
@@ -236,6 +235,7 @@ export default function AuthPage({ mode }: Props) {
                     <Label htmlFor="ph"><PhoneIcon className="mr-1 inline h-3.5 w-3.5" />Phone number</Label>
                     <Input id="ph" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+14155551234" autoComplete="tel" />
                   </div>
+                  <SmsConsent id="sms-consent-phone" checked={smsConsentPhone} onChange={setSmsConsentPhone} />
                   <Button
                     onClick={sendOtp}
                     disabled={otpSending || !smsConsentPhone}
@@ -244,9 +244,10 @@ export default function AuthPage({ mode }: Props) {
                     {otpSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
                     {otpSending ? "Sending…" : "Send verification code"}
                   </Button>
-                  <SmsConsent id="sms-consent-phone" checked={smsConsentPhone} onChange={setSmsConsentPhone} />
-                  <p className="text-center text-[11px] text-muted-foreground">
-                    6-digit code delivered by SMS. Standard carrier rates may apply.
+                  <p className="text-center text-[11px] text-muted-foreground leading-relaxed">
+                    By continuing you agree to our{" "}
+                    <Link to="/terms" className="underline">Terms</Link> and{" "}
+                    <Link to="/privacy" className="underline">Privacy Policy</Link>.
                   </p>
                 </>
               )}
