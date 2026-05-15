@@ -46,40 +46,44 @@ export default function CheckoutReturn() {
 
   return (
     <AppShell>
-      <div className="px-5 pt-16 pb-10 flex flex-col items-center text-center">
+      <div className="flex min-h-[80vh] flex-col items-center px-6 pt-16 pb-10 text-center">
         {state === "polling" && (
-          <>
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <h1 className="mt-6 text-2xl font-bold">Confirming your payment</h1>
-            <p className="mt-2 max-w-xs text-sm text-muted-foreground text-balance">Confirming your transfer. This usually takes just a few seconds — please don't close the app.</p>
-          </>
+          <div className="flex flex-col items-center animate-fade-in">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-card shadow-card">
+              <Loader2 className="h-9 w-9 animate-spin text-primary" />
+            </div>
+            <h1 className="mt-7 text-[24px] font-bold tracking-tight">Confirming payment…</h1>
+            <p className="mt-1.5 max-w-[280px] text-[13px] text-muted-foreground text-balance">
+              Just a few seconds. Don't close the app.
+            </p>
+          </div>
         )}
 
         {state === "locked" && (
-          <div className="flex w-full max-w-sm flex-col items-center">
+          <div className="flex w-full max-w-sm flex-col items-center animate-fade-in">
             <SuccessMark tone="lock" size={104} />
-            <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.16em] text-lock">Awaiting confirmation</p>
-            <h1 className="mt-2 text-[28px] font-bold tracking-tight">Transfer pending</h1>
+            <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-lock">Awaiting confirmation</p>
+            <h1 className="mt-1.5 text-[28px] font-bold tracking-tight">Transfer pending</h1>
             {amount !== null && (
-              <div className="mt-3 text-4xl font-bold tabular-nums tracking-tight">
+              <div className="mt-2 text-[44px] font-bold tabular-nums tracking-tight leading-none">
                 ${amount.toFixed(2)}
               </div>
             )}
-            <p className="mt-2 max-w-xs text-sm text-muted-foreground text-balance">
-              Awaiting confirmation from <span className="font-semibold text-foreground">{recipient}</span>. Share the confirmation code to complete.
+            <p className="mt-3 max-w-[280px] text-[13px] text-muted-foreground text-balance">
+              Awaiting <span className="font-semibold text-foreground">{recipient}</span>. Share your code to complete.
             </p>
 
-            <div className="mt-6 w-full space-y-2 rounded-2xl bg-card p-4 shadow-card text-left">
-              <TrustRow icon={ShieldCheck} title="Industry-standard encryption" subtitle="Your card details never touch our servers." />
-              <TrustRow icon={Clock} title="Auto-cancel in 48h" subtitle="If confirmation isn't completed, the request is cancelled automatically." />
-              <TrustRow icon={Receipt} title="Receipt sent" subtitle="A confirmation email is on its way." />
+            <div className="mt-7 w-full divide-y divide-border/60 rounded-3xl bg-card shadow-card text-left">
+              <TrustRow icon={ShieldCheck} title="End-to-end encrypted" subtitle="Card details never stored." />
+              <TrustRow icon={Clock} title="Auto-cancels in 48h" subtitle="No confirmation, no charge." />
+              <TrustRow icon={Receipt} title="Receipt sent" subtitle="Check your email." />
             </div>
 
-            <div className="mt-6 w-full space-y-2">
-              <Button onClick={() => navigate(`/unlock/${txnId}`)} className="w-full h-14 rounded-2xl text-base font-semibold active:scale-[0.98] transition-transform">
-                View transaction
+            <div className="mt-7 w-full space-y-2">
+              <Button onClick={() => navigate(`/unlock/${txnId}`)} className="w-full h-[54px] rounded-2xl text-[17px] font-semibold shadow-elevated active:scale-[0.98] transition-transform">
+                View transfer
               </Button>
-              <Button variant="outline" onClick={() => navigate("/")} className="w-full h-12 rounded-2xl text-sm font-semibold bg-card">
+              <Button variant="ghost" onClick={() => navigate("/")} className="w-full h-12 rounded-2xl text-[15px] font-medium text-muted-foreground">
                 Back home
               </Button>
             </div>
@@ -87,18 +91,18 @@ export default function CheckoutReturn() {
         )}
 
         {(state === "timeout" || state === "error") && (
-          <>
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary">
-              <AlertCircle className="h-7 w-7 text-muted-foreground" />
+          <div className="flex flex-col items-center animate-fade-in">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
+              <AlertCircle className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h1 className="mt-6 text-2xl font-bold">Taking a little longer</h1>
-            <p className="mt-2 max-w-xs text-sm text-muted-foreground text-balance">
-              Your payment is still processing with our bank partner. You haven't been charged twice — it'll appear in your transactions shortly.
+            <h1 className="mt-6 text-[24px] font-bold tracking-tight">Still processing</h1>
+            <p className="mt-1.5 max-w-[280px] text-[13px] text-muted-foreground text-balance">
+              You weren't charged twice. It'll show in Activity shortly.
             </p>
-            <Button onClick={() => navigate("/transactions")} className="mt-8 w-full max-w-sm h-14 rounded-2xl text-base font-semibold">
-              View transactions
+            <Button onClick={() => navigate("/transactions")} className="mt-8 w-full max-w-sm h-[54px] rounded-2xl text-[17px] font-semibold">
+              View activity
             </Button>
-          </>
+          </div>
         )}
       </div>
     </AppShell>
@@ -107,13 +111,13 @@ export default function CheckoutReturn() {
 
 function TrustRow({ icon: Icon, title, subtitle }: { icon: typeof ShieldCheck; title: string; subtitle: string }) {
   return (
-    <div className="flex items-start gap-3 py-1.5">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent-soft">
+    <div className="flex items-center gap-3 px-4 py-3">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent-soft">
         <Icon className="h-4 w-4 text-accent-foreground" />
       </div>
-      <div className="min-w-0">
-        <p className="text-sm font-semibold leading-tight">{title}</p>
-        <p className="mt-0.5 text-xs text-muted-foreground leading-snug">{subtitle}</p>
+      <div className="min-w-0 flex-1">
+        <p className="text-[14px] font-semibold leading-tight">{title}</p>
+        <p className="mt-0.5 text-[12px] text-muted-foreground leading-snug">{subtitle}</p>
       </div>
     </div>
   );

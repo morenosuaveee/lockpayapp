@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, RefreshCw, Sparkles, Copy, Check, Loader2, ShieldCheck } from "lucide-react";
+import { ArrowLeft, RefreshCw, Copy, Check, Loader2, ShieldCheck, Lock } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,12 +17,15 @@ import { calcFeeDollars } from "@/lib/fees";
 import { toast } from "sonner";
 
 const schema = z.object({
-  recipient: z.string().trim().min(3, "Enter recipient").max(255),
-  amount: z.coerce.number().positive("Amount must be positive").max(20, "Amount is capped at $20 for now"),
+  recipient: z.string().trim().min(3, "Enter a recipient").max(255),
+  amount: z.coerce.number().positive("Enter an amount").max(20, "Capped at $20 for now"),
   note: z.string().max(140).optional(),
 });
 
 type Step = "details" | "code" | "pay";
+
+const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+const isPhone = (v: string) => /^\+?[\d\s\-().]{7,}$/.test(v.trim());
 
 export default function SendMoney() {
   const { user } = useAuth();
@@ -35,6 +38,22 @@ export default function SendMoney() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [createdId, setCreatedId] = useState<string | null>(null);
+  const amountRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus amount when entering details, code on step change
+  useEffect(() => {
+    if (step === "details") {
+      const t = setTimeout(() => amountRef.current?.focus(), 150);
+      return () => clearTimeout(t);
+    }
+  }, [step]);
+
+  const recipientType = isEmail(recipient) ? "email" : isPhone(recipient) ? "phone" : null;
+  const amountNum = Number(amount) || 0;
+  const feeNum = calcFeeDollars(amountNum);
+  const totalNum = amountNum + feeNum;
+
+  const canContinueDetails = !!recipientType && amountNum > 0 && amountNum <= 20;
 
   const handleNext = () => {
     const parsed = schema.safeParse({ recipient, amount, note });
@@ -42,18 +61,17 @@ export default function SendMoney() {
     setStep("code");
   };
 
-  const handleGenerate = () => setCode(generateCode());
+  const handleGenerate = () => {
+    setCode(generateCode());
+  };
 
   const handleConfirm = async () => {
-    if (code.length !== 4) { toast.error("Enter a 4-digit unlock code"); return; }
+    if (code.length !== 4) { toast.error("Enter a 4-digit code"); return; }
     setLoading(true);
     try {
       const { data: prof } = await supabase.from("profiles").select("paypal_email").eq("id", user!.id).maybeSingle();
       const tempId = crypto.randomUUID();
       const hash = await hashCode(code, tempId);
-
-      const amountNum = Number(amount);
-      const feeNum = calcFeeDollars(amountNum);
 
       const { data: txn, error } = await supabase.from("transactions").insert({
         id: tempId,
@@ -69,150 +87,218 @@ export default function SendMoney() {
         note: note.trim() || null,
       }).select().single();
 
-      if (error || !txn) throw error ?? new Error("Failed to create transaction");
+      if (error || !txn) throw error ?? new Error("Could not create transfer");
 
       setCreatedId(txn.id);
       setStep("pay");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to create payment");
+      toast.error(e instanceof Error ? e.message : "Could not create transfer");
     } finally { setLoading(false); }
   };
 
   const copyCode = async () => {
     await navigator.clipboard.writeText(code);
-    setCopied(true); setTimeout(() => setCopied(false), 1500);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   const stepIndex = step === "details" ? 0 : step === "code" ? 1 : 2;
-  const stepLabels = ["Details", "Code", "Pay"];
+
+  const handleBack = () => {
+    if (step === "details") navigate(-1);
+    else if (step === "code") setStep("details");
+    else setStep("code");
+  };
 
   return (
     <AppShell>
       <PaymentTestModeBanner />
-      <div className="px-5 pt-6 pb-6">
+      <div className="px-5 pt-5 pb-6">
+        {/* Header — minimal iOS-style */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => step === "details" ? navigate(-1) : setStep(step === "code" ? "details" : "code")}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-card shadow-card active:scale-95 transition-transform"
+            onClick={handleBack}
+            aria-label="Back"
+            className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-foreground/80 active:scale-90 active:bg-secondary transition-all"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-[22px] w-[22px]" strokeWidth={2.2} />
           </button>
-          <div className="flex flex-1 items-center gap-1.5">
-            {stepLabels.map((lbl, i) => (
-              <div key={lbl} className="flex flex-1 items-center gap-1.5">
-                <div className={`h-1.5 flex-1 rounded-full transition-all ${i <= stepIndex ? "bg-primary" : "bg-secondary"}`} />
-              </div>
+          <div className="flex flex-1 items-center gap-1">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                  i <= stepIndex ? "bg-foreground" : "bg-border"
+                }`}
+              />
             ))}
           </div>
-          <span className="text-xs font-semibold tabular-nums text-muted-foreground">{stepIndex + 1}/3</span>
         </div>
 
+        {/* STEP 1 — Details */}
         {step === "details" && (
-          <div className="mt-6 animate-slide-up">
-            <h1 className="text-2xl font-bold">Send money</h1>
-            <p className="mt-1 text-sm text-muted-foreground">The transfer is initiated only after you and the recipient both enter the same 4-digit confirmation code. Auto-cancelled in 48h if not confirmed.</p>
+          <div key="details" className="mt-7 animate-fade-in">
+            <h1 className="text-[28px] font-bold tracking-tight">Send</h1>
+            <p className="mt-1 text-[13px] text-muted-foreground">Confirmed by both sides with a 4-digit code.</p>
 
-            <div className="mt-6 space-y-5 rounded-3xl bg-card p-5 shadow-card">
-              <div className="space-y-1.5">
-                <Label htmlFor="rec">Recipient</Label>
-                <Input id="rec" value={recipient} onChange={(e) => setRecipient(e.target.value)}
-                  placeholder="email, phone, or @username"
-                  autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false}
-                  enterKeyHint="next" />
+            {/* Amount — big, primary */}
+            <div className="mt-7 flex flex-col items-center">
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-semibold text-muted-foreground">$</span>
+                <input
+                  ref={amountRef}
+                  inputMode="decimal"
+                  enterKeyHint="next"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
+                  placeholder="0"
+                  aria-label="Amount in USD"
+                  className="w-[200px] bg-transparent text-center text-[64px] font-bold tabular-nums tracking-tight outline-none placeholder:text-muted-foreground/30 caret-accent"
+                />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="amt">Amount (USD)</Label>
-                <div className="relative">
-                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-muted-foreground">$</span>
-                  <Input id="amt" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0.00" className="h-16 pl-9 text-3xl font-bold tabular-nums"
-                    enterKeyHint="next" autoComplete="off" />
+              <div className="mt-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">USD · Max $20</div>
+            </div>
+
+            {/* Recipient + note card */}
+            <div className="mt-7 divide-y divide-border/60 rounded-3xl bg-card shadow-card">
+              <div className="px-4 py-3.5">
+                <Label htmlFor="rec" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">To</Label>
+                <div className="mt-1 flex items-center gap-2">
+                  <Input
+                    id="rec"
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                    placeholder="Email or phone"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    enterKeyHint="next"
+                    className="h-9 border-0 bg-transparent px-0 text-[17px] font-medium shadow-none focus-visible:border-0 focus-visible:ring-0"
+                  />
+                  {recipientType && (
+                    <span className="flex items-center gap-1 rounded-full bg-accent-soft px-2 py-1 text-[10px] font-semibold text-accent-foreground animate-fade-in">
+                      <ShieldCheck className="h-3 w-3" />
+                      {recipientType === "email" ? "Email" : "Phone"}
+                    </span>
+                  )}
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="note">Note (optional)</Label>
-                <Textarea id="note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={140}
-                  placeholder="Concert tickets — split" rows={2} enterKeyHint="done" />
-              </div>
-              <div className="flex items-center gap-2 rounded-xl bg-secondary p-3 text-xs text-muted-foreground">
-                <Sparkles className="h-4 w-4 text-accent" />
-                Securely processed by <span className="font-semibold text-foreground">Stripe</span>. Your card is never stored on LockPay.
+              <div className="px-4 py-3.5">
+                <Label htmlFor="note" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Note</Label>
+                <Textarea
+                  id="note"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  maxLength={140}
+                  placeholder="What's it for? (optional)"
+                  rows={1}
+                  enterKeyHint="done"
+                  className="min-h-0 resize-none border-0 bg-transparent px-0 py-1 text-[15px] shadow-none focus-visible:border-0 focus-visible:ring-0"
+                />
               </div>
             </div>
 
-            <div className="sticky bottom-[calc(5.5rem+var(--safe-bottom))] z-20 mt-5 -mx-5 px-5 pb-2 pt-3 bg-gradient-to-t from-surface via-surface/95 to-transparent">
-              <Button onClick={handleNext} className="w-full h-14 rounded-2xl text-base font-semibold active:scale-[0.98] transition-transform shadow-elevated">
-                Continue
+            {/* Fee preview */}
+            {amountNum > 0 && (
+              <div className="mt-4 flex items-center justify-between rounded-2xl bg-secondary/60 px-4 py-3 text-[13px] animate-fade-in">
+                <span className="text-muted-foreground">Fee · 1% (min $0.50)</span>
+                <span className="font-semibold tabular-nums">${feeNum.toFixed(2)}</span>
+              </div>
+            )}
+
+            <CtaBar>
+              <Button
+                onClick={handleNext}
+                disabled={!canContinueDetails}
+                className="w-full h-[54px] rounded-2xl text-[17px] font-semibold active:scale-[0.98] transition-transform shadow-elevated"
+              >
+                {amountNum > 0 ? `Continue · $${totalNum.toFixed(2)}` : "Continue"}
               </Button>
-            </div>
+            </CtaBar>
           </div>
         )}
 
+        {/* STEP 2 — Code */}
         {step === "code" && (
-          <div className="mt-6 animate-slide-up">
-            <h1 className="text-2xl font-bold">Set unlock code</h1>
-            <p className="mt-1 text-sm text-muted-foreground">A 4-digit code that you and the recipient must both enter to confirm the transfer. Keep it private.</p>
+          <div key="code" className="mt-7 animate-fade-in">
+            <h1 className="text-[28px] font-bold tracking-tight">Confirmation code</h1>
+            <p className="mt-1 text-[13px] text-muted-foreground">Share with the recipient. Both enter to confirm.</p>
 
-            <div className="mt-8 rounded-3xl bg-card p-6 shadow-card">
+            <div className="mt-10">
               <CodeInput value={code} onChange={setCode} masked={false} autoFocus />
-              <div className="mt-5 flex justify-center gap-2">
-                <Button variant="outline" size="sm" className="rounded-xl" onClick={handleGenerate}>
-                  <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Generate
-                </Button>
+              <div className="mt-7 flex justify-center gap-2">
+                <button
+                  onClick={handleGenerate}
+                  className="flex items-center gap-1.5 rounded-full bg-card px-4 py-2 text-[13px] font-semibold shadow-card active:scale-95 transition-transform"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" /> Generate
+                </button>
                 {code.length === 4 && (
-                  <Button variant="outline" size="sm" className="rounded-xl" onClick={copyCode}>
-                    {copied ? <Check className="mr-1.5 h-3.5 w-3.5" /> : <Copy className="mr-1.5 h-3.5 w-3.5" />}
+                  <button
+                    onClick={copyCode}
+                    className="flex items-center gap-1.5 rounded-full bg-card px-4 py-2 text-[13px] font-semibold shadow-card active:scale-95 transition-transform animate-fade-in"
+                  >
+                    {copied ? <Check className="h-3.5 w-3.5 text-accent" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied ? "Copied" : "Copy"}
-                  </Button>
+                  </button>
                 )}
               </div>
-              <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
-                <ShieldCheck className="h-3.5 w-3.5 text-accent" />
-                Share this code with the recipient privately — text, in person, anywhere off-app.
-              </p>
             </div>
 
-            <div className="mt-5 rounded-2xl bg-secondary p-4 text-sm">
+            {/* Summary card */}
+            <div className="mt-10 rounded-3xl bg-card p-5 shadow-card">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Sending</span>
-                <span className="font-semibold tabular-nums">${Number(amount || 0).toFixed(2)}</span>
+                <span className="text-[13px] text-muted-foreground">To</span>
+                <span className="max-w-[60%] truncate text-[14px] font-semibold">{recipient}</span>
               </div>
-              <div className="mt-1 flex items-center justify-between">
-                <span className="text-muted-foreground">LockPay fee (1%, min $0.50)</span>
-                <span className="font-semibold tabular-nums">${calcFeeDollars(Number(amount || 0)).toFixed(2)}</span>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-[13px] text-muted-foreground">Amount</span>
+                <span className="text-[14px] font-semibold tabular-nums">${amountNum.toFixed(2)}</span>
               </div>
-              <div className="mt-1 flex items-center justify-between border-t border-border/50 pt-2">
-                <span className="text-muted-foreground">Total charged</span>
-                <span className="font-semibold tabular-nums">${(Number(amount || 0) + calcFeeDollars(Number(amount || 0))).toFixed(2)}</span>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-[13px] text-muted-foreground">Fee</span>
+                <span className="text-[14px] font-semibold tabular-nums">${feeNum.toFixed(2)}</span>
               </div>
-              <div className="mt-1 flex items-center justify-between">
-                <span className="text-muted-foreground">To</span>
-                <span className="font-semibold">{recipient}</span>
+              <div className="mt-3 flex items-center justify-between border-t border-border/60 pt-3">
+                <span className="text-[14px] font-semibold">Total</span>
+                <span className="text-[17px] font-bold tabular-nums">${totalNum.toFixed(2)}</span>
               </div>
             </div>
 
-            <div className="sticky bottom-[calc(5.5rem+var(--safe-bottom))] z-20 mt-5 -mx-5 px-5 pb-2 pt-3 bg-gradient-to-t from-surface via-surface/95 to-transparent">
-              <Button onClick={handleConfirm} disabled={loading || code.length !== 4}
-                className="w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90 active:scale-[0.98] transition-transform shadow-elevated">
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
+              <ShieldCheck className="h-3 w-3 text-accent" />
+              Keep this code private — share off-app.
+            </p>
+
+            <CtaBar>
+              <Button
+                onClick={handleConfirm}
+                disabled={loading || code.length !== 4}
+                className="w-full h-[54px] rounded-2xl text-[17px] font-semibold gradient-primary text-primary-foreground shadow-elevated active:scale-[0.98] transition-transform"
+              >
                 {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Lock className="mr-2 h-5 w-5" />}
                 {loading ? "Preparing…" : "Continue to payment"}
               </Button>
-            </div>
+            </CtaBar>
           </div>
         )}
 
+        {/* STEP 3 — Pay */}
         {step === "pay" && createdId && (
-          <div className="mt-6 animate-slide-up">
-            <h1 className="text-2xl font-bold">Confirm & send</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              ${Number(amount).toFixed(2)} transfer to <span className="font-semibold text-foreground">{recipient}</span> + ${calcFeeDollars(Number(amount)).toFixed(2)} LockPay fee. Initiated when they enter code <span className="font-mono font-bold text-foreground">{code}</span> with you.
+          <div key="pay" className="mt-7 animate-fade-in">
+            <h1 className="text-[28px] font-bold tracking-tight">Confirm & pay</h1>
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              <span className="font-semibold text-foreground">${amountNum.toFixed(2)}</span> to{" "}
+              <span className="font-semibold text-foreground">{recipient}</span> · code{" "}
+              <span className="font-mono font-bold text-foreground">{code}</span>
             </p>
 
             <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-card">
               <LockPayCheckout
                 transactionId={createdId}
-                amountInCents={Math.round(Number(amount) * 100)}
-                feeInCents={Math.round(calcFeeDollars(Number(amount)) * 100)}
+                amountInCents={Math.round(amountNum * 100)}
+                feeInCents={Math.round(feeNum * 100)}
                 recipient={recipient.trim()}
                 returnUrl={`${window.location.origin}/checkout/return?txn=${createdId}&session_id={CHECKOUT_SESSION_ID}`}
               />
@@ -221,5 +307,13 @@ export default function SendMoney() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+function CtaBar({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="sticky bottom-[calc(5.5rem+var(--safe-bottom))] z-20 mt-8 -mx-5 px-5 pb-2 pt-4 bg-gradient-to-t from-surface via-surface/95 to-transparent">
+      {children}
+    </div>
   );
 }
