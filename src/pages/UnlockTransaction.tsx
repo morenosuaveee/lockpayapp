@@ -270,27 +270,24 @@ export default function UnlockTransaction() {
                 <CheckCircle2 className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-accent-foreground">Recipient confirmed</p>
+                <p className="text-sm font-semibold text-accent-foreground">Recipient verified</p>
                 <p className="mt-0.5 text-xs text-accent-foreground/80">
-                  They've verified the 4-digit code. Complete the payment to release ${Number(tx.amount).toFixed(2)}.
+                  They've confirmed the 4-digit code. Release ${Number(tx.amount).toFixed(2)} when you're ready.
                 </p>
               </div>
             </div>
             <Button
-              onClick={async () => {
-                try {
-                  await supabase.rpc("mark_invite_pending_payment", { _txn_id: tx.id });
-                  navigate(`/send?resume=${tx.id}`);
-                } catch (e) {
-                  toast.error(e instanceof Error ? e.message : "Could not start payment");
-                }
+              onClick={() => {
+                setVerifiedDismissed(false);
+                setShowVerifiedHero(true);
               }}
-              className="mt-4 w-full h-12 rounded-2xl text-[15px] font-semibold gradient-primary text-primary-foreground"
+              className="mt-4 w-full h-12 rounded-2xl text-[15px] font-semibold gradient-accent text-accent-foreground"
             >
-              <Lock className="mr-2 h-4 w-4" /> Complete payment
+              <ShieldCheck className="mr-2 h-4 w-4" /> Review & release
             </Button>
           </div>
         )}
+
 
         {(tx.status === "pending_invite" || tx.status === "awaiting_recipient") && isSender && (
           <div className="mt-6 rounded-3xl bg-card p-5 shadow-card text-center">
