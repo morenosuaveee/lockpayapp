@@ -269,7 +269,10 @@ function TxRow({
           </span>
         </div>
         <div className="mt-1 flex items-center justify-between gap-2">
-          <StatusBadge status={tx.status} />
+          {/* keyed wrapper makes the pill morph in on status change */}
+          <span key={tx.status} className="animate-scale-in inline-flex">
+            <StatusBadge status={tx.status} />
+          </span>
           <span className="text-xs text-muted-foreground shrink-0">
             {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
           </span>
