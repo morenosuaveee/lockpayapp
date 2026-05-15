@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import {
   Lock,
@@ -16,6 +16,7 @@ import {
   ChevronDown,
   LifeBuoy,
   Mail,
+  X,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -156,11 +157,75 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 /* ----------------- Interactive transfer simulator ----------------- */
 
+// Smoothly tweens a numeric value for premium "live" feel.
+function useAnimatedNumber(value: number, duration = 450) {
+  const [display, setDisplay] = useState(value);
+  const fromRef = useRef(value);
+  const startRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    fromRef.current = display;
+    startRef.current = null;
+    const target = value;
+    const tick = (t: number) => {
+      if (startRef.current === null) startRef.current = t;
+      const p = Math.min(1, (t - startRef.current) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(fromRef.current + (target - fromRef.current) * eased);
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, duration]);
+
+  return display;
+}
+
+type RecipientStatus = "idle" | "checking" | "verified" | "unverified";
+
+// Mock verified-recipient directory for the pre-auth demo.
+const VERIFIED_DEMO: Record<string, { name: string; mask: string }> = {
+  "@johndoe": { name: "John D.", mask: "Ends in 4421" },
+  "@sarah": { name: "Sarah M.", mask: "Ends in 8830" },
+  "@alex": { name: "Alex P.", mask: "Ends in 2117" },
+};
+
+function lookupRecipient(input: string): { name: string; mask: string } | null {
+  const key = input.trim().toLowerCase();
+  if (!key) return null;
+  if (VERIFIED_DEMO[key]) return VERIFIED_DEMO[key];
+  // Treat any reasonable email/phone/username as verified for the demo.
+  const looksValid =
+    /^@[a-z0-9._-]{3,}$/i.test(key) ||
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key) ||
+    /^\+?\d[\d\s().-]{6,}$/.test(key);
+  if (!looksValid) return null;
+  // Derive a friendly display from the input.
+  const base = key.replace(/^@/, "").split(/[@\s.]/)[0] || "Recipient";
+  const name = base.charAt(0).toUpperCase() + base.slice(1, 8);
+  const mask = `Ends in ${(Math.abs(hashCode(key)) % 9000 + 1000)}`;
+  return { name: `${name}.`, mask };
+}
+
+function hashCode(s: string) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i);
+  return h;
+}
+
 function TransferSimulator() {
   const navigate = useNavigate();
   const [amount, setAmount] = useState<string>("100");
   const [recipient, setRecipient] = useState<string>("@johndoe");
   const [type, setType] = useState<string>("standard");
+  const [status, setStatus] = useState<RecipientStatus>("idle");
+  const [match, setMatch] = useState<{ name: string; mask: string } | null>(null);
+  const [sending, setSending] = useState(false);
 
   const amountNum = useMemo(() => {
     const n = Number(amount);
@@ -169,18 +234,52 @@ function TransferSimulator() {
 
   const fee = useMemo(() => calcFeeDollars(amountNum), [amountNum]);
   const total = amountNum + fee;
-  const recipientValid = recipient.trim().length >= 3;
+  const animTotal = useAnimatedNumber(total);
+  const animFee = useAnimatedNumber(fee);
+
+  // Debounced recipient verification simulation.
+  useEffect(() => {
+    if (recipient.trim().length < 3) {
+      setStatus("idle");
+      setMatch(null);
+      return;
+    }
+    setStatus("checking");
+    setMatch(null);
+    const t = setTimeout(() => {
+      const found = lookupRecipient(recipient);
+      if (found) {
+        setStatus("verified");
+        setMatch(found);
+      } else {
+        setStatus("unverified");
+      }
+    }, 550);
+    return () => clearTimeout(t);
+  }, [recipient]);
+
+  const canSend = status === "verified" && amountNum > 0 && !sending;
 
   const handleSendSecurely = () => {
+    if (!canSend) return;
+    setSending(true);
     try {
       sessionStorage.setItem(
         "lockpay.simulatedTransfer",
-        JSON.stringify({ amount: amountNum, recipient, type, ts: Date.now() }),
+        JSON.stringify({
+          amount: amountNum,
+          recipient,
+          type,
+          recipientName: match?.name,
+          recipientMask: match?.mask,
+          ts: Date.now(),
+        }),
       );
     } catch {
       // ignore
     }
-    navigate("/signup", { state: { fromSimulator: true } });
+    // Brief "preparing secure session" beat for premium feel.
+    setTimeout(() => navigate("/signup", { state: { fromSimulator: true } }), 650);
   };
 
   return (
@@ -195,7 +294,7 @@ function TransferSimulator() {
             <div className="mt-0.5 text-base font-semibold">Simulate before you sign up</div>
           </div>
           <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[10px] font-bold text-accent-foreground">
-            <BadgeCheck className="h-3 w-3" /> Demo
+            <BadgeCheck className="h-3 w-3" /> Encrypted demo
           </span>
         </div>
 
@@ -211,7 +310,7 @@ function TransferSimulator() {
                 inputMode="decimal"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
-                className="h-16 pl-9 text-2xl font-bold tabular-nums"
+                className="h-16 pl-9 pr-16 text-2xl font-bold tabular-nums transition-shadow"
                 placeholder="0.00"
               />
               <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 rounded-md bg-secondary px-2 py-1 text-[10px] font-semibold text-muted-foreground">
@@ -224,13 +323,53 @@ function TransferSimulator() {
             <Label htmlFor="rcpt" className="text-xs text-muted-foreground">
               Recipient · username, email, or phone
             </Label>
-            <Input
-              id="rcpt"
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
-              className="mt-1.5"
-              placeholder="@username or name@email.com"
-            />
+            <div className="relative mt-1.5">
+              <Input
+                id="rcpt"
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+                className={`pr-10 transition-shadow ${
+                  status === "verified" ? "border-accent/60 ring-2 ring-accent/15" : ""
+                } ${status === "unverified" ? "border-destructive/60" : ""}`}
+                placeholder="@username or name@email.com"
+                autoComplete="off"
+              />
+              <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                {status === "checking" && (
+                  <span className="block h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-accent" />
+                )}
+                {status === "verified" && <CheckCircle2 className="h-5 w-5 text-accent" />}
+                {status === "unverified" && <X className="h-5 w-5 text-destructive" />}
+              </div>
+            </div>
+
+            {/* Recipient state card */}
+            <div
+              className={`mt-2 overflow-hidden rounded-xl border text-xs transition-all duration-300 ${
+                status === "verified"
+                  ? "border-accent/40 bg-accent-soft/70 px-3 py-2 opacity-100"
+                  : status === "unverified"
+                  ? "border-destructive/30 bg-destructive-soft px-3 py-2 opacity-100"
+                  : "max-h-0 border-transparent px-3 py-0 opacity-0"
+              }`}
+            >
+              {status === "verified" && match && (
+                <div className="flex items-center gap-2">
+                  <BadgeCheck className="h-4 w-4 text-accent" />
+                  <span className="font-semibold text-foreground">Verified Recipient</span>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="text-foreground/80">{match.name}</span>
+                  <span className="text-muted-foreground">· {match.mask}</span>
+                </div>
+              )}
+              {status === "unverified" && (
+                <div className="flex items-center gap-2 text-destructive">
+                  <X className="h-4 w-4" />
+                  <span className="font-semibold">Recipient not verified</span>
+                  <span className="text-destructive/80">· transfer cannot release</span>
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
@@ -249,23 +388,57 @@ function TransferSimulator() {
         </div>
 
         <div className="mt-5 space-y-2 rounded-2xl bg-secondary/50 p-3.5">
-          <Row icon={<UserCheck className="h-4 w-4 text-accent" />} label="Verified recipient match" value="Required" />
-          <Row icon={<Lock className="h-4 w-4 text-accent" />} label="Funds protected until accepted" value="Yes" />
-          <Row icon={<Zap className="h-4 w-4 text-accent" />} label="Delivery time" value="Instant after verification" />
-          <Row icon={<Sparkles className="h-4 w-4 text-accent" />} label="Transfer fee" value={`$${fee.toFixed(2)}`} />
+          <Row
+            icon={<UserCheck className="h-4 w-4 text-accent" />}
+            label="Recipient status"
+            value={
+              status === "verified"
+                ? "Verified ✓"
+                : status === "checking"
+                ? "Verifying…"
+                : status === "unverified"
+                ? "Not verified"
+                : "Awaiting input"
+            }
+          />
+          <Row
+            icon={<Lock className="h-4 w-4 text-accent" />}
+            label="Protection status"
+            value="Funds held until acceptance"
+          />
+          <Row
+            icon={<Zap className="h-4 w-4 text-accent" />}
+            label="Delivery time"
+            value="Instant after acceptance"
+          />
+          <Row
+            icon={<Sparkles className="h-4 w-4 text-accent" />}
+            label="Transfer fee"
+            value={`$${animFee.toFixed(2)}`}
+          />
           <div className="my-1 h-px bg-border/70" />
-          <Row label="Total" value={`$${total.toFixed(2)}`} bold />
+          <Row label="Total" value={`$${animTotal.toFixed(2)}`} bold />
         </div>
 
         <Button
           onClick={handleSendSecurely}
-          disabled={!recipientValid || amountNum <= 0}
-          className="mt-4 h-14 w-full rounded-2xl text-base font-semibold gradient-primary text-primary-foreground shadow-elevated hover:opacity-95 active:scale-[0.99]"
+          disabled={!canSend}
+          className="mt-4 h-14 w-full rounded-2xl text-base font-semibold gradient-primary text-primary-foreground shadow-elevated transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-60 disabled:hover:translate-y-0"
         >
-          <Send className="h-4 w-4" /> Send Securely
+          {sending ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+              Preparing secure session…
+            </>
+          ) : (
+            <>
+              <ShieldCheck className="h-4 w-4" /> Send Securely
+            </>
+          )}
         </Button>
-        <p className="mt-2.5 text-center text-[11px] text-muted-foreground">
-          Create an account to securely complete your protected transfer.
+        <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
+          <Lock className="h-3 w-3" />
+          Create an account to complete your protected transfer.
         </p>
       </div>
     </div>
