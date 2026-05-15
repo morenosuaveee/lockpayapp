@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CodeInput } from "@/components/CodeInput";
 import { StatusBadge } from "@/components/StatusBadge";
 import { TransferTimeline } from "@/components/TransferTimeline";
+import { RecipientVerifiedSuccess } from "@/components/RecipientVerifiedSuccess";
 import { Countdown } from "@/components/Countdown";
 import { verifyCode } from "@/lib/unlock-code";
 import { getProvider } from "@/lib/payments/providers";
