@@ -15,7 +15,7 @@ import {
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
 const stagger = {
@@ -141,7 +141,7 @@ function PhoneMock() {
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
       className="relative mx-auto mt-16 w-full max-w-[340px]"
     >
       <div className="absolute -inset-12 -z-10 rounded-full bg-primary/10 blur-3xl" />
