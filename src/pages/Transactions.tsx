@@ -48,8 +48,8 @@ export default function Transactions() {
   return (
     <AppShell>
       <div className="px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-3">
-        <h1 className="text-2xl font-bold tracking-tight">Vault</h1>
-        <p className="mt-1 text-sm text-muted-foreground">All your locked &amp; released transfers.</p>
+        <h1 className="text-2xl font-bold tracking-tight">Activity</h1>
+        <p className="mt-1 text-sm text-muted-foreground">All your pending &amp; completed transfers.</p>
       </div>
 
       <div className="sticky top-0 z-10 -mt-1 bg-surface/85 px-5 pb-3 pt-2 backdrop-blur-xl">
