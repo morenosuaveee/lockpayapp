@@ -17,8 +17,8 @@ export default function SmsPolicy() {
 
       <h2>Message frequency</h2>
       <p>
-        Message frequency varies by your account activity — verifications, payment events, and
-        security alerts.
+        Message frequency varies based on account activity and transfers — verifications, payment
+        events, and security alerts. <strong>Consent is not a condition of purchase.</strong>
       </p>
 
       <h2>Carrier rates</h2>
