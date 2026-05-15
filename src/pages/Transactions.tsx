@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Lock, ArrowDownLeft, ArrowUpRight, Plus, Send as SendIcon,
@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { haptic } from "@/lib/native";
 import type { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
