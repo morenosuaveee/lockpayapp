@@ -239,7 +239,47 @@ export default function UnlockTransaction() {
         )}
 
         {/* Code entry */}
-        {!finalState && !myConfirmed && (
+        {/* Sender complete-payment CTA when recipient has confirmed */}
+        {isSender && tx.status === "recipient_confirmed" && (
+          <div className="mt-6 rounded-3xl bg-accent-soft p-5 shadow-card animate-fade-in">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-accent-foreground">Recipient confirmed</p>
+                <p className="mt-0.5 text-xs text-accent-foreground/80">
+                  They've verified the 4-digit code. Complete the payment to release ${Number(tx.amount).toFixed(2)}.
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={async () => {
+                try {
+                  await supabase.rpc("mark_invite_pending_payment", { _txn_id: tx.id });
+                  navigate(`/send?resume=${tx.id}`);
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Could not start payment");
+                }
+              }}
+              className="mt-4 w-full h-12 rounded-2xl text-[15px] font-semibold gradient-primary text-primary-foreground"
+            >
+              <Lock className="mr-2 h-4 w-4" /> Complete payment
+            </Button>
+          </div>
+        )}
+
+        {(tx.status === "pending_invite" || tx.status === "awaiting_recipient") && isSender && (
+          <div className="mt-6 rounded-3xl bg-card p-5 shadow-card text-center">
+            <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+            <p className="mt-3 text-sm font-semibold">Waiting on {tx.recipient_identifier}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              We'll move this to payment as soon as they confirm. No charge yet.
+            </p>
+          </div>
+        )}
+
+        {!finalState && !myConfirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation" || tx.status === "pending_payment") && (
           <div className="mt-6 rounded-3xl bg-card p-6 shadow-card">
             <h2 className="text-center text-base font-semibold">Enter the 4-digit code</h2>
             <p className="mt-1 text-center text-xs text-muted-foreground">
