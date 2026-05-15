@@ -36,6 +36,8 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/welcome" element={<Welcome />} />
+            <Route path="/get-started" element={<GetStarted />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/login" element={<AuthPage mode="login" />} />
             <Route path="/signup" element={<AuthPage mode="signup" />} />
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
