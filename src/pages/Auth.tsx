@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Checkbox } from "@/components/ui/checkbox";
+import { OnboardingProgress } from "@/components/OnboardingProgress";
 import { toast } from "sonner";
 
 function SmsConsent({
@@ -178,6 +179,12 @@ export default function AuthPage({ mode }: Props) {
             {isSignup ? "Create your secure transfer account" : "Welcome back"}
           </p>
         </div>
+
+        {isSignup && (
+          <div className="rounded-2xl bg-card/70 p-3.5 shadow-card animate-slide-up">
+            <OnboardingProgress current={0} />
+          </div>
+        )}
 
         <Tabs defaultValue="email" className="animate-slide-up">
           <TabsList className="grid w-full grid-cols-2 rounded-2xl">

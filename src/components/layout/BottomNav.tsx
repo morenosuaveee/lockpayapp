@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { Home, Send, Lock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/native";
 
 const tabs = [
   { to: "/", label: "Home", icon: Home, end: true },
@@ -25,6 +26,7 @@ export function BottomNav() {
             <NavLink
               to={to}
               end={end}
+              onClick={() => haptic("light")}
               className={({ isActive }) =>
                 cn(
                   "flex h-14 flex-col items-center justify-center gap-0.5 rounded-2xl text-[10.5px] font-semibold tracking-tight transition-all active:scale-[0.94]",

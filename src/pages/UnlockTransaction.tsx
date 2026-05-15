@@ -8,6 +8,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { CodeInput } from "@/components/CodeInput";
 import { StatusBadge } from "@/components/StatusBadge";
+import { TransferTimeline } from "@/components/TransferTimeline";
 import { Countdown } from "@/components/Countdown";
 import { verifyCode } from "@/lib/unlock-code";
 import { getProvider } from "@/lib/payments/providers";
@@ -348,7 +349,9 @@ export default function UnlockTransaction() {
           </div>
         )}
 
-        <div className="mt-6 space-y-1.5 rounded-2xl bg-secondary p-4 text-xs text-muted-foreground">
+        <TransferTimeline tx={tx as unknown as { status: string; created_at: string; invite_sent_at?: string | null; recipient_confirmed_at?: string | null; released_at?: string | null; expires_at?: string }} className="mt-6" />
+
+        <div className="mt-4 space-y-1.5 rounded-2xl bg-secondary p-4 text-xs text-muted-foreground">
           <Row label="Created" value={formatDistanceToNowStrict(new Date(tx.created_at), { addSuffix: true })} />
           <Row label="Expires" value={formatDistanceToNowStrict(new Date(tx.expires_at), { addSuffix: true })} />
           <Row label="Provider" value="PayPal (mock)" />
