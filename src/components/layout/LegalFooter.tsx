@@ -11,6 +11,8 @@ export function LegalFooter({ className = "" }: { className?: string }) {
         Identity-confirmed transfer coordination
       </div>
       <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+        <Link to="/how-it-works" className="hover:text-foreground">How it works</Link>
+        <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
         <Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link>
         <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
         <Link to="/terms" className="hover:text-foreground">Terms of Service</Link>
