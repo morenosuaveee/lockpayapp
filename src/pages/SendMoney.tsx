@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, RefreshCw, Copy, Check, Loader2, ShieldCheck, Lock } from "lucide-react";
+import {
+  ArrowLeft, RefreshCw, Copy, Check, Loader2, ShieldCheck, Lock,
+  UserCheck, Send as SendIcon, AlertCircle, CheckCircle2, Mail, Phone,
+} from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { CodeInput } from "@/components/CodeInput";
 import { LockPayCheckout } from "@/components/LockPayCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { SuccessMark } from "@/components/SuccessMark";
 import { generateCode, hashCode } from "@/lib/unlock-code";
 import { calcFeeDollars } from "@/lib/fees";
 import { toast } from "sonner";
@@ -23,6 +27,12 @@ const schema = z.object({
 });
 
 type Step = "details" | "code" | "pay" | "invited";
+type Lookup =
+  | { state: "idle" }
+  | { state: "checking" }
+  | { state: "lockpay_user"; verified: boolean }
+  | { state: "will_invite" }
+  | { state: "invalid" };
 
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 const isPhone = (v: string) => /^\+?[\d\s\-().]{7,}$/.test(v.trim());
@@ -38,9 +48,13 @@ export default function SendMoney() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [createdId, setCreatedId] = useState<string | null>(null);
+  const [txnStatus, setTxnStatus] = useState<string | null>(null);
+  const [lookup, setLookup] = useState<Lookup>({ state: "idle" });
   const amountRef = useRef<HTMLInputElement>(null);
 
-  // Auto-focus amount when entering details, code on step change
+  const recipientType = isEmail(recipient) ? "email" : isPhone(recipient) ? "phone" : null;
+
+  // Auto-focus amount when entering details
   useEffect(() => {
     if (step === "details") {
       const t = setTimeout(() => amountRef.current?.focus(), 150);
@@ -48,11 +62,50 @@ export default function SendMoney() {
     }
   }, [step]);
 
-  const recipientType = isEmail(recipient) ? "email" : isPhone(recipient) ? "phone" : null;
+  // Debounced live recipient lookup
+  useEffect(() => {
+    const v = recipient.trim();
+    if (!v) { setLookup({ state: "idle" }); return; }
+    if (!recipientType) { setLookup({ state: "invalid" }); return; }
+    setLookup({ state: "checking" });
+    const t = setTimeout(async () => {
+      const norm = recipientType === "email" ? v.toLowerCase() : v;
+      const { data, error } = await supabase.rpc("lookup_recipient", {
+        _identifier: norm, _channel: recipientType,
+      });
+      if (error) { setLookup({ state: "will_invite" }); return; }
+      const r = (data ?? {}) as { exists?: boolean; verified?: boolean };
+      if (r.exists) setLookup({ state: "lockpay_user", verified: !!r.verified });
+      else setLookup({ state: "will_invite" });
+    }, 380);
+    return () => clearTimeout(t);
+  }, [recipient, recipientType]);
+
+  // Realtime watcher for invited transactions: when recipient_confirmed → jump to pay step
+  useEffect(() => {
+    if (!createdId || step !== "invited") return;
+    const channel = supabase.channel(`send-tx-${createdId}`)
+      .on("postgres_changes",
+        { event: "UPDATE", schema: "public", table: "transactions", filter: `id=eq.${createdId}` },
+        async (payload) => {
+          const next = payload.new as { status: string };
+          setTxnStatus(next.status);
+          if (next.status === "recipient_confirmed") {
+            try {
+              await supabase.rpc("mark_invite_pending_payment", { _txn_id: createdId });
+              setStep("pay");
+              toast.success("Recipient confirmed — complete payment to release funds");
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "Could not advance to payment");
+            }
+          }
+        }).subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [createdId, step]);
+
   const amountNum = Number(amount) || 0;
   const feeNum = calcFeeDollars(amountNum);
   const totalNum = amountNum + feeNum;
-
   const canContinueDetails = !!recipientType && amountNum > 0 && amountNum <= 20;
 
   const handleNext = () => {
@@ -61,27 +114,18 @@ export default function SendMoney() {
     setStep("code");
   };
 
-  const handleGenerate = () => {
-    setCode(generateCode());
-  };
+  const handleGenerate = () => setCode(generateCode());
 
   const handleConfirm = async () => {
     if (code.length !== 4) { toast.error("Enter a 4-digit code"); return; }
+    if (!recipientType) { toast.error("Invalid recipient"); return; }
     setLoading(true);
     try {
       const { data: prof } = await supabase.from("profiles").select("paypal_email").eq("id", user!.id).maybeSingle();
       const tempId = crypto.randomUUID();
       const hash = await hashCode(code, tempId);
-
-      // Pre-check: is the recipient a LockPay user?
       const norm = recipientType === "email" ? recipient.trim().toLowerCase() : recipient.trim();
-      const lookupCol = recipientType === "email" ? "paypal_email" : "phone";
-      const { data: existing } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq(lookupCol, norm)
-        .maybeSingle();
-      const isExistingUser = !!existing?.id;
+      const isExistingUser = lookup.state === "lockpay_user";
 
       const { data: txn, error } = await supabase.from("transactions").insert({
         id: tempId,
@@ -100,16 +144,15 @@ export default function SendMoney() {
 
       if (error || !txn) throw error ?? new Error("Could not create transfer");
       setCreatedId(txn.id);
+      setTxnStatus(txn.status);
 
       if (isExistingUser) {
         setStep("pay");
       } else {
-        // Send invite (channel auto-detected server-side)
         const { error: invErr } = await supabase.functions.invoke("send-transfer-invite", {
           body: { transactionId: txn.id },
         });
         if (invErr) throw invErr;
-        toast.success(`Invite sent via ${recipientType === "email" ? "email" : "SMS"}`);
         setStep("invited");
       }
     } catch (e) {
@@ -128,6 +171,7 @@ export default function SendMoney() {
   const handleBack = () => {
     if (step === "details") navigate(-1);
     else if (step === "code") setStep("details");
+    else if (step === "invited") navigate("/transactions");
     else setStep("code");
   };
 
@@ -135,7 +179,7 @@ export default function SendMoney() {
     <AppShell>
       <PaymentTestModeBanner />
       <div className="px-5 pt-5 pb-6">
-        {/* Header — minimal iOS-style */}
+        {/* Header */}
         <div className="flex items-center gap-3">
           <button
             onClick={handleBack}
@@ -162,7 +206,7 @@ export default function SendMoney() {
             <h1 className="text-[28px] font-bold tracking-tight">Send</h1>
             <p className="mt-1 text-[13px] text-muted-foreground">Confirmed by both sides with a 4-digit code.</p>
 
-            {/* Amount — big, primary */}
+            {/* Amount */}
             <div className="mt-7 flex flex-col items-center">
               <div className="flex items-baseline gap-1">
                 <span className="text-3xl font-semibold text-muted-foreground">$</span>
@@ -198,8 +242,8 @@ export default function SendMoney() {
                     className="h-9 border-0 bg-transparent px-0 text-[17px] font-medium shadow-none focus-visible:border-0 focus-visible:ring-0"
                   />
                   {recipientType && (
-                    <span className="flex items-center gap-1 rounded-full bg-accent-soft px-2 py-1 text-[10px] font-semibold text-accent-foreground animate-fade-in">
-                      <ShieldCheck className="h-3 w-3" />
+                    <span className="flex items-center gap-1 rounded-full bg-secondary px-2 py-1 text-[10px] font-semibold text-foreground/70 animate-fade-in">
+                      {recipientType === "email" ? <Mail className="h-3 w-3" /> : <Phone className="h-3 w-3" />}
                       {recipientType === "email" ? "Email" : "Phone"}
                     </span>
                   )}
@@ -220,9 +264,12 @@ export default function SendMoney() {
               </div>
             </div>
 
+            {/* Live recipient lookup state */}
+            <LookupBanner lookup={lookup} channel={recipientType} />
+
             {/* Fee preview */}
             {amountNum > 0 && (
-              <div className="mt-4 flex items-center justify-between rounded-2xl bg-secondary/60 px-4 py-3 text-[13px] animate-fade-in">
+              <div className="mt-3 flex items-center justify-between rounded-2xl bg-secondary/60 px-4 py-3 text-[13px] animate-fade-in">
                 <span className="text-muted-foreground">Fee · 1% (min $0.50)</span>
                 <span className="font-semibold tabular-nums">${feeNum.toFixed(2)}</span>
               </div>
@@ -267,20 +314,10 @@ export default function SendMoney() {
               </div>
             </div>
 
-            {/* Summary card */}
             <div className="mt-10 rounded-3xl bg-card p-5 shadow-card">
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] text-muted-foreground">To</span>
-                <span className="max-w-[60%] truncate text-[14px] font-semibold">{recipient}</span>
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="text-[13px] text-muted-foreground">Amount</span>
-                <span className="text-[14px] font-semibold tabular-nums">${amountNum.toFixed(2)}</span>
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="text-[13px] text-muted-foreground">Fee</span>
-                <span className="text-[14px] font-semibold tabular-nums">${feeNum.toFixed(2)}</span>
-              </div>
+              <SummaryRow label="To" value={<span className="max-w-[60%] truncate">{recipient}</span>} />
+              <SummaryRow label="Amount" value={`$${amountNum.toFixed(2)}`} />
+              <SummaryRow label="Fee" value={`$${feeNum.toFixed(2)}`} />
               <div className="mt-3 flex items-center justify-between border-t border-border/60 pt-3">
                 <span className="text-[14px] font-semibold">Total</span>
                 <span className="text-[17px] font-bold tabular-nums">${totalNum.toFixed(2)}</span>
@@ -299,21 +336,83 @@ export default function SendMoney() {
                 className="w-full h-[54px] rounded-2xl text-[17px] font-semibold gradient-primary text-primary-foreground shadow-elevated active:scale-[0.98] transition-transform"
               >
                 {loading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Lock className="mr-2 h-5 w-5" />}
-                {loading ? "Preparing…" : "Continue to payment"}
+                {loading
+                  ? "Preparing…"
+                  : lookup.state === "lockpay_user"
+                  ? "Continue to payment"
+                  : "Send invite"}
               </Button>
             </CtaBar>
           </div>
         )}
 
-        {/* STEP 3 — Pay */}
+        {/* STEP 3a — Invited (waiting on recipient) */}
+        {step === "invited" && createdId && (
+          <div key="invited" className="mt-8 animate-fade-in flex flex-col items-center text-center">
+            <div className="relative">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-accent-soft">
+                <SendIcon className="h-10 w-10 text-accent-foreground" />
+              </div>
+              <span className="absolute inset-0 rounded-full ring-4 ring-accent/30 animate-success-ring" />
+            </div>
+            <p className="mt-7 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">Invite sent</p>
+            <h1 className="mt-1.5 text-[26px] font-bold tracking-tight">Waiting on {recipient}</h1>
+            <p className="mt-2 max-w-[300px] text-[13px] text-muted-foreground text-balance">
+              We sent them a secure link via {recipientType === "email" ? "email" : "SMS"}. They'll create a free
+              LockPay account and confirm with the 4-digit code. You'll be charged only after they confirm.
+            </p>
+
+            <div className="mt-7 w-full rounded-3xl bg-card p-5 shadow-card text-left">
+              <SummaryRow label="To" value={<span className="max-w-[60%] truncate">{recipient}</span>} />
+              <SummaryRow label="Amount" value={`$${amountNum.toFixed(2)}`} />
+              <SummaryRow label="Fee" value={`$${feeNum.toFixed(2)}`} />
+              <div className="mt-3 flex items-center justify-between border-t border-border/60 pt-3">
+                <span className="text-[13px] text-muted-foreground">Code</span>
+                <span className="font-mono text-[15px] font-bold tracking-widest">{code}</span>
+              </div>
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-[13px] text-muted-foreground">Status</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-lock-soft px-2.5 py-1 text-[11px] font-semibold text-lock-foreground">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  {txnStatus === "recipient_confirmed" ? "Recipient confirmed" : "Awaiting recipient"}
+                </span>
+              </div>
+            </div>
+
+            <p className="mt-4 text-[11px] text-muted-foreground">
+              You'll get a notification the moment they confirm. No charge yet.
+            </p>
+
+            <div className="mt-6 flex w-full flex-col gap-2">
+              <Button asChild variant="outline" className="h-12 rounded-2xl bg-card">
+                <a onClick={(e) => { e.preventDefault(); navigate("/transactions"); }} href="/transactions">
+                  View activity
+                </a>
+              </Button>
+              <Button variant="ghost" onClick={() => navigate("/")} className="h-11 rounded-2xl text-muted-foreground">
+                Back to home
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3b — Pay */}
         {step === "pay" && createdId && (
           <div key="pay" className="mt-7 animate-fade-in">
-            <h1 className="text-[28px] font-bold tracking-tight">Confirm & pay</h1>
+            <h1 className="text-[28px] font-bold tracking-tight">Confirm &amp; pay</h1>
             <p className="mt-1 text-[13px] text-muted-foreground">
               <span className="font-semibold text-foreground">${amountNum.toFixed(2)}</span> to{" "}
               <span className="font-semibold text-foreground">{recipient}</span> · code{" "}
               <span className="font-mono font-bold text-foreground">{code}</span>
             </p>
+
+            {txnStatus === "recipient_confirmed" && (
+              <div className="mt-4 flex items-center gap-2 rounded-2xl bg-accent-soft px-4 py-3 text-[13px] animate-fade-in">
+                <CheckCircle2 className="h-4 w-4 text-accent" />
+                <span className="font-semibold text-accent-foreground">Recipient confirmed</span>
+                <span className="ml-auto text-muted-foreground">Ready to pay</span>
+              </div>
+            )}
 
             <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-card">
               <LockPayCheckout
@@ -328,6 +427,59 @@ export default function SendMoney() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between py-1.5 first:pt-0">
+      <span className="text-[13px] text-muted-foreground">{label}</span>
+      <span className="text-[14px] font-semibold tabular-nums truncate ml-3">{value}</span>
+    </div>
+  );
+}
+
+function LookupBanner({ lookup, channel }: { lookup: Lookup; channel: "email" | "phone" | null }) {
+  if (lookup.state === "idle") return null;
+  const baseClass = "mt-4 flex items-center gap-2.5 rounded-2xl px-4 py-3 text-[13px] animate-fade-in";
+  if (lookup.state === "checking") {
+    return (
+      <div className={`${baseClass} bg-secondary/60 text-muted-foreground`}>
+        <Loader2 className="h-4 w-4 animate-spin" />
+        <span>Checking recipient…</span>
+      </div>
+    );
+  }
+  if (lookup.state === "invalid") {
+    return (
+      <div className={`${baseClass} bg-destructive-soft text-destructive`}>
+        <AlertCircle className="h-4 w-4" />
+        <span className="font-semibold">Enter a valid email or phone</span>
+      </div>
+    );
+  }
+  if (lookup.state === "lockpay_user") {
+    return (
+      <div className={`${baseClass} bg-accent-soft text-accent-foreground`}>
+        <UserCheck className="h-4 w-4" />
+        <span className="font-semibold">LockPay user</span>
+        <span className="ml-auto text-[11px] opacity-80">
+          {lookup.verified ? "Verified identity" : "Account active"}
+        </span>
+      </div>
+    );
+  }
+  // will_invite
+  return (
+    <div className={`${baseClass} bg-lock-soft text-lock-foreground`}>
+      <SendIcon className="h-4 w-4" />
+      <div className="flex-1 min-w-0">
+        <div className="font-semibold">New to LockPay — they'll get an invite</div>
+        <div className="mt-0.5 text-[11px] opacity-80">
+          Sent via {channel === "email" ? "email" : "SMS"}. You're charged only after they confirm.
+        </div>
+      </div>
+    </div>
   );
 }
 
