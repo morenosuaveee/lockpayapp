@@ -40,6 +40,8 @@ export default function UnlockTransaction() {
   const [submitting, setSubmitting] = useState(false);
   const [invalid, setInvalid] = useState(false);
   const [userPaypalEmail, setUserPaypalEmail] = useState<string | null>(null);
+  const [showVerifiedHero, setShowVerifiedHero] = useState(false);
+  const [verifiedDismissed, setVerifiedDismissed] = useState(false);
 
   useEffect(() => {
     if (!id || !user) return;
