@@ -74,6 +74,8 @@ export default function AuthPage({ mode }: Props) {
   const [otpStep, setOtpStep] = useState<"idle" | "code">("idle");
   const [otpSending, setOtpSending] = useState(false);
   const [otpVerifying, setOtpVerifying] = useState(false);
+  const [smsConsentEmail, setSmsConsentEmail] = useState(false);
+  const [smsConsentPhone, setSmsConsentPhone] = useState(false);
 
   async function sendOtp() {
     const parsed = phoneSchema.safeParse(phone);
