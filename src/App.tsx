@@ -23,6 +23,8 @@ import Security from "./pages/Security";
 import Compliance from "./pages/Compliance";
 import SmsPolicy from "./pages/SmsPolicy";
 import DeleteAccount from "./pages/DeleteAccount";
+import GetStarted from "./pages/GetStarted";
+import HowItWorks from "./pages/HowItWorks";
 
 const queryClient = new QueryClient();
 
