@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { AppShell } from "@/components/layout/AppShell";
 import { NotificationsBell, type NotifTx } from "@/components/NotificationsBell";
 import { TrustStrip } from "@/components/TrustStrip";
+import { TrustPanel } from "@/components/TrustPanel";
 import { LegalFooter } from "@/components/layout/LegalFooter";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
@@ -143,8 +144,9 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        {/* Trust strip */}
+        {/* Trust strip + collapsible panel */}
         <TrustStrip className="mt-5" />
+        <TrustPanel className="mt-3" />
       </div>
 
       {/* Recent transactions */}
