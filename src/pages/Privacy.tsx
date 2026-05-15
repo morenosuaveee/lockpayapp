@@ -5,9 +5,9 @@ export default function Privacy() {
   return (
     <LegalPage title="Privacy Policy" updated="May 14, 2026">
       <p>
-        Lock Pay ("Lock Pay", "we", "us") operates a technology platform for secure
-        accountability-based payments with dual confirmation protection. This Privacy Policy
-        explains what information we collect, how we use it, and the choices you have.
+        Lock Pay ("Lock Pay", "we", "us") operates a technology platform for secure transfer
+        coordination and recipient verification. This Privacy Policy explains what information we
+        collect, how we use it, and the choices you have.
       </p>
 
       <h2>Information collected</h2>
