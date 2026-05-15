@@ -20,8 +20,8 @@ interface Tx {
   sender_paypal_email: string | null;
   recipient_id: string | null;
   recipient_identifier: string;
-  amount: number; currency: string;
-  status: "pending" | "locked" | "awaiting_confirmation" | "unlocked" | "completed" | "refunded" | "expired" | "cancelled";
+  amount: number; fee_amount?: number; currency: string;
+  status: "pending" | "pending_invite" | "awaiting_recipient" | "recipient_confirmed" | "pending_payment" | "locked" | "awaiting_confirmation" | "unlocked" | "completed" | "refunded" | "expired" | "cancelled";
   unlock_code_hash: string;
   sender_confirmed: boolean; receiver_confirmed: boolean;
   sender_attempts: number; receiver_attempts: number; max_attempts: number;
