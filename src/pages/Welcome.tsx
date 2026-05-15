@@ -103,18 +103,18 @@ function Hero() {
     <section className="grid gap-10 pt-10 sm:pt-16 md:grid-cols-2 md:gap-12 md:pt-20">
       <div className="animate-slide-up">
         <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent-soft px-3 py-1 text-[11px] font-semibold text-accent-foreground">
-          <ShieldCheck className="h-3 w-3" /> Verified-recipient transfer protection
+          <ShieldCheck className="h-3 w-3" /> Identity-confirmed transfer coordination
         </div>
         <h1 className="mt-5 text-balance text-[40px] sm:text-[52px] font-bold leading-[1.02] tracking-tight">
-          Never send money to the{" "}
+          Verify before you{" "}
           <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-            wrong person
-          </span>{" "}
-          again.
+            send
+          </span>
+          .
         </h1>
         <p className="mt-4 text-balance text-[16px] sm:text-[17px] leading-relaxed text-muted-foreground max-w-lg">
-          Lock Pay protects every transfer by verifying the recipient before
-          funds are released — so your money reaches exactly who it's meant for.
+          Lock Pay is a secure transfer coordination app. We verify the recipient's identity
+          before a transfer is initiated — designed to help reduce mistaken transfers.
         </p>
 
         <div className="mt-6 hidden md:flex items-center gap-3">
@@ -289,9 +289,9 @@ function TransferSimulator() {
         <div className="flex items-center justify-between">
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Try a protected transfer
+              Try the transfer flow
             </div>
-            <div className="mt-0.5 text-base font-semibold">Simulate before you sign up</div>
+            <div className="mt-0.5 text-base font-semibold">Verify before you sign up</div>
           </div>
           <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[10px] font-bold text-accent-foreground">
             <BadgeCheck className="h-3 w-3" /> Encrypted demo
@@ -379,7 +379,7 @@ function TransferSimulator() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="standard">Standard · protected release</SelectItem>
+                <SelectItem value="standard">Standard · identity-confirmed</SelectItem>
                 <SelectItem value="instant">Instant · verified recipient</SelectItem>
                 <SelectItem value="agreement">Agreement · dual confirmation</SelectItem>
               </SelectContent>
@@ -403,13 +403,13 @@ function TransferSimulator() {
           />
           <Row
             icon={<Lock className="h-4 w-4 text-accent" />}
-            label="Protection status"
-            value="Funds held until acceptance"
+            label="Transfer status"
+            value="Awaits recipient confirmation"
           />
           <Row
             icon={<Zap className="h-4 w-4 text-accent" />}
             label="Delivery time"
-            value="Instant after acceptance"
+            value="Instant after confirmation"
           />
           <Row
             icon={<Sparkles className="h-4 w-4 text-accent" />}
@@ -438,7 +438,7 @@ function TransferSimulator() {
         </Button>
         <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
           <Lock className="h-3 w-3" />
-          Create an account to complete your protected transfer.
+          Create an account to complete this transfer.
         </p>
       </div>
     </div>
@@ -473,14 +473,14 @@ function Row({
 
 function HowItWorks() {
   const steps = [
-    { n: 1, title: "Enter recipient details", desc: "Send to a username, email, or phone — we'll match it to a verified recipient.", icon: <Send className="h-5 w-5" /> },
-    { n: 2, title: "Recipient gets verified", desc: "Lock Pay confirms the receiving party before any funds move.", icon: <UserCheck className="h-5 w-5" /> },
-    { n: 3, title: "Funds securely released", desc: "Your transfer is protected until the verified recipient accepts.", icon: <Lock className="h-5 w-5" /> },
-    { n: 4, title: "Transfer confirmed instantly", desc: "Both parties get instant confirmation with a permanent receipt.", icon: <CheckCircle2 className="h-5 w-5" /> },
+    { n: 1, title: "Enter recipient details", desc: "Send to a username, email, or phone — we'll match it to a verified Lock Pay account.", icon: <Send className="h-5 w-5" /> },
+    { n: 2, title: "Recipient is verified", desc: "Lock Pay confirms the receiving party's identity before a transfer is initiated.", icon: <UserCheck className="h-5 w-5" /> },
+    { n: 3, title: "Recipient confirms", desc: "The recipient acknowledges and confirms the transfer in-app.", icon: <Lock className="h-5 w-5" /> },
+    { n: 4, title: "Transfer completes", desc: "Both parties get an instant in-app receipt with full transfer history.", icon: <CheckCircle2 className="h-5 w-5" /> },
   ];
   return (
     <section id="how" className="mt-24">
-      <SectionHeader eyebrow="How it works" title="Four steps to a protected transfer." />
+      <SectionHeader eyebrow="How it works" title="Four steps to a verified transfer." />
       <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map((s) => (
           <div key={s.n} className="relative rounded-2xl border border-border/70 bg-card p-5 shadow-card transition hover:shadow-elevated">
@@ -505,20 +505,19 @@ function HowItWorks() {
 
 function Security() {
   const items = [
-    { icon: <ShieldCheck className="h-5 w-5" />, title: "Recipient verification", desc: "Every payee is verified before funds release." },
-    { icon: <Lock className="h-5 w-5" />, title: "256-bit encryption", desc: "Bank-grade encryption on every transfer in transit and at rest." },
+    { icon: <ShieldCheck className="h-5 w-5" />, title: "Recipient verification", desc: "Every payee is matched to a verified account before a transfer is initiated." },
+    { icon: <Lock className="h-5 w-5" />, title: "256-bit encryption", desc: "Industry-standard encryption on every transfer, in transit and at rest." },
     { icon: <Fingerprint className="h-5 w-5" />, title: "Secure authentication", desc: "Biometric and OTP-secured logins keep your account yours." },
-    { icon: <EyeOff className="h-5 w-5" />, title: "Fraud prevention", desc: "Behavioral signals flag suspicious transfers in real time." },
+    { icon: <EyeOff className="h-5 w-5" />, title: "Mistake prevention", desc: "Designed to help reduce mistaken transfers through identity confirmation." },
   ];
   return (
     <section id="security" className="mt-24">
       <div className="grid gap-10 md:grid-cols-2 md:items-center">
         <div>
-          <SectionHeader eyebrow="Security" title="Built so funds only reach the right hands." />
+          <SectionHeader eyebrow="Security" title="Built around identity confirmation." />
           <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground max-w-md">
-            Funds remain protected until accepted by the verified recipient.
-            Lock Pay combines recipient verification, encryption, and fraud
-            controls into a single, simple flow.
+            Lock Pay combines recipient verification, encryption, and modern authentication
+            into a simple, mobile-first transfer flow.
           </p>
           <div className="mt-6 flex items-center gap-3">
             <Button asChild className="rounded-2xl gradient-primary text-primary-foreground hover:opacity-95">
