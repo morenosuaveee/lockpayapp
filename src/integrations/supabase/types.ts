@@ -416,6 +416,10 @@ export type Database = {
         Args: { _txn: Database["public"]["Tables"]["transactions"]["Row"] }
         Returns: boolean
       }
+      lookup_recipient: {
+        Args: { _channel: string; _identifier: string }
+        Returns: Json
+      }
       mark_invite_pending_payment: {
         Args: { _txn_id: string }
         Returns: {
