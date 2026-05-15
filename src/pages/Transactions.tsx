@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Lock, ArrowDownLeft, ArrowUpRight, Plus, Send as SendIcon,
@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { haptic } from "@/lib/native";
 import type { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
@@ -49,13 +50,53 @@ export default function Transactions() {
   const [filter, setFilter] = useState<FilterId>(initial);
   const [txs, setTxs] = useState<Tx[]>([]);
   const [loading, setLoading] = useState(true);
+  // Track per-row state for animated insertion + status-change pulse.
+  const prevStatusRef = useRef<Map<string, Status>>(new Map());
+  const seenIdsRef = useRef<Set<string>>(new Set());
+  const [pulsedIds, setPulsedIds] = useState<Set<string>>(new Set());
+  const [freshIds, setFreshIds] = useState<Set<string>>(new Set());
 
   const fetchTxs = useCallback(async () => {
     const { data } = await supabase
       .from("transactions")
       .select("id,sender_id,recipient_id,amount,status,recipient_identifier,recipient_channel,created_at,sender_paypal_email")
       .order("created_at", { ascending: false });
-    setTxs((data as Tx[]) ?? []);
+    const next = (data as Tx[]) ?? [];
+
+    const newlyInserted: string[] = [];
+    const statusChanged: string[] = [];
+    for (const tx of next) {
+      if (!seenIdsRef.current.has(tx.id)) {
+        if (seenIdsRef.current.size > 0) newlyInserted.push(tx.id);
+        seenIdsRef.current.add(tx.id);
+      }
+      const prev = prevStatusRef.current.get(tx.id);
+      if (prev && prev !== tx.status) statusChanged.push(tx.id);
+      prevStatusRef.current.set(tx.id, tx.status);
+    }
+    setTxs(next);
+
+    if (statusChanged.length) {
+      haptic("light");
+      setPulsedIds((s) => new Set([...s, ...statusChanged]));
+      setTimeout(() => {
+        setPulsedIds((s) => {
+          const n = new Set(s);
+          statusChanged.forEach((id) => n.delete(id));
+          return n;
+        });
+      }, 1500);
+    }
+    if (newlyInserted.length) {
+      setFreshIds((s) => new Set([...s, ...newlyInserted]));
+      setTimeout(() => {
+        setFreshIds((s) => {
+          const n = new Set(s);
+          newlyInserted.forEach((id) => n.delete(id));
+          return n;
+        });
+      }, 600);
+    }
     setLoading(false);
   }, []);
 
@@ -124,7 +165,15 @@ export default function Transactions() {
         ) : (
           <ul className="space-y-2">
             {filtered.map((t) => (
-              <TxRow key={t.id} tx={t} userId={user!.id} onAction={fetchTxs} navigate={navigate} />
+              <TxRow
+                key={t.id}
+                tx={t}
+                userId={user!.id}
+                onAction={fetchTxs}
+                navigate={navigate}
+                pulsing={pulsedIds.has(t.id)}
+                fresh={freshIds.has(t.id)}
+              />
             ))}
           </ul>
         )}
@@ -157,10 +206,11 @@ function EmptyState({ filter }: { filter: FilterId }) {
 }
 
 function TxRow({
-  tx, userId, onAction, navigate,
+  tx, userId, onAction, navigate, pulsing = false, fresh = false,
 }: {
   tx: Tx; userId: string; onAction: () => void;
   navigate: (path: string) => void;
+  pulsing?: boolean; fresh?: boolean;
 }) {
   const out = tx.sender_id === userId;
   const Icon = out ? ArrowUpRight : ArrowDownLeft;
@@ -197,7 +247,11 @@ function TxRow({
   return (
     <button
       onClick={handleClick}
-      className="w-full flex items-center gap-3 rounded-2xl bg-card p-4 shadow-card transition-transform active:scale-[0.98] text-left"
+      className={cn(
+        "w-full flex items-center gap-3 rounded-2xl bg-card p-4 shadow-card transition-transform active:scale-[0.98] text-left",
+        fresh && "animate-row-insert",
+        pulsing && "animate-row-pulse",
+      )}
     >
       <div className={cn(
         "flex h-11 w-11 items-center justify-center rounded-xl shrink-0",
@@ -215,7 +269,10 @@ function TxRow({
           </span>
         </div>
         <div className="mt-1 flex items-center justify-between gap-2">
-          <StatusBadge status={tx.status} />
+          {/* keyed wrapper makes the pill morph in on status change */}
+          <span key={tx.status} className="animate-scale-in inline-flex">
+            <StatusBadge status={tx.status} />
+          </span>
           <span className="text-xs text-muted-foreground shrink-0">
             {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
           </span>
