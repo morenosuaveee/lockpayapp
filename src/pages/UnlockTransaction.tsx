@@ -112,6 +112,25 @@ export default function UnlockTransaction() {
   const isReleased = (releasedStates as readonly string[]).includes(tx.status);
   const finalState = isReleased || tx.status === "expired" || tx.status === "cancelled" || tx.status === "refunded";
 
+  // Auto-open the premium "Recipient Verified" hero for the sender the
+  // moment recipient confirms — this is LockPay's signature moment.
+  useEffect(() => {
+    if (isSender && tx.status === "recipient_confirmed" && !verifiedDismissed) {
+      setShowVerifiedHero(true);
+    }
+  }, [isSender, tx.status, verifiedDismissed]);
+
+  async function handleReleasePayment() {
+    try {
+      await supabase.rpc("mark_invite_pending_payment", { _txn_id: tx!.id });
+      navigate(`/send?resume=${tx!.id}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not start payment");
+      throw e;
+    }
+  }
+
+
   async function submitCode() {
     if (!tx || code.length !== 4) return;
     setSubmitting(true); setInvalid(false);
