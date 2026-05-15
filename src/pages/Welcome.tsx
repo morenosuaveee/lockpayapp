@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import {
   ShieldCheck,
   ArrowRight,
@@ -13,12 +13,12 @@ import {
   Send,
 } from "lucide-react";
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
-const stagger = {
+const stagger: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
 };
