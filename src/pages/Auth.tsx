@@ -201,7 +201,14 @@ export default function AuthPage({ mode }: Props) {
                 <Input id="password" type="password" autoComplete={isSignup ? "new-password" : "current-password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
                 {isSignup && <p className="text-[11px] text-muted-foreground">Use at least 6 characters. We hash &amp; encrypt every credential.</p>}
               </div>
-              <Button type="submit" className="w-full h-12 rounded-2xl text-base font-semibold" disabled={loading}>
+              {isSignup && (
+                <SmsConsent id="sms-consent-email" checked={smsConsentEmail} onChange={setSmsConsentEmail} />
+              )}
+              <Button
+                type="submit"
+                className="w-full h-12 rounded-2xl text-base font-semibold transition-all"
+                disabled={loading || (isSignup && !smsConsentEmail)}
+              >
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
                 {loading ? (isSignup ? "Creating account…" : "Signing in…") : (isSignup ? "Create account" : "Sign in")}
               </Button>
