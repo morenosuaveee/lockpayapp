@@ -307,6 +307,10 @@ export default function Onboarding() {
             <FeatureRow icon={<Lock className="h-5 w-5 text-accent" />} title="Encrypted end-to-end" desc="Your data is encrypted in transit and at rest." />
             <FeatureRow icon={<Sparkles className="h-5 w-5 text-accent" />} title="Auto-cancelled in 48h" desc="Unconfirmed transfer requests are cancelled automatically." />
             <PrimaryCTA onClick={() => setStep("name")} label="Get started" />
+            <p className="mt-3 text-center text-[10.5px] leading-relaxed text-muted-foreground/80">
+              Lock Pay is a transfer coordination and recipient verification platform. Lock Pay is
+              not a bank, money transmitter, escrow service, or custodial financial institution.
+            </p>
           </StepShell>
         )}
 

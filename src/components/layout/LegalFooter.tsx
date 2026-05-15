@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 
-const SUPPORT_EMAIL = "support@getlockpayapp.com";
+const SUPPORT_EMAIL = "support@getlockpay.com";
 
 export function LegalFooter({ className = "" }: { className?: string }) {
   return (
@@ -18,6 +18,8 @@ export function LegalFooter({ className = "" }: { className?: string }) {
         <Link to="/security" className="hover:text-foreground">Security</Link>
         <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
         <Link to="/compliance" className="hover:text-foreground">Compliance</Link>
+        <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+        <Link to="/how-it-works" className="hover:text-foreground">How it works</Link>
         <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />
         <Link to="/support" className="hover:text-foreground">Support</Link>
         <span aria-hidden className="h-1 w-1 rounded-full bg-muted-foreground/40" />

@@ -21,6 +21,7 @@ import Support from "./pages/Support";
 import Contact from "./pages/Contact";
 import Security from "./pages/Security";
 import Compliance from "./pages/Compliance";
+import HowItWorks from "./pages/HowItWorks";
 import SmsPolicy from "./pages/SmsPolicy";
 import DeleteAccount from "./pages/DeleteAccount";
 
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/security" element={<Security />} />
             <Route path="/compliance" element={<Compliance />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/sms-policy" element={<SmsPolicy />} />
             <Route path="/delete-account" element={<ProtectedRoute><DeleteAccount /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
