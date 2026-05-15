@@ -11,8 +11,10 @@ export interface TemplateEntry {
 
 import { template as paymentWaiting } from './payment-waiting.tsx'
 import { template as contactMessage } from './contact-message.tsx'
+import { template as transferInvite } from './transfer-invite.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'payment-waiting': paymentWaiting,
   'contact-message': contactMessage,
+  'transfer-invite': transferInvite,
 }
