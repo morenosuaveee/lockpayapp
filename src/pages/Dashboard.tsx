@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, ArrowDownLeft, ArrowUpRight, Lock as LockIcon, Wallet } from "lucide-react";
+import { Plus, ArrowDownLeft, ArrowUpRight, Lock as LockIcon, Wallet, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
