@@ -16,6 +16,7 @@ import { CodeInput } from "@/components/CodeInput";
 import { LockPayCheckout } from "@/components/LockPayCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { SuccessMark } from "@/components/SuccessMark";
+import { RecipientLookupCard, type LookupState } from "@/components/RecipientLookupCard";
 import { generateCode, hashCode } from "@/lib/unlock-code";
 import { calcFeeDollars } from "@/lib/fees";
 import { toast } from "sonner";
