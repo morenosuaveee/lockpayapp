@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ShieldCheck, Sparkles, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SuccessMark } from "@/components/SuccessMark";
+import { VaultUnlock, ConfettiSparks } from "@/components/VaultUnlock";
 import { haptic } from "@/lib/native";
 import { cn } from "@/lib/utils";
 
@@ -90,15 +90,18 @@ export function RecipientVerifiedSuccess({
         {/* Hero */}
         <div className="text-center pt-10 sm:pt-4">
           <div className="relative mx-auto" style={{ width: 132, height: 132 }}>
-            {/* expanding success ring */}
-            <span className="absolute inset-0 rounded-full bg-accent/25 animate-success-ring" />
-            <span
-              className="absolute inset-0 rounded-full bg-accent/15 animate-success-ring"
-              style={{ animationDelay: "0.4s" }}
-            />
-            <div className="absolute inset-2">
-              <SuccessMark tone="accent" size={116} pulse={false} />
-            </div>
+            {/* expanding success ring (only pre-release) */}
+            {!done && (
+              <>
+                <span className="absolute inset-0 rounded-full bg-accent/25 animate-success-ring" />
+                <span
+                  className="absolute inset-0 rounded-full bg-accent/15 animate-success-ring"
+                  style={{ animationDelay: "0.4s" }}
+                />
+              </>
+            )}
+            <VaultUnlock unlocked={done} size={132} />
+            {done && <ConfettiSparks count={16} />}
           </div>
 
           <p className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-foreground animate-scale-in">
@@ -107,11 +110,11 @@ export function RecipientVerifiedSuccess({
           </p>
 
           <h2 className="mt-3 text-[28px] font-bold tracking-tight text-balance text-foreground">
-            {done ? "Payment Released Successfully" : "Recipient Verified"}
+            {done ? "Funds Securely Released" : "Recipient Verified"}
           </h2>
           <p className="mx-auto mt-2 max-w-[300px] text-[14px] leading-relaxed text-muted-foreground text-balance">
             {done
-              ? "The funds are on their way. Both parties confirmed the secure code — your transfer is complete."
+              ? "The vault is open. Both parties confirmed the secure code — your funds are on their way."
               : "The transfer has been securely confirmed and is ready for payment release."}
           </p>
         </div>
