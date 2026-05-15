@@ -31,6 +31,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { calcFeeDollars } from "@/lib/fees";
+import { VerifiedSuccess } from "@/components/VerifiedSuccess";
 
 const phoneSchema = z
   .string()
@@ -93,6 +94,7 @@ export default function Onboarding() {
   const [verifying, setVerifying] = useState(false);
   const [saving, setSaving] = useState(false);
   const [bootstrapped, setBootstrapped] = useState(false);
+  const [showVerified, setShowVerified] = useState<null | "phone" | "identity">(null);
 
   // Pull simulated transfer (set by landing page Send Securely CTA)
   useEffect(() => {
@@ -210,7 +212,7 @@ export default function Onboarding() {
       return;
     }
     toast.success("Phone verified");
-    setStep("identity");
+    setShowVerified("phone");
   }
 
   function submitIdentity() {
