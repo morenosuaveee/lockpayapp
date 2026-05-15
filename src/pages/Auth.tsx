@@ -228,10 +228,6 @@ export default function AuthPage({ mode }: Props) {
           </TabsContent>
         </Tabs>
 
-        <p className="pt-1 text-center text-[11px] text-muted-foreground">
-          Add SMS verification for transfer alerts after sign-in.
-        </p>
-
         <Link
           to={isSignup ? "/login" : "/signup"}
           className="flex h-12 items-center justify-center rounded-2xl bg-card text-sm font-medium text-muted-foreground shadow-card active:scale-[0.98] transition-transform"
@@ -239,8 +235,10 @@ export default function AuthPage({ mode }: Props) {
           {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
           <span className="ml-1 font-semibold text-primary">{isSignup ? "Sign in" : "Sign up"}</span>
         </Link>
-        <p className="text-center text-[11px] text-muted-foreground">
-          Powered by <span className="font-medium">PayPal</span> · Prototype build
+        <p className="text-center text-[11px] text-muted-foreground leading-relaxed">
+          By continuing you agree to our{" "}
+          <Link to="/terms" className="underline">Terms</Link> and{" "}
+          <Link to="/privacy" className="underline">Privacy Policy</Link>.
         </p>
       </div>
     </div>
