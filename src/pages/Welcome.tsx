@@ -124,7 +124,7 @@ function Hero() {
             className="h-12 rounded-2xl px-6 text-sm font-semibold gradient-primary text-primary-foreground shadow-elevated hover:opacity-95"
           >
             <a href="#simulator">
-              Try a demo transfer <ArrowRight className="ml-1 h-4 w-4" />
+              Send money <ArrowRight className="ml-1 h-4 w-4" />
             </a>
           </Button>
           <Button asChild size="lg" variant="outline" className="h-12 rounded-2xl px-6 text-sm font-semibold">
@@ -715,7 +715,7 @@ function StickyMobileCta() {
         className="h-12 w-full rounded-2xl text-sm font-semibold gradient-primary text-primary-foreground shadow-elevated"
       >
         <a href="#simulator">
-          Try a demo transfer <ArrowRight className="ml-1 h-4 w-4" />
+          Send money <ArrowRight className="ml-1 h-4 w-4" />
         </a>
       </Button>
     </div>
