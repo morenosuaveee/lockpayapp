@@ -451,6 +451,9 @@ export type Database = {
         | "pending"
         | "unlocked"
         | "refunded"
+        | "pending_invite"
+        | "awaiting_recipient"
+        | "recipient_confirmed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -589,6 +592,9 @@ export const Constants = {
         "pending",
         "unlocked",
         "refunded",
+        "pending_invite",
+        "awaiting_recipient",
+        "recipient_confirmed",
       ],
     },
   },
