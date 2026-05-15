@@ -27,7 +27,7 @@ interface Tx {
   unlock_code_hash: string;
   sender_confirmed: boolean; receiver_confirmed: boolean;
   sender_attempts: number; receiver_attempts: number; max_attempts: number;
-  expires_at: string; note: string | null; created_at: string;
+  expires_at: string; note: string | null; created_at: string; recipient_confirmed_at?: string | null;
 }
 
 export default function UnlockTransaction() {
