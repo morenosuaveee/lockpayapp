@@ -80,6 +80,55 @@
 
   /* Force dark by default — .dark class kept identical for legacy callers */
   .dark { color-scheme: dark; }
+
+  .welcome-light {
+    color-scheme: light;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+
+    --card: 224 100% 98%;
+    --card-foreground: 0 0% 5%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+
+    --primary: 209 100% 44%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 209 100% 44%;
+    --accent: 209 100% 44%;
+    --accent-foreground: 0 0% 100%;
+    --accent-soft: 217 100% 95%;
+
+    --secondary: 222 100% 97%;
+    --secondary-foreground: 217 15% 28%;
+
+    --muted: 225 100% 98%;
+    --muted-foreground: 219 14% 60%;
+
+    --destructive: 6 63% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-soft: 6 83% 95%;
+
+    --success: 154 85% 26%;
+    --success-foreground: 0 0% 100%;
+    --success-soft: 152 43% 93%;
+
+    --border: 220 45% 92%;
+    --input: 225 100% 98%;
+    --ring: 209 100% 44%;
+
+    --surface: 0 0% 100%;
+    --surface-elevated: 222 100% 97%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(209 100% 44%) 0%, hsl(209 100% 44%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(217 100% 95%) 0%, hsl(222 100% 97%) 100%);
+    --gradient-balance: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(224 100% 98%) 100%);
+    --gradient-hero: radial-gradient(ellipse 80% 60% at 50% 0%, hsl(209 100% 44% / 0.10), transparent 65%);
+
+    --shadow-card: 0 1px 0 0 hsl(220 45% 92% / 0.7) inset, 0 12px 30px -18px hsl(209 100% 44% / 0.12);
+    --shadow-elevated: 0 24px 60px -28px hsl(209 100% 44% / 0.18);
+    --shadow-glow: 0 0 36px hsl(209 100% 44% / 0.12);
+  }
 }
 
 @layer base {
@@ -134,6 +183,73 @@
   .stagger > *:nth-child(4) { animation-delay: 200ms; }
   .stagger > *:nth-child(5) { animation-delay: 260ms; }
   .stagger > *:nth-child(6) { animation-delay: 320ms; }
+
+  .welcome-primary-btn {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-radius: 14px;
+    transition: background-color 160ms var(--ease-smooth), transform 160ms var(--ease-smooth), box-shadow 160ms var(--ease-smooth);
+  }
+
+  .welcome-primary-btn:hover {
+    background-color: hsl(210 100% 35%);
+  }
+
+  .welcome-primary-btn:active {
+    transform: scale(0.98);
+  }
+
+  .welcome-outline-btn {
+    background-color: hsl(var(--background));
+    color: hsl(var(--primary));
+    border: 1.5px solid hsl(var(--primary));
+    border-radius: 14px;
+    transition: background-color 160ms var(--ease-smooth), color 160ms var(--ease-smooth), transform 160ms var(--ease-smooth);
+  }
+
+  .welcome-outline-btn:hover {
+    background-color: hsl(var(--accent-soft));
+  }
+
+  .welcome-outline-btn:active {
+    transform: scale(0.98);
+  }
+
+  .welcome-surface-card {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-card);
+  }
+
+  .welcome-phone-shell {
+    background-color: hsl(var(--secondary));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .welcome-phone-screen {
+    background-color: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+  }
+
+  .welcome-soft-panel {
+    background-color: hsl(var(--accent-soft));
+    border: 1px solid hsl(var(--border));
+  }
+
+  .welcome-step-line {
+    background-color: hsl(var(--border));
+  }
+
+  .welcome-step-success {
+    background-color: hsl(var(--success-soft));
+    border-color: hsl(var(--border));
+  }
+
+  .welcome-step-error {
+    background-color: hsl(var(--destructive-soft));
+    border-color: hsl(var(--border));
+  }
 }
 
 @keyframes lock-pulse {

@@ -3,9 +3,7 @@ import { motion, type Variants } from "framer-motion";
 import {
   ShieldCheck,
   ArrowRight,
-  CheckCircle2,
   XCircle,
-  KeyRound,
   Clock,
   ShieldAlert,
   Lock,
@@ -49,9 +47,15 @@ const FEATURES = [
   },
 ];
 
+const TRUST_BADGES = [
+  { icon: ShieldCheck, label: "Identity Verified" },
+  { icon: Lock, label: "Encrypted Transfer" },
+  { icon: Clock, label: "Auto-Expires" },
+];
+
 export default function Welcome() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="welcome-light min-h-screen bg-background text-foreground">
       <Nav />
       <Hero />
       <HowItWorks />
@@ -64,7 +68,7 @@ export default function Welcome() {
 
 function Nav() {
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/80 border-b border-white/[0.06]">
+    <header className="sticky top-0 z-40 border-b border-border/90 bg-background/90 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
         <Link to="/welcome" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary">
@@ -79,7 +83,7 @@ function Nav() {
         </nav>
         <Link
           to="/signup"
-          className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-black hover:bg-white/90 transition-colors"
+          className="welcome-primary-btn inline-flex h-10 items-center justify-center px-4 text-xs font-semibold"
         >
           Get started
         </Link>
@@ -96,7 +100,7 @@ function Hero() {
         <motion.div initial="hidden" animate="show" variants={stagger} className="mx-auto max-w-3xl text-center">
           <motion.div
             variants={fadeUp}
-            className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-muted-foreground"
+            className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-xs text-muted-foreground"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse-dot" />
             Recipient-verified transfers
@@ -116,17 +120,33 @@ function Hero() {
           <motion.div variants={fadeUp} className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               to="/signup"
-              className="inline-flex h-[54px] w-full items-center justify-center gap-2 rounded-2xl bg-primary px-7 text-base font-semibold text-white transition-all hover:bg-[#4F8FF0] active:scale-[0.97] sm:w-auto"
+              className="welcome-primary-btn inline-flex h-[54px] w-full items-center justify-center gap-2 px-7 text-base font-semibold sm:w-auto"
             >
               <Send className="h-4 w-4" />
               Send Securely
             </Link>
             <a
               href="#how"
-              className="inline-flex h-[54px] w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-transparent px-7 text-base font-semibold text-foreground transition-colors hover:bg-white/[0.04] active:scale-[0.97] sm:w-auto"
+              className="welcome-outline-btn inline-flex h-[54px] w-full items-center justify-center gap-2 px-7 text-base font-semibold sm:w-auto"
             >
               How It Works
             </a>
+          </motion.div>
+          <motion.p variants={fadeUp} className="mt-5 text-[13px] text-muted-foreground">
+            Verification required before every transfer completes.
+          </motion.p>
+          <motion.div
+            variants={fadeUp}
+            className="mt-6 flex flex-wrap items-center justify-center gap-3"
+          >
+            {TRUST_BADGES.map(({ icon: Icon, label }) => (
+              <div key={label} className="inline-flex items-center gap-2 rounded-full bg-background px-1 py-1 text-[13px] text-muted-foreground">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-primary">
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span>{label}</span>
+              </div>
+            ))}
           </motion.div>
         </motion.div>
 
@@ -145,8 +165,8 @@ function PhoneMock() {
       className="relative mx-auto mt-16 w-full max-w-[340px]"
     >
       <div className="absolute -inset-12 -z-10 rounded-full bg-primary/10 blur-3xl" />
-      <div className="relative rounded-[44px] border border-white/10 bg-[#0F0F0F] p-3 shadow-elevated">
-        <div className="overflow-hidden rounded-[34px] bg-[#0A0A0A]">
+      <div className="welcome-phone-shell relative rounded-[24px] p-3">
+        <div className="welcome-phone-screen overflow-hidden rounded-[24px] bg-background">
           <div className="flex items-center justify-between px-6 pt-3 pb-1 text-[11px] font-medium text-muted-foreground">
             <span>9:41</span>
             <span className="flex items-center gap-1">
@@ -162,22 +182,25 @@ function PhoneMock() {
             <div className="mt-1 text-[22px] font-semibold leading-tight">
               Awaiting Sarah's confirmation
             </div>
-            <div className="mt-5 rounded-2xl glass p-5">
+            <div className="welcome-surface-card mt-5 rounded-[20px] p-5">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Code</div>
-              <div className="mt-2 text-center text-[48px] font-bold tracking-[0.08em] text-foreground tabular-nums">
+              <div className="mt-2 text-center text-[52px] font-bold tracking-[0.08em] text-foreground tabular-nums">
                 4821
               </div>
               <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                 <Clock className="h-3.5 w-3.5" />
                 Code expires in 10:00
               </div>
+              <p className="mt-4 text-center text-[11px] italic text-muted-foreground">
+                Share this code with your recipient only. Never share with LockPay support.
+              </p>
             </div>
-            <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/[0.08] bg-card p-4">
+            <div className="mt-4 flex items-center justify-between rounded-[20px] border border-border bg-card p-4">
               <div>
                 <div className="text-[11px] uppercase tracking-wider text-muted-foreground">To</div>
                 <div className="text-sm font-semibold">Sarah K.</div>
               </div>
-              <span className="rounded-full bg-primary/15 px-3 py-1 text-[11px] font-medium text-primary">
+              <span className="rounded-full bg-accent-soft px-3 py-1 text-[11px] font-medium text-primary">
                 Pending Verification
               </span>
             </div>
@@ -194,7 +217,7 @@ function PhoneMock() {
 
 function HowItWorks() {
   return (
-    <section id="how" className="border-t border-white/[0.06] py-20 md:py-28">
+    <section id="how" className="border-t border-border py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-5">
         <div className="mx-auto max-w-2xl text-center">
           <p className="eyebrow">How it works</p>
@@ -211,30 +234,23 @@ function HowItWorks() {
           className="relative mx-auto mt-12 max-w-2xl space-y-3"
         >
           {STEPS.map((s) => {
-            const tone =
-              s.tone === "success"
-                ? "border-success/40 bg-success/[0.06]"
-                : s.tone === "error"
-                ? "border-destructive/40 bg-destructive/[0.06]"
-                : "border-white/[0.08] bg-card";
-            const numTone =
-              s.tone === "success"
-                ? "bg-success text-black"
-                : s.tone === "error"
-                ? "bg-destructive text-white"
-                : "bg-white/[0.06] text-foreground";
-            const Icon = s.tone === "success" ? CheckCircle2 : s.tone === "error" ? XCircle : null;
+            const tone = s.tone === "error" ? "welcome-step-error" : "welcome-surface-card";
+            const numTone = s.tone === "error" ? "bg-destructive text-destructive-foreground" : "bg-primary text-primary-foreground";
+            const Icon = s.tone === "error" ? XCircle : null;
             return (
               <motion.li
                 key={s.n}
                 variants={fadeUp}
-                className={`flex items-start gap-4 rounded-2xl border p-5 ${tone}`}
+                className={`relative flex items-start gap-4 rounded-[20px] border p-5 ${tone}`}
               >
+                {s.n !== STEPS.length ? (
+                  <div className="welcome-step-line absolute left-[34px] top-[68px] h-10 w-px" aria-hidden="true" />
+                ) : null}
                 <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${numTone}`}>
                   {Icon ? <Icon className="h-4 w-4" /> : s.n}
                 </div>
                 <div className="flex-1 pt-1">
-                  <div className={`text-[15px] font-semibold ${s.tone === "error" ? "text-destructive" : ""}`}>
+                  <div className="text-[15px] font-semibold text-foreground">
                     {s.title}
                   </div>
                   <div className="mt-1 text-sm leading-relaxed text-muted-foreground">{s.desc}</div>
@@ -250,7 +266,7 @@ function HowItWorks() {
 
 function WhyLockPay() {
   return (
-    <section className="border-t border-white/[0.06] py-20 md:py-28">
+    <section className="border-t border-border py-20 md:py-28">
       <div className="mx-auto max-w-6xl px-5">
         <div className="mx-auto max-w-2xl text-center">
           <p className="eyebrow">Why LockPay</p>
@@ -269,9 +285,9 @@ function WhyLockPay() {
             <motion.div
               key={title}
               variants={fadeUp}
-              className="group rounded-3xl border border-white/[0.08] bg-card p-6 transition-all hover:border-primary/30 hover:card-glow"
+              className="welcome-surface-card group rounded-[20px] p-6 transition-all hover:border-primary/30 hover:card-glow"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-primary">
                 <Icon className="h-5 w-5" />
               </div>
               <h3 className="mt-5 text-lg font-semibold">{title}</h3>
@@ -286,7 +302,7 @@ function WhyLockPay() {
 
 function CTA() {
   return (
-    <section className="border-t border-white/[0.06] py-20 md:py-28">
+    <section className="border-t border-border py-20 md:py-28">
       <div className="mx-auto max-w-3xl px-5 text-center">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -303,7 +319,7 @@ function CTA() {
           </p>
           <Link
             to="/signup"
-            className="mt-8 inline-flex h-[54px] items-center justify-center gap-2 rounded-2xl bg-primary px-8 text-base font-semibold text-white transition-all hover:bg-[#4F8FF0] active:scale-[0.97]"
+            className="welcome-primary-btn mt-8 inline-flex h-[54px] items-center justify-center gap-2 px-8 text-base font-semibold"
           >
             Send Securely
             <ArrowRight className="h-4 w-4" />
@@ -316,7 +332,7 @@ function CTA() {
 
 function Footer() {
   return (
-    <footer className="border-t border-white/[0.06] py-12">
+    <footer className="border-t border-border py-12">
       <div className="mx-auto max-w-6xl px-5">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div>
