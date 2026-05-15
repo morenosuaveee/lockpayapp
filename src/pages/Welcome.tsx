@@ -3,9 +3,7 @@ import { motion, type Variants } from "framer-motion";
 import {
   ShieldCheck,
   ArrowRight,
-  CheckCircle2,
   XCircle,
-  KeyRound,
   Clock,
   ShieldAlert,
   Lock,
