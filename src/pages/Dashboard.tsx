@@ -58,6 +58,10 @@ export default function Dashboard() {
   const lockedAmount = txs.filter((t) => t.status === "locked" || t.status === "awaiting_confirmation")
     .filter((t) => t.sender_id === user?.id).reduce((s, t) => s + Number(t.amount), 0);
 
+  const actionableTxs = txs.filter(
+    (t) => t.sender_id === user?.id && t.status === "recipient_confirmed"
+  );
+
   return (
     <AppShell>
       <div className="px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-6">
