@@ -62,7 +62,7 @@ export function PushNotificationsCard() {
         </span>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Get alerts the moment funds lock, codes are needed, or payments are released.
+        Get alerts when transfers need verification, codes are needed, or transfers are confirmed.
       </p>
 
       {!granted && perm !== "unsupported" && (
@@ -73,11 +73,11 @@ export function PushNotificationsCard() {
       )}
 
       <ul className="mt-4 space-y-3">
-        <ToggleRow label="Locked payments" hint="When a transfer is locked in escrow"
+        <ToggleRow label="Pending transfers" hint="When a transfer is awaiting recipient verification"
           checked={prefs.lockedAlerts} onChange={(v) => update("lockedAlerts", v)} disabled={!granted} />
-        <ToggleRow label="Released funds" hint="When the recipient unlocks the payment"
+        <ToggleRow label="Completed transfers" hint="When the recipient confirms the transfer"
           checked={prefs.releasedAlerts} onChange={(v) => update("releasedAlerts", v)} disabled={!granted} />
-        <ToggleRow label="Expiring soon" hint="One hour before auto-refund"
+        <ToggleRow label="Expiring soon" hint="One hour before auto-cancellation"
           checked={prefs.expiringAlerts} onChange={(v) => update("expiringAlerts", v)} disabled={!granted} />
       </ul>
     </div>
