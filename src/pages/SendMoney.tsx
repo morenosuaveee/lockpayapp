@@ -28,12 +28,7 @@ const schema = z.object({
 });
 
 type Step = "details" | "code" | "pay" | "invited";
-type Lookup =
-  | { state: "idle" }
-  | { state: "checking" }
-  | { state: "lockpay_user"; verified: boolean }
-  | { state: "will_invite" }
-  | { state: "invalid" };
+type Lookup = LookupState;
 
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 const isPhone = (v: string) => /^\+?[\d\s\-().]{7,}$/.test(v.trim());
@@ -266,7 +261,7 @@ export default function SendMoney() {
             </div>
 
             {/* Live recipient lookup state */}
-            <LookupBanner lookup={lookup} channel={recipientType} />
+            <RecipientLookupCard lookup={lookup} identifier={recipient} channel={recipientType} />
 
             {/* Fee preview */}
             {amountNum > 0 && (
@@ -436,50 +431,6 @@ function SummaryRow({ label, value }: { label: string; value: React.ReactNode })
     <div className="flex items-center justify-between py-1.5 first:pt-0">
       <span className="text-[13px] text-muted-foreground">{label}</span>
       <span className="text-[14px] font-semibold tabular-nums truncate ml-3">{value}</span>
-    </div>
-  );
-}
-
-function LookupBanner({ lookup, channel }: { lookup: Lookup; channel: "email" | "phone" | null }) {
-  if (lookup.state === "idle") return null;
-  const baseClass = "mt-4 flex items-center gap-2.5 rounded-2xl px-4 py-3 text-[13px] animate-fade-in";
-  if (lookup.state === "checking") {
-    return (
-      <div className={`${baseClass} bg-secondary/60 text-muted-foreground`}>
-        <Loader2 className="h-4 w-4 animate-spin" />
-        <span>Checking recipient…</span>
-      </div>
-    );
-  }
-  if (lookup.state === "invalid") {
-    return (
-      <div className={`${baseClass} bg-destructive-soft text-destructive`}>
-        <AlertCircle className="h-4 w-4" />
-        <span className="font-semibold">Enter a valid email or phone</span>
-      </div>
-    );
-  }
-  if (lookup.state === "lockpay_user") {
-    return (
-      <div className={`${baseClass} bg-accent-soft text-accent-foreground`}>
-        <UserCheck className="h-4 w-4" />
-        <span className="font-semibold">LockPay user</span>
-        <span className="ml-auto text-[11px] opacity-80">
-          {lookup.verified ? "Verified identity" : "Account active"}
-        </span>
-      </div>
-    );
-  }
-  // will_invite
-  return (
-    <div className={`${baseClass} bg-lock-soft text-lock-foreground`}>
-      <SendIcon className="h-4 w-4" />
-      <div className="flex-1 min-w-0">
-        <div className="font-semibold">New to LockPay — they'll get an invite</div>
-        <div className="mt-0.5 text-[11px] opacity-80">
-          Sent via {channel === "email" ? "email" : "SMS"}. You're charged only after they confirm.
-        </div>
-      </div>
     </div>
   );
 }
