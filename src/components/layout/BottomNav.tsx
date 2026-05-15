@@ -12,7 +12,7 @@ const tabs = [
 export function BottomNav() {
   const location = useLocation();
   // Hide on auth/full-screen routes
-  if (/^\/(login|signup|unlock\/)/.test(location.pathname)) return null;
+  if (/^\/(login|signup|unlock\/|claim\/|welcome|onboarding|checkout\/)/.test(location.pathname)) return null;
 
   return (
     <nav

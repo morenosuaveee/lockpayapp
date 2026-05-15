@@ -5,11 +5,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 
+import type { Database } from "@/integrations/supabase/types";
+
 export interface NotifTx {
   id: string;
   sender_id: string;
   amount: number;
-  status: "locked" | "awaiting_confirmation" | "completed" | "expired" | "cancelled";
+  status: Database["public"]["Enums"]["transaction_status"];
   recipient_identifier: string;
   sender_paypal_email: string | null;
   created_at: string;

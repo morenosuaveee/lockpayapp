@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, ArrowDownLeft, ArrowUpRight, Lock as LockIcon, Wallet } from "lucide-react";
+import { Plus, ArrowDownLeft, ArrowUpRight, Lock as LockIcon, Wallet, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,10 @@ export default function Dashboard() {
   const lockedAmount = txs.filter((t) => t.status === "locked" || t.status === "awaiting_confirmation")
     .filter((t) => t.sender_id === user?.id).reduce((s, t) => s + Number(t.amount), 0);
 
+  const actionableTxs = txs.filter(
+    (t) => t.sender_id === user?.id && t.status === "recipient_confirmed"
+  );
+
   return (
     <AppShell>
       <div className="px-5 pt-[max(env(safe-area-inset-top),1.25rem)] pb-6">
@@ -102,6 +106,32 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+
+        {/* Action needed: recipient confirmed, awaiting sender payment */}
+        {actionableTxs.length > 0 && (
+          <div className="mt-4 space-y-2 animate-fade-in">
+            {actionableTxs.slice(0, 2).map((t) => (
+              <Link
+                key={t.id}
+                to={`/unlock/${t.id}`}
+                className="flex items-center gap-3 rounded-2xl bg-accent-soft p-3.5 shadow-card active:scale-[0.99] transition-transform"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+                  <CheckCircle2 className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold text-accent-foreground">Recipient confirmed</p>
+                  <p className="truncate text-[11px] text-accent-foreground/80">
+                    Pay ${Number(t.amount).toFixed(2)} to {t.recipient_identifier}
+                  </p>
+                </div>
+                <span className="rounded-full bg-card px-3 py-1 text-[11px] font-bold text-foreground shadow-sm">
+                  Pay
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* Quick actions */}
         <div className="mt-5 grid grid-cols-2 gap-3">
