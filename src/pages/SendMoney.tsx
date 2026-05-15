@@ -120,7 +120,18 @@ export default function SendMoney() {
       const { data: prof } = await supabase.from("profiles").select("paypal_email").eq("id", user!.id).maybeSingle();
       const tempId = crypto.randomUUID();
       const hash = await hashCode(code, tempId);
-      const norm = recipientType === "email" ? recipient.trim().toLowerCase() : recipient.trim();
+      const norm =
+        recipientType === "email"
+          ? recipient.trim().toLowerCase()
+          : (() => {
+              // Normalize phone to E.164 (default to US +1 for 10-digit input)
+              const raw = recipient.trim();
+              if (raw.startsWith("+")) return "+" + raw.slice(1).replace(/\D/g, "");
+              const digits = raw.replace(/\D/g, "");
+              if (digits.length === 10) return `+1${digits}`;
+              if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+              return `+${digits}`;
+            })();
       const isExistingUser = lookup.state === "lockpay_user";
 
       const { data: txn, error } = await supabase.from("transactions").insert({
