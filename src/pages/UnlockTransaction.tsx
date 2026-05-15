@@ -218,13 +218,13 @@ export default function UnlockTransaction() {
           </p>
           {!finalState && (
             <p className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
-              <ShieldCheck className="h-3 w-3 text-accent" /> Held securely in escrow
+              <ShieldCheck className="h-3 w-3 text-accent" /> Awaiting both confirmations
             </p>
           )}
           {!isReleased && <div className="mt-3 flex justify-center"><StatusBadge status={tx.status} /></div>}
           {(tx.status === "locked" || tx.status === "awaiting_confirmation") && (
             <div className="mt-3 flex justify-center">
-              <Countdown expiresAt={tx.expires_at} label="Auto-refund in" />
+              <Countdown expiresAt={tx.expires_at} label="Auto-cancel in" />
             </div>
           )}
           {tx.note && <p className="mt-3 text-sm italic text-muted-foreground">"{tx.note}"</p>}
@@ -244,7 +244,7 @@ export default function UnlockTransaction() {
             <h2 className="text-center text-base font-semibold">Enter the 4-digit code</h2>
             <p className="mt-1 text-center text-xs text-muted-foreground">
               {blocked
-                ? "No attempts left — this transfer was cancelled and will be refunded."
+                ? "No attempts left — this transfer was cancelled and any pending charge will be reversed."
                 : `Get the code from ${isSender ? "the recipient" : "the sender"}. ${attemptsLeft} ${attemptsLeft === 1 ? "try" : "tries"} left.`}
             </p>
             <div className="mt-5">
@@ -253,10 +253,10 @@ export default function UnlockTransaction() {
             <Button onClick={submitCode} disabled={blocked || submitting || code.length !== 4}
               className="mt-5 w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90 active:scale-[0.98] transition-transform">
               {submitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <ShieldCheck className="mr-2 h-5 w-5" />}
-              {submitting ? "Verifying…" : "Confirm & release"}
+              {submitting ? "Verifying…" : "Confirm transfer"}
             </Button>
             <p className="mt-3 text-center text-[11px] text-muted-foreground">
-              Funds release only when both of you enter the same code. Nothing happens until then.
+              The transfer is initiated only when both of you enter the same code. Nothing happens until then.
             </p>
           </div>
         )}
@@ -265,7 +265,7 @@ export default function UnlockTransaction() {
           <div className="mt-6 rounded-3xl bg-accent-soft p-6 text-center">
             <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-accent" />
             <p className="text-sm font-semibold">You're confirmed</p>
-            <p className="mt-1 text-xs text-muted-foreground">We've notified the other party. Funds release the moment they enter the same code.</p>
+            <p className="mt-1 text-xs text-muted-foreground">We've notified the other party. The transfer is initiated the moment they enter the same code.</p>
           </div>
         )}
 
@@ -278,13 +278,13 @@ export default function UnlockTransaction() {
               <div className="min-w-0">
                 <p className="text-sm font-semibold">Transfer complete</p>
                 <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">
-                  ${Number(tx.amount).toFixed(2)} released to <span className="font-medium text-foreground">{tx.recipient_identifier}</span>. Both parties confirmed — funds are on their way.
+                  ${Number(tx.amount).toFixed(2)} sent to <span className="font-medium text-foreground">{tx.recipient_identifier}</span>. Both parties confirmed — the transfer is on its way.
                 </p>
               </div>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
               <div className="flex items-center gap-1.5 rounded-xl bg-accent-soft px-3 py-2 font-medium text-accent-foreground">
-                <ShieldCheck className="h-3.5 w-3.5" /> Verified escrow
+                <ShieldCheck className="h-3.5 w-3.5" /> Verified transfer
               </div>
               <div className="flex items-center gap-1.5 rounded-xl bg-secondary px-3 py-2 font-medium text-foreground/80">
                 <CheckCircle2 className="h-3.5 w-3.5 text-accent" /> Receipt logged
