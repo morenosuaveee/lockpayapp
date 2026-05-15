@@ -10,7 +10,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+
+function SmsConsent({
+  id,
+  checked,
+  onChange,
+}: {
+  id: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="animate-slide-up rounded-2xl border border-border/70 bg-secondary/40 p-3.5">
+      <label htmlFor={id} className="flex items-start gap-2.5 cursor-pointer select-none">
+        <Checkbox
+          id={id}
+          checked={checked}
+          onCheckedChange={(v) => onChange(v === true)}
+          className="mt-0.5 h-[18px] w-[18px] rounded-md transition-all data-[state=checked]:scale-105"
+          aria-describedby={`${id}-desc`}
+        />
+        <span className="text-[12.5px] font-medium leading-snug text-foreground">
+          I agree to receive transactional SMS messages from LockPay
+        </span>
+      </label>
+      <p id={`${id}-desc`} className="mt-2 text-[10.5px] leading-[1.45] text-muted-foreground">
+        By continuing, you agree to receive transactional SMS messages from LockPay related to
+        account verification, secure transfers, security alerts, payment activity, and transfer
+        confirmations. Message frequency varies. Message &amp; data rates may apply. Reply{" "}
+        <span className="font-semibold text-foreground">STOP</span> to opt out and{" "}
+        <span className="font-semibold text-foreground">HELP</span> for help. See our{" "}
+        <Link to="/sms-policy" className="underline underline-offset-2 hover:text-foreground">
+          SMS Policy
+        </Link>
+        .
+      </p>
+    </div>
+  );
+}
 
 const phoneSchema = z.string().trim().regex(/^\+[1-9]\d{7,14}$/, "Use international format, e.g. +14155551234");
 
