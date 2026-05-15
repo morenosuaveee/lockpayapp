@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, Navigate } from "react-router-dom";
 import {
   Lock,
   ShieldCheck,
@@ -8,29 +8,17 @@ import {
   ArrowRight,
   Sparkles,
   UserCheck,
-  Send,
-  Zap,
   Fingerprint,
   EyeOff,
-  
   ChevronDown,
   LifeBuoy,
   Mail,
-  X,
+  Search,
+  KeyRound,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { LegalFooter } from "@/components/layout/LegalFooter";
-import { calcFeeDollars } from "@/lib/fees";
 
 export default function Welcome() {
   const { user, loading } = useAuth();
@@ -66,7 +54,7 @@ function TopBar() {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 sm:px-8 py-3">
         <Link to="/welcome" className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-2xl gradient-primary shadow-elevated">
-            <Lock className="h-4.5 w-4.5 text-primary-foreground" strokeWidth={2.4} />
+            <Lock className="h-4 w-4 text-primary-foreground" strokeWidth={2.4} />
           </div>
           <span className="text-base font-bold tracking-tight">Lock Pay</span>
         </Link>
@@ -88,7 +76,7 @@ function TopBar() {
             size="sm"
             className="rounded-full px-4 gradient-primary text-primary-foreground hover:opacity-95"
           >
-            <Link to="/signup">Get started</Link>
+            <Link to="/get-started">Get started</Link>
           </Button>
         </div>
       </div>
@@ -100,47 +88,55 @@ function TopBar() {
 
 function Hero() {
   return (
-    <section className="grid gap-10 pt-10 sm:pt-16 md:grid-cols-2 md:gap-12 md:pt-20">
-      <div className="animate-slide-up">
+    <section className="pt-12 sm:pt-20 md:pt-24">
+      <div className="mx-auto max-w-3xl text-center animate-slide-up">
         <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent-soft px-3 py-1 text-[11px] font-semibold text-accent-foreground">
           <ShieldCheck className="h-3 w-3" /> Identity-confirmed transfer coordination
         </div>
-        <h1 className="mt-5 text-balance text-[40px] sm:text-[52px] font-bold leading-[1.02] tracking-tight">
+        <h1 className="mt-5 text-balance text-[40px] sm:text-[60px] font-bold leading-[1.02] tracking-tight">
           Verify before you{" "}
           <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
             send
           </span>
           .
         </h1>
-        <p className="mt-4 text-balance text-[16px] sm:text-[17px] leading-relaxed text-muted-foreground max-w-lg">
-          Lock Pay is a secure transfer coordination app. We verify the recipient's identity
-          before a transfer is initiated — designed to help reduce mistaken transfers.
+        <p className="mx-auto mt-5 max-w-xl text-balance text-[16px] sm:text-[18px] leading-relaxed text-muted-foreground">
+          Lock Pay helps prevent sending money to the wrong person. We confirm the
+          recipient's identity before any transfer can move.
         </p>
 
-        <div className="mt-6 hidden md:flex items-center gap-3">
+        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Button
             asChild
             size="lg"
-            className="h-12 rounded-2xl px-6 text-sm font-semibold gradient-primary text-primary-foreground shadow-elevated hover:opacity-95"
+            className="h-14 w-full sm:w-auto rounded-2xl px-8 text-base font-semibold gradient-primary text-primary-foreground shadow-elevated hover:opacity-95 active:scale-[0.99] transition"
           >
-            <a href="#simulator">
-              Try a demo transfer <ArrowRight className="ml-1 h-4 w-4" />
-            </a>
+            <Link to="/get-started">
+              <ShieldCheck className="mr-1.5 h-5 w-5" />
+              Send Money Securely
+            </Link>
           </Button>
-          <Button asChild size="lg" variant="outline" className="h-12 rounded-2xl px-6 text-sm font-semibold">
-            <Link to="/signup">Create account</Link>
+          <Button
+            asChild
+            size="lg"
+            variant="ghost"
+            className="h-14 rounded-2xl px-6 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            <Link to="/how-it-works">
+              See how it works <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
           </Button>
         </div>
 
-        <div className="mt-8 grid grid-cols-3 gap-4 max-w-md">
+        <p className="mt-4 inline-flex items-center justify-center gap-1.5 text-[12px] text-muted-foreground">
+          <Lock className="h-3 w-3" /> Identity verification required before any transfer.
+        </p>
+
+        <div className="mx-auto mt-10 grid max-w-md grid-cols-3 gap-4">
           <Stat label="Recipient match" value="100%" />
           <Stat label="Encryption" value="256-bit" />
-          <Stat label="Avg release" value="Instant" />
+          <Stat label="Verification" value="Required" />
         </div>
-      </div>
-
-      <div id="simulator" className="animate-slide-up">
-        <TransferSimulator />
       </div>
     </section>
   );
@@ -155,335 +151,47 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-/* ----------------- Interactive transfer simulator ----------------- */
-
-// Smoothly tweens a numeric value for premium "live" feel.
-function useAnimatedNumber(value: number, duration = 450) {
-  const [display, setDisplay] = useState(value);
-  const fromRef = useRef(value);
-  const startRef = useRef<number | null>(null);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    fromRef.current = display;
-    startRef.current = null;
-    const target = value;
-    const tick = (t: number) => {
-      if (startRef.current === null) startRef.current = t;
-      const p = Math.min(1, (t - startRef.current) / duration);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setDisplay(fromRef.current + (target - fromRef.current) * eased);
-      if (p < 1) rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, duration]);
-
-  return display;
-}
-
-type RecipientStatus = "idle" | "checking" | "verified" | "unverified";
-
-// Mock verified-recipient directory for the pre-auth demo.
-const VERIFIED_DEMO: Record<string, { name: string; mask: string }> = {
-  "@johndoe": { name: "John D.", mask: "Ends in 4421" },
-  "@sarah": { name: "Sarah M.", mask: "Ends in 8830" },
-  "@alex": { name: "Alex P.", mask: "Ends in 2117" },
-};
-
-function lookupRecipient(input: string): { name: string; mask: string } | null {
-  const key = input.trim().toLowerCase();
-  if (!key) return null;
-  if (VERIFIED_DEMO[key]) return VERIFIED_DEMO[key];
-  // Treat any reasonable email/phone/username as verified for the demo.
-  const looksValid =
-    /^@[a-z0-9._-]{3,}$/i.test(key) ||
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(key) ||
-    /^\+?\d[\d\s().-]{6,}$/.test(key);
-  if (!looksValid) return null;
-  // Derive a friendly display from the input.
-  const base = key.replace(/^@/, "").split(/[@\s.]/)[0] || "Recipient";
-  const name = base.charAt(0).toUpperCase() + base.slice(1, 8);
-  const mask = `Ends in ${(Math.abs(hashCode(key)) % 9000 + 1000)}`;
-  return { name: `${name}.`, mask };
-}
-
-function hashCode(s: string) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i);
-  return h;
-}
-
-function TransferSimulator() {
-  const navigate = useNavigate();
-  const [amount, setAmount] = useState<string>("100");
-  const [recipient, setRecipient] = useState<string>("@johndoe");
-  const [type, setType] = useState<string>("standard");
-  const [status, setStatus] = useState<RecipientStatus>("idle");
-  const [match, setMatch] = useState<{ name: string; mask: string } | null>(null);
-  const [sending, setSending] = useState(false);
-
-  const amountNum = useMemo(() => {
-    const n = Number(amount);
-    return isFinite(n) && n > 0 ? n : 0;
-  }, [amount]);
-
-  const fee = useMemo(() => calcFeeDollars(amountNum), [amountNum]);
-  const total = amountNum + fee;
-  const animTotal = useAnimatedNumber(total);
-  const animFee = useAnimatedNumber(fee);
-
-  // Debounced recipient verification simulation.
-  useEffect(() => {
-    if (recipient.trim().length < 3) {
-      setStatus("idle");
-      setMatch(null);
-      return;
-    }
-    setStatus("checking");
-    setMatch(null);
-    const t = setTimeout(() => {
-      const found = lookupRecipient(recipient);
-      if (found) {
-        setStatus("verified");
-        setMatch(found);
-      } else {
-        setStatus("unverified");
-      }
-    }, 550);
-    return () => clearTimeout(t);
-  }, [recipient]);
-
-  const canSend = status === "verified" && amountNum > 0 && !sending;
-
-  const handleSendSecurely = () => {
-    if (!canSend) return;
-    setSending(true);
-    try {
-      sessionStorage.setItem(
-        "lockpay.simulatedTransfer",
-        JSON.stringify({
-          amount: amountNum,
-          recipient,
-          type,
-          recipientName: match?.name,
-          recipientMask: match?.mask,
-          ts: Date.now(),
-        }),
-      );
-    } catch {
-      // ignore
-    }
-    // Brief "preparing secure session" beat for premium feel.
-    setTimeout(() => navigate("/signup", { state: { fromSimulator: true } }), 650);
-  };
-
-  return (
-    <div className="relative">
-      <div className="absolute -inset-2 rounded-[2rem] bg-gradient-to-br from-accent/20 via-primary/10 to-transparent blur-2xl" aria-hidden />
-      <div className="relative overflow-hidden rounded-[1.75rem] border border-border/70 bg-card/95 p-5 sm:p-6 shadow-elevated backdrop-blur-xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Try the transfer flow
-            </div>
-            <div className="mt-0.5 text-base font-semibold">Verify before you sign up</div>
-          </div>
-          <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[10px] font-bold text-accent-foreground">
-            <BadgeCheck className="h-3 w-3" /> Encrypted demo
-          </span>
-        </div>
-
-        <div className="mt-5 space-y-4">
-          <div>
-            <Label htmlFor="amt" className="text-xs text-muted-foreground">You send</Label>
-            <div className="relative mt-1.5">
-              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-semibold text-muted-foreground">
-                $
-              </span>
-              <Input
-                id="amt"
-                inputMode="decimal"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
-                className="h-16 pl-9 pr-16 text-2xl font-bold tabular-nums transition-shadow"
-                placeholder="0.00"
-              />
-              <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 rounded-md bg-secondary px-2 py-1 text-[10px] font-semibold text-muted-foreground">
-                USD
-              </span>
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="rcpt" className="text-xs text-muted-foreground">
-              Recipient · username, email, or phone
-            </Label>
-            <div className="relative mt-1.5">
-              <Input
-                id="rcpt"
-                value={recipient}
-                onChange={(e) => setRecipient(e.target.value)}
-                className={`pr-10 transition-shadow ${
-                  status === "verified" ? "border-accent/60 ring-2 ring-accent/15" : ""
-                } ${status === "unverified" ? "border-destructive/60" : ""}`}
-                placeholder="@username or name@email.com"
-                autoComplete="off"
-              />
-              <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-                {status === "checking" && (
-                  <span className="block h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-accent" />
-                )}
-                {status === "verified" && <CheckCircle2 className="h-5 w-5 text-accent" />}
-                {status === "unverified" && <X className="h-5 w-5 text-destructive" />}
-              </div>
-            </div>
-
-            {/* Recipient state card */}
-            <div
-              className={`mt-2 overflow-hidden rounded-xl border text-xs transition-all duration-300 ${
-                status === "verified"
-                  ? "border-accent/40 bg-accent-soft/70 px-3 py-2 opacity-100"
-                  : status === "unverified"
-                  ? "border-destructive/30 bg-destructive-soft px-3 py-2 opacity-100"
-                  : "max-h-0 border-transparent px-3 py-0 opacity-0"
-              }`}
-            >
-              {status === "verified" && match && (
-                <div className="flex items-center gap-2">
-                  <BadgeCheck className="h-4 w-4 text-accent" />
-                  <span className="font-semibold text-foreground">Verified Recipient</span>
-                  <span className="text-muted-foreground">·</span>
-                  <span className="text-foreground/80">{match.name}</span>
-                  <span className="text-muted-foreground">· {match.mask}</span>
-                </div>
-              )}
-              {status === "unverified" && (
-                <div className="flex items-center gap-2 text-destructive">
-                  <X className="h-4 w-4" />
-                  <span className="font-semibold">Recipient not verified</span>
-                  <span className="text-destructive/80">· transfer cannot release</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <Label className="text-xs text-muted-foreground">Transfer type</Label>
-            <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="mt-1.5 h-12 rounded-xl">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="standard">Standard · identity-confirmed</SelectItem>
-                <SelectItem value="instant">Instant · verified recipient</SelectItem>
-                <SelectItem value="agreement">Agreement · dual confirmation</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="mt-5 space-y-2 rounded-2xl bg-secondary/50 p-3.5">
-          <Row
-            icon={<UserCheck className="h-4 w-4 text-accent" />}
-            label="Recipient status"
-            value={
-              status === "verified"
-                ? "Verified ✓"
-                : status === "checking"
-                ? "Verifying…"
-                : status === "unverified"
-                ? "Not verified"
-                : "Awaiting input"
-            }
-          />
-          <Row
-            icon={<Lock className="h-4 w-4 text-accent" />}
-            label="Transfer status"
-            value="Awaits recipient confirmation"
-          />
-          <Row
-            icon={<Zap className="h-4 w-4 text-accent" />}
-            label="Delivery time"
-            value="Instant after confirmation"
-          />
-          <Row
-            icon={<Sparkles className="h-4 w-4 text-accent" />}
-            label="Transfer fee"
-            value={`$${animFee.toFixed(2)}`}
-          />
-          <div className="my-1 h-px bg-border/70" />
-          <Row label="Total" value={`$${animTotal.toFixed(2)}`} bold />
-        </div>
-
-        <Button
-          onClick={handleSendSecurely}
-          disabled={!canSend}
-          className="mt-4 h-14 w-full rounded-2xl text-base font-semibold gradient-primary text-primary-foreground shadow-elevated transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-60 disabled:hover:translate-y-0"
-        >
-          {sending ? (
-            <>
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-              Preparing secure session…
-            </>
-          ) : (
-            <>
-              <ShieldCheck className="h-4 w-4" /> Send Securely
-            </>
-          )}
-        </Button>
-        <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[11px] text-muted-foreground">
-          <Lock className="h-3 w-3" />
-          Create an account to complete this transfer.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function Row({
-  icon,
-  label,
-  value,
-  bold,
-}: {
-  icon?: React.ReactNode;
-  label: string;
-  value: string;
-  bold?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between text-[13px]">
-      <span className="inline-flex items-center gap-2 text-muted-foreground">
-        {icon}
-        <span className={bold ? "font-semibold text-foreground" : ""}>{label}</span>
-      </span>
-      <span className={`tabular-nums ${bold ? "font-bold text-foreground" : "font-medium text-foreground/90"}`}>
-        {value}
-      </span>
-    </div>
-  );
-}
-
 /* ------------------------- How it works ------------------------- */
 
 function HowItWorks() {
   const steps = [
-    { n: 1, title: "Enter recipient details", desc: "Send to a username, email, or phone — we'll match it to a verified Lock Pay account.", icon: <Send className="h-5 w-5" /> },
-    { n: 2, title: "Recipient is verified", desc: "Lock Pay confirms the receiving party's identity before a transfer is initiated.", icon: <UserCheck className="h-5 w-5" /> },
-    { n: 3, title: "Recipient confirms", desc: "The recipient acknowledges and confirms the transfer in-app.", icon: <Lock className="h-5 w-5" /> },
-    { n: 4, title: "Transfer completes", desc: "Both parties get an instant in-app receipt with full transfer history.", icon: <CheckCircle2 className="h-5 w-5" /> },
+    {
+      n: 1,
+      title: "Enter recipient",
+      desc: "Search by username, email, or phone number.",
+      icon: <Search className="h-5 w-5" />,
+    },
+    {
+      n: 2,
+      title: "Identity verification",
+      desc: "Lock Pay confirms the intended recipient before a transfer can proceed.",
+      icon: <UserCheck className="h-5 w-5" />,
+    },
+    {
+      n: 3,
+      title: "4-digit confirmation code",
+      desc: "The recipient must confirm a secure 4-digit code before approval.",
+      icon: <KeyRound className="h-5 w-5" />,
+    },
+    {
+      n: 4,
+      title: "Transfer approved",
+      desc: "Both parties confirm the transaction before completion.",
+      icon: <CheckCircle2 className="h-5 w-5" />,
+    },
   ];
   return (
     <section id="how" className="mt-24">
-      <SectionHeader eyebrow="How it works" title="Four steps to a verified transfer." />
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <SectionHeader
+        eyebrow="How LockPay Works"
+        title="Secure recipient verification before money moves."
+      />
+      <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map((s) => (
-          <div key={s.n} className="relative rounded-2xl border border-border/70 bg-card p-5 shadow-card transition hover:shadow-elevated">
+          <div
+            key={s.n}
+            className="relative rounded-2xl border border-border/70 bg-card p-5 shadow-card transition hover:shadow-elevated"
+          >
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">
                 {s.icon}
@@ -496,6 +204,14 @@ function HowItWorks() {
             <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
           </div>
         ))}
+      </div>
+      <div className="mt-8 text-center">
+        <Link
+          to="/how-it-works"
+          className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+        >
+          Read the full flow <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
       </div>
     </section>
   );
@@ -521,10 +237,10 @@ function Security() {
           </p>
           <div className="mt-6 flex items-center gap-3">
             <Button asChild className="rounded-2xl gradient-primary text-primary-foreground hover:opacity-95">
-              <Link to="/signup">Open a secure account</Link>
+              <Link to="/get-started">Open a secure account</Link>
             </Button>
             <Button asChild variant="outline" className="rounded-2xl">
-              <Link to="/contact">Talk to support</Link>
+              <Link to="/security">Security center</Link>
             </Button>
           </div>
         </div>
@@ -600,11 +316,11 @@ function Faq() {
   const items = [
     {
       q: "How does Lock Pay's transfer workflow work?",
-      a: "When you initiate a transfer, Lock Pay first matches the recipient to a verified Lock Pay account and asks them to confirm in-app. Payment movement itself is handled by our independent third-party payment processor. The verification step is designed to help reduce mistaken transfers by ensuring you're sending to the person you actually intend to.",
+      a: "When you initiate a transfer, Lock Pay first matches the recipient to a verified Lock Pay account and asks them to confirm a secure 4-digit code in-app. Payment movement itself is handled by our independent third-party payment processor. The verification step is designed to help reduce mistaken transfers.",
     },
     {
       q: "What happens if I send to the wrong username, email, or phone?",
-      a: "If the destination doesn't match a verified Lock Pay account, the transfer is not initiated and the request is cancelled. If a recipient match is found but they don't confirm within 48 hours, the request is cancelled and any pending charge by the payment processor is reversed to your original payment method according to the processor's standard timelines.",
+      a: "If the destination doesn't match a verified Lock Pay account, the transfer is not initiated and the request is cancelled. If a recipient match is found but they don't confirm within 48 hours, the request is cancelled and any pending charge by the payment processor is reversed.",
     },
     {
       q: "How fast are transfers?",
@@ -616,15 +332,15 @@ function Faq() {
     },
     {
       q: "Is Lock Pay secure?",
-      a: "Traffic is encrypted in transit with TLS 1.2+, sensitive data is encrypted at rest, and authentication uses industry-standard providers with phone-based verification. Card details are tokenized by our PCI-compliant payment processor — Lock Pay never stores raw card numbers. You can review or delete your account at any time from Profile.",
+      a: "Traffic is encrypted in transit with TLS 1.2+, sensitive data is encrypted at rest, and authentication uses industry-standard providers with phone-based verification. Card details are tokenized by our PCI-compliant payment processor — Lock Pay never stores raw card numbers.",
     },
     {
       q: "Is Lock Pay a bank or escrow service?",
-      a: "No. Lock Pay is a technology platform that coordinates peer-to-peer transfers and verifies recipients. Lock Pay is not a bank, money transmitter, escrow agent, or insured financial institution and does not hold customer funds. Payment movement is performed by independent third-party processors.",
+      a: "No. Lock Pay is a technology platform that coordinates peer-to-peer transfers and verifies recipients. Lock Pay is not a bank, money transmitter, escrow agent, or insured financial institution and does not hold customer funds.",
     },
     {
       q: "What are the fees?",
-      a: "Lock Pay charges a small per-transfer service fee that's shown clearly before you confirm any transfer. There are no monthly fees, no membership tiers, and no hidden charges. Standard payment-processor fees may also apply depending on your funding source.",
+      a: "Lock Pay charges a small per-transfer service fee that's shown clearly before you confirm any transfer. There are no monthly fees and no hidden charges. Standard payment-processor fees may also apply.",
     },
     {
       q: "How do I get help?",
@@ -685,12 +401,12 @@ function FinalCta() {
             Send your first verified transfer in under a minute.
           </h3>
           <p className="mt-3 text-sm sm:text-base text-primary-foreground/80">
-            Verify your phone, add a recipient, and send with confidence.
+            Verify your identity, add a recipient, and send with confidence.
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Button asChild size="lg" className="rounded-2xl bg-accent text-accent-foreground hover:bg-accent/90">
-              <Link to="/signup">
-                Create account <ArrowRight className="ml-1 h-4 w-4" />
+              <Link to="/get-started">
+                Send Money Securely <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="rounded-2xl border-white/20 bg-white/5 text-primary-foreground hover:bg-white/10 hover:text-primary-foreground">
@@ -714,9 +430,10 @@ function StickyMobileCta() {
         asChild
         className="h-12 w-full rounded-2xl text-sm font-semibold gradient-primary text-primary-foreground shadow-elevated"
       >
-        <a href="#simulator">
-          Try a demo transfer <ArrowRight className="ml-1 h-4 w-4" />
-        </a>
+        <Link to="/get-started">
+          <ShieldCheck className="mr-1.5 h-4 w-4" />
+          Send Money Securely
+        </Link>
       </Button>
     </div>
   );
