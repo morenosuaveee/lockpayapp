@@ -34,7 +34,8 @@ function SmsConsent({
         />
         <span className="text-[12.5px] font-medium leading-snug text-foreground">
           I agree to receive transactional SMS messages from LockPay related to account
-          verification, secure transfers, fraud alerts, and account activity.
+          verification, secure transfers, fraud alerts, payment activity, and account security
+          notifications.
         </span>
       </label>
       <p id={`${id}-desc`} className="mt-2 text-[10.5px] leading-[1.45] text-muted-foreground">
