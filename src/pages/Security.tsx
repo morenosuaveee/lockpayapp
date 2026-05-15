@@ -1,74 +1,119 @@
-import { ShieldCheck, Lock, Fingerprint, EyeOff, BadgeCheck, Activity, KeyRound, ServerCog } from "lucide-react";
-import { LegalPage } from "@/components/layout/LegalPage";
-import { SUPPORT_EMAIL } from "@/components/layout/LegalFooter";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  ShieldCheck,
+  Lock,
+  ShieldAlert,
+  KeyRound,
+  Clock,
+  Smartphone,
+  ChevronLeft,
+  Fingerprint,
+} from "lucide-react";
 
 const PILLARS = [
-  { icon: BadgeCheck, title: "Recipient verification", desc: "Every payee must be matched to a verified Lock Pay account before a transfer is initiated. Unverified destinations cannot receive a Lock Pay transfer." },
-  { icon: Lock, title: "Encryption everywhere", desc: "Traffic is encrypted in transit with TLS 1.2+ and sensitive data is encrypted at rest. Card details are tokenized by our PCI-compliant payment processor — Lock Pay never stores raw card numbers." },
-  { icon: EyeOff, title: "Mistake prevention", desc: "Identity confirmation is required before a transfer is initiated, designed to help reduce mistaken transfers and impersonation attempts." },
-  { icon: Fingerprint, title: "Account protection", desc: "Phone-verified accounts, device-bound sessions, and biometric unlock options keep account access tightly scoped to you." },
-  { icon: KeyRound, title: "Secure authentication", desc: "Authentication runs on industry-standard providers with one-time codes and session rotation, with optional Apple and Google sign-in." },
-  { icon: Activity, title: "Activity monitoring", desc: "Account and transfer activity is monitored for anomalous patterns and may require additional verification." },
+  {
+    icon: Fingerprint,
+    title: "Identity Verification",
+    desc: "Recipients must confirm a unique code before funds move. Every transfer is matched to a verified identity.",
+  },
+  {
+    icon: Lock,
+    title: "Encrypted Communication",
+    desc: "Codes and data are transmitted over encrypted channels. Sensitive details are protected end to end.",
+  },
+  {
+    icon: ShieldAlert,
+    title: "Fraud Prevention",
+    desc: "Suspicious activity triggers automatic review. Patterns indicating fraud halt the transfer flow.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Transfer Verification",
+    desc: "Every transfer has a unique checkpoint before completion. No transfer completes without confirmation.",
+  },
+  {
+    icon: Clock,
+    title: "Automatic Code Expiry",
+    desc: "Unused codes expire and cancel the transfer immediately. Time-bound verification protects you by default.",
+  },
+  {
+    icon: Smartphone,
+    title: "Device & Session Protection",
+    desc: "New devices require re-verification, and sessions time out. Account access stays tightly scoped to you.",
+  },
 ];
 
 export default function Security() {
   return (
-    <LegalPage
-      title="Security"
-      subtitle="Verification and encryption are built into every transfer."
-      updated="May 15, 2026"
-    >
-      <p>
-        Lock Pay is a secure transfer coordination platform. Recipient identity is confirmed
-        before a transfer is initiated, and every transfer is logged with a clear audit trail —
-        designed to help reduce mistaken transfers.
-      </p>
+    <div className="min-h-screen bg-background pb-safe">
+      <header className="sticky top-0 z-30 backdrop-blur-xl bg-background/80 border-b border-white/[0.06]">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
+          <Link to="/welcome" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+            <ChevronLeft className="h-4 w-4" /> Back
+          </Link>
+          <span className="text-sm font-semibold">Security</span>
+          <span className="w-12" />
+        </div>
+      </header>
 
-      <div className="not-prose mt-6 grid gap-3 sm:grid-cols-2">
-        {PILLARS.map(({ icon: Icon, title, desc }) => (
-          <div key={title} className="rounded-2xl border border-border/70 bg-card p-4 shadow-card">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent-foreground">
-              <Icon className="h-5 w-5" />
-            </div>
-            <p className="mt-3 text-sm font-semibold">{title}</p>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{desc}</p>
-          </div>
-        ))}
-      </div>
+      <section className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 gradient-hero" />
+        <div className="relative mx-auto max-w-3xl px-5 pb-12 pt-16 text-center">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="mx-auto mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary"
+          >
+            <ShieldCheck className="h-7 w-7" />
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            className="text-balance text-4xl font-bold leading-[1.1] tracking-[-0.02em] md:text-5xl"
+          >
+            Built around your security.
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground"
+          >
+            Every transfer on LockPay requires identity confirmation from the recipient.
+          </motion.p>
+        </div>
+      </section>
 
-      <h2>Infrastructure</h2>
-      <p>
-        Payment movement is performed by Stripe, an independent PCI-DSS Level 1 certified payment
-        processor. Identity, SMS verification, and notifications are delivered through
-        industry-standard providers under contract to protect your data. Lock Pay does not hold
-        customer funds.
-      </p>
+      <section className="mx-auto max-w-5xl px-5 pb-20">
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-60px" }}
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
+          className="grid gap-4 sm:grid-cols-2"
+        >
+          {PILLARS.map(({ icon: Icon, title, desc }) => (
+            <motion.div
+              key={title}
+              variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.4 } } }}
+              className="rounded-3xl border border-white/[0.08] bg-card p-6 transition-all hover:border-primary/30 hover:card-glow"
+            >
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                <Icon className="h-5 w-5" />
+              </div>
+              <h3 className="mt-4 text-lg font-semibold">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p>
+            </motion.div>
+          ))}
+        </motion.div>
 
-      <div className="not-prose mt-3 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card px-3 py-1"><ShieldCheck className="h-3.5 w-3.5" /> TLS 1.2+</span>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card px-3 py-1"><Lock className="h-3.5 w-3.5" /> AES-256 at rest</span>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card px-3 py-1"><ServerCog className="h-3.5 w-3.5" /> PCI-DSS processor</span>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-card px-3 py-1"><BadgeCheck className="h-3.5 w-3.5" /> Verified recipients</span>
-      </div>
-
-      <h2>Reporting suspicious activity or vulnerabilities</h2>
-      <p>
-        If you notice suspicious activity on your account or believe you've found a vulnerability,
-        please email <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> with details. We
-        respond to legitimate reports within one business day.
-      </p>
-
-      <h2>What we will never do</h2>
-      <ul>
-        <li>Ask for your password, full card number, or one-time code over SMS, email, or phone.</li>
-        <li>Ask you to move money to a different account "for safekeeping."</li>
-        <li>Request remote access to your device.</li>
-        <li>Promise insurance, guarantees, or any custodial holding of your funds — Lock Pay does not offer these.</li>
-      </ul>
-      <p>
-        If anyone contacts you claiming to be Lock Pay and asks for these things, do not respond —
-        report it to <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
-      </p>
-    </LegalPage>
+        <p className="mx-auto mt-16 max-w-xl text-center text-xs leading-relaxed text-muted-foreground/70">
+          LockPay provides transfer verification and confirmation technology and is not a bank or custodial financial institution.
+        </p>
+      </section>
+    </div>
   );
 }
