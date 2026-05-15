@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CodeInput } from "@/components/CodeInput";
 import { StatusBadge } from "@/components/StatusBadge";
 import { TransferTimeline } from "@/components/TransferTimeline";
+import { RecipientVerifiedSuccess } from "@/components/RecipientVerifiedSuccess";
 import { Countdown } from "@/components/Countdown";
 import { verifyCode } from "@/lib/unlock-code";
 import { getProvider } from "@/lib/payments/providers";
@@ -26,7 +27,7 @@ interface Tx {
   unlock_code_hash: string;
   sender_confirmed: boolean; receiver_confirmed: boolean;
   sender_attempts: number; receiver_attempts: number; max_attempts: number;
-  expires_at: string; note: string | null; created_at: string;
+  expires_at: string; note: string | null; created_at: string; recipient_confirmed_at?: string | null;
 }
 
 export default function UnlockTransaction() {
@@ -39,6 +40,8 @@ export default function UnlockTransaction() {
   const [submitting, setSubmitting] = useState(false);
   const [invalid, setInvalid] = useState(false);
   const [userPaypalEmail, setUserPaypalEmail] = useState<string | null>(null);
+  const [showVerifiedHero, setShowVerifiedHero] = useState(false);
+  const [verifiedDismissed, setVerifiedDismissed] = useState(false);
 
   useEffect(() => {
     if (!id || !user) return;
@@ -108,6 +111,25 @@ export default function UnlockTransaction() {
   const releasedStates = ["unlocked", "completed"] as const;
   const isReleased = (releasedStates as readonly string[]).includes(tx.status);
   const finalState = isReleased || tx.status === "expired" || tx.status === "cancelled" || tx.status === "refunded";
+
+  // Auto-open the premium "Recipient Verified" hero for the sender the
+  // moment recipient confirms — this is LockPay's signature moment.
+  useEffect(() => {
+    if (isSender && tx.status === "recipient_confirmed" && !verifiedDismissed) {
+      setShowVerifiedHero(true);
+    }
+  }, [isSender, tx.status, verifiedDismissed]);
+
+  async function handleReleasePayment() {
+    try {
+      await supabase.rpc("mark_invite_pending_payment", { _txn_id: tx!.id });
+      navigate(`/send?resume=${tx!.id}`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not start payment");
+      throw e;
+    }
+  }
+
 
   async function submitCode() {
     if (!tx || code.length !== 4) return;
@@ -248,27 +270,24 @@ export default function UnlockTransaction() {
                 <CheckCircle2 className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-accent-foreground">Recipient confirmed</p>
+                <p className="text-sm font-semibold text-accent-foreground">Recipient verified</p>
                 <p className="mt-0.5 text-xs text-accent-foreground/80">
-                  They've verified the 4-digit code. Complete the payment to release ${Number(tx.amount).toFixed(2)}.
+                  They've confirmed the 4-digit code. Release ${Number(tx.amount).toFixed(2)} when you're ready.
                 </p>
               </div>
             </div>
             <Button
-              onClick={async () => {
-                try {
-                  await supabase.rpc("mark_invite_pending_payment", { _txn_id: tx.id });
-                  navigate(`/send?resume=${tx.id}`);
-                } catch (e) {
-                  toast.error(e instanceof Error ? e.message : "Could not start payment");
-                }
+              onClick={() => {
+                setVerifiedDismissed(false);
+                setShowVerifiedHero(true);
               }}
-              className="mt-4 w-full h-12 rounded-2xl text-[15px] font-semibold gradient-primary text-primary-foreground"
+              className="mt-4 w-full h-12 rounded-2xl text-[15px] font-semibold gradient-accent text-accent-foreground"
             >
-              <Lock className="mr-2 h-4 w-4" /> Complete payment
+              <ShieldCheck className="mr-2 h-4 w-4" /> Review & release
             </Button>
           </div>
         )}
+
 
         {(tx.status === "pending_invite" || tx.status === "awaiting_recipient") && isSender && (
           <div className="mt-6 rounded-3xl bg-card p-5 shadow-card text-center">
@@ -358,6 +377,25 @@ export default function UnlockTransaction() {
           <Row label="Reference" value={tx.id.slice(0, 8).toUpperCase()} mono />
         </div>
       </div>
+
+      {showVerifiedHero && isSender && (tx.status === "recipient_confirmed" || tx.status === "pending_payment") && (
+        <RecipientVerifiedSuccess
+          recipientName={tx.recipient_identifier}
+          amount={Number(tx.amount)}
+          currency={tx.currency}
+          timestamp={tx.recipient_confirmed_at ?? undefined}
+          released={tx.status === "pending_payment"}
+          onRelease={handleReleasePayment}
+          onCancel={() => {
+            setShowVerifiedHero(false);
+            setVerifiedDismissed(true);
+          }}
+          onDismiss={() => {
+            setShowVerifiedHero(false);
+            setVerifiedDismissed(true);
+          }}
+        />
+      )}
     </AppShell>
   );
 }
