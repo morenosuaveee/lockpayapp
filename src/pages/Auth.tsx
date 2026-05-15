@@ -235,12 +235,17 @@ export default function AuthPage({ mode }: Props) {
                     <Label htmlFor="ph"><PhoneIcon className="mr-1 inline h-3.5 w-3.5" />Phone number</Label>
                     <Input id="ph" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+14155551234" autoComplete="tel" />
                   </div>
-                  <Button onClick={sendOtp} disabled={otpSending} className="w-full h-12 rounded-xl text-base font-semibold">
+                  <Button
+                    onClick={sendOtp}
+                    disabled={otpSending || !smsConsentPhone}
+                    className="w-full h-12 rounded-xl text-base font-semibold transition-all"
+                  >
                     {otpSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
                     {otpSending ? "Sending…" : "Send verification code"}
                   </Button>
+                  <SmsConsent id="sms-consent-phone" checked={smsConsentPhone} onChange={setSmsConsentPhone} />
                   <p className="text-center text-[11px] text-muted-foreground">
-                    We'll text you a 6-digit code via SMS. Standard rates may apply.
+                    6-digit code delivered by SMS. Standard carrier rates may apply.
                   </p>
                 </>
               )}
