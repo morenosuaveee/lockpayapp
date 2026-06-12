@@ -25,6 +25,7 @@ import HowItWorks from "./pages/HowItWorks";
 import SmsPolicy from "./pages/SmsPolicy";
 import DeleteAccount from "./pages/DeleteAccount";
 import Claim from "./pages/Claim";
+import Unlock from "./pages/Unlock";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/welcome" element={<Welcome />} />
+            <Route path="/unlock" element={<Unlock />} />
             <Route path="/login" element={<AuthPage mode="login" />} />
             <Route path="/signup" element={<AuthPage mode="signup" />} />
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
