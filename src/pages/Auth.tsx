@@ -195,9 +195,8 @@ export default function AuthPage({ mode }: Props) {
         )}
 
         <Tabs defaultValue="email" className="animate-slide-up">
-          <TabsList className="grid w-full grid-cols-2 rounded-2xl">
+          <TabsList className="grid w-full grid-cols-1 rounded-2xl">
             <TabsTrigger value="email" className="rounded-xl"><Mail className="mr-1.5 h-3.5 w-3.5" />Email</TabsTrigger>
-            <TabsTrigger value="phone" className="rounded-xl"><PhoneIcon className="mr-1.5 h-3.5 w-3.5" />Phone</TabsTrigger>
           </TabsList>
 
           <TabsContent value="email">
