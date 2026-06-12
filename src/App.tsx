@@ -25,6 +25,7 @@ import HowItWorks from "./pages/HowItWorks";
 import SmsPolicy from "./pages/SmsPolicy";
 import DeleteAccount from "./pages/DeleteAccount";
 import Claim from "./pages/Claim";
+import Unlock from "./pages/Unlock";
 
 const queryClient = new QueryClient();
 
