@@ -72,8 +72,9 @@ export default function Onboarding() {
   const navigate = useNavigate();
 
   const [pendingTransfer, setPendingTransfer] = useState<SimulatedTransfer | null>(null);
+  // SMS verification temporarily disabled — phone/code steps bypassed.
   const stepsList = useMemo<Step[]>(() => {
-    const base: Step[] = ["welcome", "name", "phone", "code", "identity", "how"];
+    const base: Step[] = ["welcome", "name", "identity", "how"];
     if (pendingTransfer) base.push("confirm-transfer");
     base.push("done");
     return base;
