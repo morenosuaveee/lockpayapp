@@ -8,7 +8,6 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PhoneVerificationCard } from "@/components/PhoneVerificationCard";
 import { PushNotificationsCard } from "@/components/PushNotificationsCard";
 import { ExpoPushTokenCard } from "@/components/ExpoPushTokenCard";
 import { toast } from "sonner";
