@@ -249,60 +249,6 @@ export default function AuthPage({ mode }: Props) {
             </form>
           </TabsContent>
 
-          <TabsContent value="phone">
-            <div className="space-y-4 rounded-3xl bg-card p-6 shadow-card">
-              {otpStep === "idle" && (
-                <>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="ph"><PhoneIcon className="mr-1 inline h-3.5 w-3.5" />Phone number</Label>
-                    <Input id="ph" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+14155551234" autoComplete="tel" />
-                  </div>
-                  <SmsConsent id="sms-consent-phone" checked={smsConsentPhone} onChange={setSmsConsentPhone} />
-                  <Button
-                    onClick={sendOtp}
-                    disabled={otpSending || !smsConsentPhone}
-                    className="w-full h-12 rounded-xl text-base font-semibold transition-all"
-                  >
-                    {otpSending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
-                    {otpSending ? "Sending…" : "Send verification code"}
-                  </Button>
-                  <p className="text-center text-[11px] text-muted-foreground leading-relaxed">
-                    By continuing you agree to our{" "}
-                    <Link to="/terms" className="underline">Terms</Link> and{" "}
-                    <Link to="/privacy" className="underline">Privacy Policy</Link>.
-                  </p>
-                </>
-              )}
-              {otpStep === "code" && (
-                <div className="space-y-4">
-                  <p className="text-xs text-muted-foreground">
-                    Code sent to <span className="font-semibold text-foreground">{phone}</span>
-                  </p>
-                  <div className="flex justify-center">
-                    <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-                      <InputOTPGroup>
-                        {[0,1,2,3,4,5].map((i) => (
-                          <InputOTPSlot key={i} index={i} className="h-12 w-10 text-base" />
-                        ))}
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" className="flex-1 h-11 rounded-xl" onClick={() => setOtpStep("idle")}>
-                      Back
-                    </Button>
-                    <Button className="flex-1 h-11 rounded-xl" onClick={verifyOtp} disabled={otpVerifying || otp.length < 4}>
-                      {otpVerifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                      {otpVerifying ? "Verifying…" : "Verify & sign in"}
-                    </Button>
-                  </div>
-                  <button type="button" onClick={sendOtp} disabled={otpSending} className="block w-full text-center text-[11px] text-muted-foreground hover:text-foreground">
-                    {otpSending ? "Sending…" : "Resend code"}
-                  </button>
-                </div>
-              )}
-            </div>
-          </TabsContent>
         </Tabs>
 
         <Link

@@ -8,7 +8,6 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PhoneVerificationCard } from "@/components/PhoneVerificationCard";
 import { PushNotificationsCard } from "@/components/PushNotificationsCard";
 import { ExpoPushTokenCard } from "@/components/ExpoPushTokenCard";
 import { toast } from "sonner";
@@ -114,12 +113,8 @@ export default function Profile() {
             </Button>
           </div>
 
-          <p className="eyebrow mt-6">Security</p>
-          <PhoneVerificationCard
-            initialPhone={phone}
-            verifiedAt={phoneVerifiedAt}
-            onVerified={(p, at) => { setPhone(p); setPhoneVerifiedAt(at); }}
-          />
+
+
 
           <p className="eyebrow mt-6">Notifications</p>
           <PushNotificationsCard />
