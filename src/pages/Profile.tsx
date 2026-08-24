@@ -114,12 +114,8 @@ export default function Profile() {
             </Button>
           </div>
 
-          <p className="eyebrow mt-6">Security</p>
-          <PhoneVerificationCard
-            initialPhone={phone}
-            verifiedAt={phoneVerifiedAt}
-            onVerified={(p, at) => { setPhone(p); setPhoneVerifiedAt(at); }}
-          />
+
+
 
           <p className="eyebrow mt-6">Notifications</p>
           <PushNotificationsCard />
