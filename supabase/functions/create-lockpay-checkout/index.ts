@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     if (typeof feeInCents !== "number" || feeInCents < 0) throw new Error("Invalid fee");
     if (!recipient || typeof recipient !== "string") throw new Error("Invalid recipient");
     if (!returnUrl || typeof returnUrl !== "string") throw new Error("Invalid returnUrl");
-    if (environment !== "sandbox" && environment !== "live") throw new Error("Invalid environment");
+    void environment; // environment is derived from the connected Stripe key
 
     // Verify the txn belongs to this user and is pending
     const { data: txn, error: txnErr } = await supabase
@@ -50,7 +50,8 @@ Deno.serve(async (req) => {
     if (txn.sender_id !== user.id) throw new Error("Forbidden");
     if (txn.status !== "pending_payment") throw new Error("Transaction not awaiting payment");
 
-    const stripe = createStripeClient(environment);
+    const stripe = createStripeClient();
+
     const lineItems: any[] = [{
       price_data: {
         currency: "usd",
@@ -73,7 +74,7 @@ Deno.serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       line_items: lineItems,
       mode: "payment",
-      ui_mode: "embedded_page",
+      ui_mode: "embedded",
       return_url: returnUrl,
       customer_email: user.email,
       metadata: { transactionId, userId: user.id, feeInCents: String(feeInCents) },

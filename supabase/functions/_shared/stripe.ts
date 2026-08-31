@@ -9,40 +9,22 @@ const getEnv = (key: string): string => {
 
 export type StripeEnv = "sandbox" | "live";
 
-const GATEWAY_STRIPE_BASE = "https://connector-gateway.lovable.dev/stripe";
-
-export function getConnectionApiKey(env: StripeEnv): string {
-  return env === "sandbox"
-    ? getEnv("STRIPE_SANDBOX_API_KEY")
-    : getEnv("STRIPE_LIVE_API_KEY");
+/** Environment is derived from the connected Stripe secret key itself. */
+export function getStripeEnvironment(): StripeEnv {
+  return getEnv("STRIPE_SECRET_KEY").startsWith("sk_test_") ? "sandbox" : "live";
 }
 
-export function createStripeClient(env: StripeEnv): Stripe {
-  const connectionApiKey = getConnectionApiKey(env);
-  const lovableApiKey = getEnv("LOVABLE_API_KEY");
-
-  return new Stripe(connectionApiKey, {
-    apiVersion: "2026-03-25.dahlia",
-    httpClient: Stripe.createFetchHttpClient((url: string | URL, init?: RequestInit) => {
-      const gatewayUrl = url.toString().replace("https://api.stripe.com", GATEWAY_STRIPE_BASE);
-      return fetch(gatewayUrl, {
-        ...init,
-        headers: {
-          ...Object.fromEntries(new Headers(init?.headers).entries()),
-          "X-Connection-Api-Key": connectionApiKey,
-          "Lovable-API-Key": lovableApiKey,
-        },
-      });
-    }),
+export function createStripeClient(_env?: StripeEnv): Stripe {
+  return new Stripe(getEnv("STRIPE_SECRET_KEY"), {
+    apiVersion: "2024-06-20",
+    httpClient: Stripe.createFetchHttpClient(),
   });
 }
 
-export async function verifyWebhook(req: Request, env: StripeEnv): Promise<{ type: string; data: { object: any } }> {
+export async function verifyWebhook(req: Request, _env?: StripeEnv): Promise<{ type: string; data: { object: any } }> {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
-  const secret = env === "sandbox"
-    ? getEnv("PAYMENTS_SANDBOX_WEBHOOK_SECRET")
-    : getEnv("PAYMENTS_LIVE_WEBHOOK_SECRET");
+  const secret = getEnv("STRIPE_WEBHOOK_SECRET");
 
   if (!signature || !body) throw new Error("Missing signature or body");
 

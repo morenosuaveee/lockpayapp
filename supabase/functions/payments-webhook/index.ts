@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { type StripeEnv, verifyWebhook } from "../_shared/stripe.ts";
+import { verifyWebhook } from "../_shared/stripe.ts";
 
 let _supabase: ReturnType<typeof createClient> | null = null;
 function getSupabase() {
@@ -188,8 +188,8 @@ async function handlePaymentFailed(intent: any) {
   }
 }
 
-async function handleWebhook(req: Request, env: StripeEnv) {
-  const event = await verifyWebhook(req, env);
+async function handleWebhook(req: Request) {
+  const event = await verifyWebhook(req);
   console.log("Stripe event:", event.type);
 
   switch (event.type) {
@@ -208,16 +208,8 @@ async function handleWebhook(req: Request, env: StripeEnv) {
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
-  const rawEnv = new URL(req.url).searchParams.get("env");
-  if (rawEnv !== "sandbox" && rawEnv !== "live") {
-    console.error("Webhook missing env:", rawEnv);
-    return new Response(JSON.stringify({ received: true, ignored: "invalid env" }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
   try {
-    await handleWebhook(req, rawEnv as StripeEnv);
+    await handleWebhook(req);
     return new Response(JSON.stringify({ received: true }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -227,3 +219,4 @@ Deno.serve(async (req) => {
     return new Response("Webhook error", { status: 400 });
   }
 });
+
