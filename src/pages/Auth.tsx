@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { Lock, Mail, ArrowLeft, Phone as PhoneIcon, ShieldCheck, Loader2, Apple } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,10 +65,21 @@ interface Props { mode: "login" | "signup"; }
 export default function AuthPage({ mode }: Props) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const rawNext = searchParams.get("next") ?? "";
+  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Preserve the destination (e.g. a claim link) across OAuth redirects.
+  useEffect(() => {
+    try {
+      if (next) sessionStorage.setItem("lp_next", next);
+    } catch { /* noop */ }
+  }, [next]);
+
 
   // Phone OTP state
   const [phone, setPhone] = useState("");
@@ -109,10 +120,10 @@ export default function AuthPage({ mode }: Props) {
     setOtpVerifying(false);
     if (signErr) { toast.error(signErr.message); return; }
     toast.success("Signed in");
-    navigate("/");
+    navigate(next || "/");
   }
 
-  if (!authLoading && user) return <Navigate to="/" replace />;
+  if (!authLoading && user) return <Navigate to={next || "/"} replace />;
 
   const isSignup = mode === "signup";
 
@@ -133,7 +144,7 @@ export default function AuthPage({ mode }: Props) {
         });
         if (error) throw error;
         toast.success("Account created — welcome to LockPay");
-        navigate("/onboarding");
+        navigate(next || "/onboarding");
         return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -142,7 +153,7 @@ export default function AuthPage({ mode }: Props) {
         });
         if (error) throw error;
       }
-      navigate("/");
+      navigate(next || "/");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
     } finally { setLoading(false); }
@@ -153,7 +164,7 @@ export default function AuthPage({ mode }: Props) {
     const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
     if (result.error) { toast.error(result.error.message ?? "Google sign-in failed"); setLoading(false); return; }
     if (result.redirected) return;
-    navigate("/");
+    navigate(next || "/");
   }
 
   async function handleApple() {
@@ -161,7 +172,7 @@ export default function AuthPage({ mode }: Props) {
     const result = await lovable.auth.signInWithOAuth("apple", { redirect_uri: window.location.origin });
     if (result.error) { toast.error(result.error.message ?? "Apple sign-in failed"); setLoading(false); return; }
     if (result.redirected) return;
-    navigate("/");
+    navigate(next || "/");
   }
 
   return (
