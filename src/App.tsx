@@ -63,6 +63,7 @@ const App = () => (
             <Route path="/delete-account" element={<ProtectedRoute><DeleteAccount /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
