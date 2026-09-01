@@ -30,6 +30,19 @@ interface Tx {
   expires_at: string; note: string | null; created_at: string; recipient_confirmed_at?: string | null;
 }
 
+/** Never let a malformed timestamp crash the screen. */
+function relative(value?: string | null) {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "—";
+  try {
+    return formatDistanceToNowStrict(d, { addSuffix: true });
+  } catch {
+    return "—";
+  }
+}
+
+
 export default function UnlockTransaction() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
