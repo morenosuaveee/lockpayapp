@@ -192,7 +192,10 @@ export default function UnlockTransaction() {
         ? { sender_confirmed: true }
         : { receiver_confirmed: true, recipient_id: user!.id };
 
-      const newStatus = otherConfirmed ? "unlocked" : "awaiting_confirmation";
+      // Recipient verification is the only unlock step — the sender set the code
+      // when starting the transfer and never re-enters it.
+      const newStatus = "unlocked";
+
       await supabase.from("transactions").update({
         ...update, status: newStatus,
         ...(newStatus === "unlocked" ? { released_at: new Date().toISOString() } : {}),
