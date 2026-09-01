@@ -199,10 +199,15 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          country: string | null
           created_at: string
+          date_of_birth: string | null
           display_name: string | null
           expo_push_token: string | null
           id: string
+          identity_verified_at: string | null
+          legal_name: string | null
+          onboarding_completed_at: string | null
           paypal_email: string | null
           phone: string | null
           phone_verified_at: string | null
@@ -210,10 +215,15 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string | null
           expo_push_token?: string | null
           id: string
+          identity_verified_at?: string | null
+          legal_name?: string | null
+          onboarding_completed_at?: string | null
           paypal_email?: string | null
           phone?: string | null
           phone_verified_at?: string | null
@@ -221,10 +231,15 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          country?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string | null
           expo_push_token?: string | null
           id?: string
+          identity_verified_at?: string | null
+          legal_name?: string | null
+          onboarding_completed_at?: string | null
           paypal_email?: string | null
           phone?: string | null
           phone_verified_at?: string | null
