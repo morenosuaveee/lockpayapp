@@ -316,13 +316,13 @@ export default function UnlockTransaction() {
           </div>
         )}
 
-        {!finalState && !myConfirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation" || tx.status === "pending_payment") && (
+        {!finalState && isReceiver && !myConfirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation" || tx.status === "pending_payment") && (
           <div className="mt-6 rounded-3xl bg-card p-6 shadow-card">
             <h2 className="text-center text-base font-semibold">Enter the verification code</h2>
             <p className="mt-1 text-center text-xs text-muted-foreground">
               {blocked
                 ? "No attempts left — this payment was cancelled and any pending charge will be reversed."
-                : `Get the verification code from ${isSender ? "the recipient" : "the sender"}. ${attemptsLeft} ${attemptsLeft === 1 ? "try" : "tries"} left.`}
+                : `Get the verification code from the sender. ${attemptsLeft} ${attemptsLeft === 1 ? "try" : "tries"} left.`}
             </p>
             <div className="mt-5">
               <CodeInput value={code} onChange={setCode} masked invalid={invalid} disabled={blocked || submitting} autoFocus />
@@ -330,21 +330,24 @@ export default function UnlockTransaction() {
             <Button onClick={submitCode} disabled={blocked || submitting || code.length !== 4}
               className="mt-5 w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90 active:scale-[0.98] transition-transform">
               {submitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <ShieldCheck className="mr-2 h-5 w-5" />}
-              {submitting ? "Verifying…" : "Confirm transfer"}
+              {submitting ? "Verifying…" : "Unlock funds"}
             </Button>
             <p className="mt-3 text-center text-[11px] text-muted-foreground">
-              The transfer is initiated only when both of you enter the same code. Nothing happens until then.
+              The sender already set this code when starting the transfer. Entering it here releases the money to you.
             </p>
           </div>
         )}
 
-        {!finalState && myConfirmed && !otherConfirmed && (
-          <div className="mt-6 rounded-3xl bg-accent-soft p-6 text-center">
-            <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-accent" />
-            <p className="text-sm font-semibold">You're confirmed</p>
-            <p className="mt-1 text-xs text-muted-foreground">We've notified the other party. The transfer is initiated the moment they enter the same code.</p>
+        {!finalState && isSender && !tx.receiver_confirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation" || tx.status === "pending_payment") && (
+          <div className="mt-6 rounded-3xl bg-card p-6 text-center shadow-card">
+            <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+            <p className="mt-3 text-sm font-semibold">Waiting on {tx.recipient_identifier}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              You've already set the verification code. Share it with the recipient — the funds unlock as soon as they enter it.
+            </p>
           </div>
         )}
+
 
         {isReleased && (
           <div className="mt-6 overflow-hidden rounded-3xl bg-card p-5 shadow-card animate-slide-up">
