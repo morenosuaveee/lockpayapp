@@ -71,6 +71,17 @@ export default function UnlockTransaction() {
     return () => { mounted = false; supabase.removeChannel(channel); };
   }, [id, user]);
 
+  // Auto-open the premium "Recipient Verified" hero for the sender the
+  // moment recipient confirms — this is LockPay's signature moment.
+  // Must stay above the early returns below so hook order is stable.
+  const senderId = tx?.sender_id;
+  const txStatus = tx?.status;
+  useEffect(() => {
+    if (senderId && senderId === user?.id && txStatus === "recipient_confirmed" && !verifiedDismissed) {
+      setShowVerifiedHero(true);
+    }
+  }, [senderId, user?.id, txStatus, verifiedDismissed]);
+
   if (loading) {
     return (
       <AppShell>
@@ -111,14 +122,6 @@ export default function UnlockTransaction() {
   const releasedStates = ["unlocked", "completed"] as const;
   const isReleased = (releasedStates as readonly string[]).includes(tx.status);
   const finalState = isReleased || tx.status === "expired" || tx.status === "cancelled" || tx.status === "refunded";
-
-  // Auto-open the premium "Recipient Verified" hero for the sender the
-  // moment recipient confirms — this is LockPay's signature moment.
-  useEffect(() => {
-    if (isSender && tx.status === "recipient_confirmed" && !verifiedDismissed) {
-      setShowVerifiedHero(true);
-    }
-  }, [isSender, tx.status, verifiedDismissed]);
 
   async function handleReleasePayment() {
     try {
