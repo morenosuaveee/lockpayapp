@@ -65,10 +65,21 @@ interface Props { mode: "login" | "signup"; }
 export default function AuthPage({ mode }: Props) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const rawNext = searchParams.get("next") ?? "";
+  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Preserve the destination (e.g. a claim link) across OAuth redirects.
+  useEffect(() => {
+    try {
+      if (next) sessionStorage.setItem("lp_next", next);
+    } catch { /* noop */ }
+  }, [next]);
+
 
   // Phone OTP state
   const [phone, setPhone] = useState("");
