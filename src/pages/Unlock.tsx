@@ -1,8 +1,10 @@
-import { useEffect } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import { Lock, ShieldCheck, KeyRound, CheckCircle2, ArrowRight, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { Lock, ShieldCheck, KeyRound, CheckCircle2, ArrowRight, Clock, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { formatDistanceToNowStrict } from "date-fns";
 
 function track(event: string, props: Record<string, unknown> = {}) {
   try {
@@ -17,23 +19,67 @@ function track(event: string, props: Record<string, unknown> = {}) {
   }
 }
 
+interface Preview {
+  amount: number;
+  sender_display_name: string;
+  expires_at: string;
+  note: string | null;
+}
+
 export default function Unlock() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  // Support ?t= / ?token= / ?claim= from invite links, SMS and email CTAs.
+  const token = params.get("t") || params.get("token") || params.get("claim") || "";
+  const [preview, setPreview] = useState<Preview | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(!!token);
 
   useEffect(() => {
     track("unlock_landing_view", {
       referrer: document.referrer,
       utm: window.location.search,
+      has_token: !!token,
     });
-  }, []);
+  }, [token]);
 
-  if (!loading && user) return <Navigate to="/" replace />;
+  useEffect(() => {
+    if (!token) return;
+    let mounted = true;
+    (async () => {
+      const { data } = await supabase.rpc("claim_lookup", { _token: token });
+      if (!mounted) return;
+      const row = Array.isArray(data) ? data[0] : data;
+      if (row) {
+        setPreview({
+          amount: Number((row as { amount: number }).amount),
+          sender_display_name: (row as { sender_display_name: string }).sender_display_name,
+          expires_at: (row as { expires_at: string }).expires_at,
+          note: (row as { note: string | null }).note ?? null,
+        });
+      }
+      setPreviewLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, [token]);
+
+  const claimPath = token ? `/claim/${token}` : "";
+
+  // Signed-in users go straight to the claim screen (or the app when no token).
+  if (!loading && user) return <Navigate to={token ? claimPath : "/"} replace />;
 
   function handleCTA() {
-    track("unlock_cta_click");
-    navigate("/signup?next=/&src=unlock");
+    track("unlock_cta_click", { has_token: !!token });
+    if (token) {
+      navigate(`/signup?next=${encodeURIComponent(claimPath)}&src=unlock`);
+    } else {
+      navigate("/signup?next=/&src=unlock");
+    }
   }
+
+  const expiresLabel = preview
+    ? `Expires in ${formatDistanceToNowStrict(new Date(preview.expires_at))}`
+    : "Expires in 24h";
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white text-slate-900">
@@ -51,7 +97,7 @@ export default function Unlock() {
             <span className="text-sm font-semibold tracking-tight">LockPay</span>
           </div>
           <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-medium text-slate-600">
-            <Clock className="h-3 w-3" /> Expires in 24h
+            <Clock className="h-3 w-3" /> {expiresLabel}
           </span>
         </header>
 
@@ -71,18 +117,35 @@ export default function Unlock() {
             You've received money
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-slate-500">
-            Your money is locked and protected.
+            {preview
+              ? `${preview.sender_display_name} sent you a protected transfer.`
+              : "Your money is locked and protected."}
           </p>
 
           {/* Amount preview */}
           <div className="mt-6 inline-flex items-baseline gap-1 rounded-2xl bg-slate-50 px-5 py-3 ring-1 ring-slate-100">
             <span className="text-xs font-medium text-slate-500">Pending</span>
-            <span className="ml-2 text-2xl font-semibold tracking-tight text-slate-900">$5.00</span>
+            <span className="ml-2 text-2xl font-semibold tracking-tight text-slate-900">
+              {previewLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+              ) : preview ? (
+                `$${preview.amount.toFixed(2)}`
+              ) : (
+                "Awaiting details"
+              )}
+            </span>
           </div>
+
+          {preview?.note && (
+            <p className="mt-4 max-w-[300px] rounded-xl bg-slate-50 px-3 py-2 text-[13px] text-slate-600 ring-1 ring-slate-100">
+              "{preview.note}"
+            </p>
+          )}
 
           {/* CTA */}
           <Button
             onClick={handleCTA}
+            disabled={previewLoading}
             className="mt-8 h-14 w-full rounded-2xl bg-gradient-to-b from-[#3B82F6] to-[#1E54E0] text-base font-semibold text-white shadow-[0_14px_30px_-10px_rgba(47,115,255,0.6)] transition-all active:scale-[0.98] hover:from-[#4A8BFF] hover:to-[#2563EB]"
           >
             Unlock Now
@@ -92,8 +155,8 @@ export default function Unlock() {
           {/* Trust indicators */}
           <ul className="mt-7 w-full space-y-2.5 text-left">
             {[
-              { icon: ShieldCheck, label: "Secured in escrow" },
-              { icon: CheckCircle2, label: "Released only when both parties confirm" },
+              { icon: ShieldCheck, label: "Protected until both sides confirm" },
+              { icon: CheckCircle2, label: "Recipient confirmation required" },
               { icon: KeyRound, label: "Only you can unlock with your code" },
             ].map(({ icon: Icon, label }) => (
               <li
@@ -112,7 +175,7 @@ export default function Unlock() {
         <footer className="w-full pt-6 text-center text-[11px] text-slate-400">
           Already have an account?{" "}
           <Link
-            to="/login"
+            to={token ? `/login?next=${encodeURIComponent(claimPath)}` : "/login"}
             onClick={() => track("unlock_login_click")}
             className="font-semibold text-[#1E54E0]"
           >
