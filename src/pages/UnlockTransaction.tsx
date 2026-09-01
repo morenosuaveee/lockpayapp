@@ -374,11 +374,12 @@ export default function UnlockTransaction() {
         <TransferTimeline tx={tx as unknown as { status: string; created_at: string; invite_sent_at?: string | null; recipient_confirmed_at?: string | null; released_at?: string | null; expires_at?: string }} className="mt-6" />
 
         <div className="mt-4 space-y-1.5 rounded-2xl bg-secondary p-4 text-xs text-muted-foreground">
-          <Row label="Created" value={formatDistanceToNowStrict(new Date(tx.created_at), { addSuffix: true })} />
-          <Row label="Expires" value={formatDistanceToNowStrict(new Date(tx.expires_at), { addSuffix: true })} />
+          <Row label="Created" value={relative(tx.created_at)} />
+          <Row label="Expires" value={relative(tx.expires_at)} />
           <Row label="Provider" value="PayPal (mock)" />
-          <Row label="Reference" value={tx.id.slice(0, 8).toUpperCase()} mono />
+          <Row label="Reference" value={(tx.id ?? "").slice(0, 8).toUpperCase() || "—"} mono />
         </div>
+
       </div>
 
       {showVerifiedHero && isSender && (tx.status === "recipient_confirmed" || tx.status === "pending_payment") && (
