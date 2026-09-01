@@ -35,7 +35,9 @@ const App = () => (
       <Sonner position="top-center" richColors />
       <BrowserRouter>
         <AuthProvider>
+          <ErrorBoundary>
           <Routes>
+
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/unlock" element={<Unlock />} />
             <Route path="/login" element={<AuthPage mode="login" />} />
