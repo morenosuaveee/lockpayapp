@@ -144,12 +144,13 @@ export function TransferTimeline({ tx, className }: { tx: TimelineTx; className?
                 <p className={cn("text-[13px] font-semibold leading-tight", labelTone)}>
                   {step.label}
                 </p>
-                {step.ts && (
+                {step.ts && !Number.isNaN(new Date(step.ts).getTime()) && (
                   <p className="mt-0.5 text-[11px] text-muted-foreground">
                     {format(new Date(step.ts), "MMM d · h:mm a")} ·{" "}
                     {formatDistanceToNowStrict(new Date(step.ts), { addSuffix: true })}
                   </p>
                 )}
+
                 {step.hint && !step.ts && (
                   <p className="mt-0.5 text-[11px] text-muted-foreground">{step.hint}</p>
                 )}
