@@ -144,10 +144,6 @@ export default function Onboarding() {
       if (data?.legal_name) setLegalName(data.legal_name);
       if (data?.date_of_birth) setDob(data.date_of_birth);
       if (data?.country) setCountry(data.country);
-      if (identityDone && !done) {
-        // Identity already on file: skip name/identity steps entirely.
-        setStep(hasPending ? "confirm-transfer" : "how");
-      }
       setBootstrapped(true);
     })();
     return () => {
