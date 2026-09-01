@@ -128,7 +128,7 @@ export default function UnlockTransaction() {
   const isReceiver = !isSender; // (matched via RLS — they wouldn't see otherwise)
   const role: "sender" | "receiver" = isSender ? "sender" : "receiver";
   const myConfirmed = isSender ? tx.sender_confirmed : tx.receiver_confirmed;
-  const otherConfirmed = isSender ? tx.receiver_confirmed : tx.sender_confirmed;
+  
   const myAttempts = isSender ? tx.sender_attempts : tx.receiver_attempts;
   const attemptsLeft = tx.max_attempts - myAttempts;
   const blocked = attemptsLeft <= 0 && !myConfirmed;
