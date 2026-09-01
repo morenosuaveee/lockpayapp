@@ -117,11 +117,15 @@ export default function Onboarding() {
     (async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("display_name, phone_verified_at")
+        .select("display_name, phone_verified_at, legal_name, date_of_birth, country, identity_verified_at, onboarding_completed_at")
         .eq("id", user.id)
         .maybeSingle();
       if (cancel) return;
+      // Verification is remembered on the profile — never ask for name/age twice.
+      const identityDone = !!data?.identity_verified_at;
       const done =
+        !!data?.onboarding_completed_at ||
+        identityDone ||
         localStorage.getItem(`lp_onboarded_${user.id}`) === "1" ||
         !!data?.phone_verified_at;
       const hasPending = !!sessionStorage.getItem("lockpay.simulatedTransfer");
@@ -136,6 +140,13 @@ export default function Onboarding() {
       if (data?.display_name) {
         setDisplayName(data.display_name);
         if (!legalName) setLegalName(data.display_name);
+      }
+      if (data?.legal_name) setLegalName(data.legal_name);
+      if (data?.date_of_birth) setDob(data.date_of_birth);
+      if (data?.country) setCountry(data.country);
+      if (identityDone && !done) {
+        // Identity already on file: skip name/identity steps entirely.
+        setStep(hasPending ? "confirm-transfer" : "how");
       }
       setBootstrapped(true);
     })();
@@ -234,10 +245,19 @@ export default function Onboarding() {
       return;
     }
     setVerifyingId(true);
-    // Simulated identity check (no PII stored). Just a UX moment for trust.
-    setTimeout(() => {
-      setVerifyingId(false);
+    // Simulated identity check. Result is stored on the profile so the
+    // person is never asked for their name or age again.
+    setTimeout(async () => {
       if (user) {
+        await supabase
+          .from("profiles")
+          .update({
+            legal_name: legalName.trim(),
+            date_of_birth: dob,
+            country,
+            identity_verified_at: new Date().toISOString(),
+          })
+          .eq("id", user.id);
         try {
           localStorage.setItem(
             `lp_identity_${user.id}`,
@@ -247,6 +267,7 @@ export default function Onboarding() {
           // ignore
         }
       }
+      setVerifyingId(false);
       toast.success("Identity verified");
       setShowVerified("identity");
     }, 1100);
@@ -258,13 +279,25 @@ export default function Onboarding() {
   }
 
   function finishToDashboard() {
-    if (user) localStorage.setItem(`lp_onboarded_${user.id}`, "1");
+    if (user) {
+      localStorage.setItem(`lp_onboarded_${user.id}`, "1");
+      void supabase
+        .from("profiles")
+        .update({ onboarding_completed_at: new Date().toISOString() })
+        .eq("id", user.id);
+    }
     sessionStorage.removeItem("lockpay.simulatedTransfer");
     navigate("/", { replace: true });
   }
 
   function continueToSend() {
-    if (user) localStorage.setItem(`lp_onboarded_${user.id}`, "1");
+    if (user) {
+      localStorage.setItem(`lp_onboarded_${user.id}`, "1");
+      void supabase
+        .from("profiles")
+        .update({ onboarding_completed_at: new Date().toISOString() })
+        .eq("id", user.id);
+    }
     // SendMoney can pick this up if needed; we leave the prefill in sessionStorage.
     navigate("/send", { replace: true });
   }
