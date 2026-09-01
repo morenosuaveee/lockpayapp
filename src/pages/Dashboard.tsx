@@ -25,6 +25,8 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [txs, setTxs] = useState<Tx[]>([]);
   const [loading, setLoading] = useState(true);
+  const [quickAmount, setQuickAmount] = useState("");
+
 
   useEffect(() => {
     if (!user) return;
