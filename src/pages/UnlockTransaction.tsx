@@ -128,7 +128,7 @@ export default function UnlockTransaction() {
   const isReceiver = !isSender; // (matched via RLS — they wouldn't see otherwise)
   const role: "sender" | "receiver" = isSender ? "sender" : "receiver";
   const myConfirmed = isSender ? tx.sender_confirmed : tx.receiver_confirmed;
-  const otherConfirmed = isSender ? tx.receiver_confirmed : tx.sender_confirmed;
+  
   const myAttempts = isSender ? tx.sender_attempts : tx.receiver_attempts;
   const attemptsLeft = tx.max_attempts - myAttempts;
   const blocked = attemptsLeft <= 0 && !myConfirmed;
@@ -192,7 +192,10 @@ export default function UnlockTransaction() {
         ? { sender_confirmed: true }
         : { receiver_confirmed: true, recipient_id: user!.id };
 
-      const newStatus = otherConfirmed ? "unlocked" : "awaiting_confirmation";
+      // Recipient verification is the only unlock step — the sender set the code
+      // when starting the transfer and never re-enters it.
+      const newStatus = "unlocked";
+
       await supabase.from("transactions").update({
         ...update, status: newStatus,
         ...(newStatus === "unlocked" ? { released_at: new Date().toISOString() } : {}),
@@ -257,7 +260,7 @@ export default function UnlockTransaction() {
           </p>
           {!finalState && (
             <p className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
-              <ShieldCheck className="h-3 w-3 text-accent" /> Awaiting both confirmations
+              <ShieldCheck className="h-3 w-3 text-accent" /> Awaiting recipient verification
             </p>
           )}
           {!isReleased && <div className="mt-3 flex justify-center"><StatusBadge status={tx.status} /></div>}
@@ -272,10 +275,11 @@ export default function UnlockTransaction() {
         {/* Confirmation chips */}
         {!finalState && (
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <ConfirmChip label="Sender" confirmed={tx.sender_confirmed} you={isSender} />
-            <ConfirmChip label="Receiver" confirmed={tx.receiver_confirmed} you={isReceiver} />
+            <ConfirmChip label="Sender" confirmed you={isSender} confirmedLabel="✓ Initiated" />
+            <ConfirmChip label="Recipient" confirmed={tx.receiver_confirmed} you={isReceiver} />
           </div>
         )}
+
 
         {/* Code entry */}
         {/* Sender complete-payment CTA when recipient has confirmed */}
@@ -315,13 +319,13 @@ export default function UnlockTransaction() {
           </div>
         )}
 
-        {!finalState && !myConfirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation" || tx.status === "pending_payment") && (
+        {!finalState && isReceiver && !myConfirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation" || tx.status === "pending_payment") && (
           <div className="mt-6 rounded-3xl bg-card p-6 shadow-card">
             <h2 className="text-center text-base font-semibold">Enter the verification code</h2>
             <p className="mt-1 text-center text-xs text-muted-foreground">
               {blocked
                 ? "No attempts left — this payment was cancelled and any pending charge will be reversed."
-                : `Get the verification code from ${isSender ? "the recipient" : "the sender"}. ${attemptsLeft} ${attemptsLeft === 1 ? "try" : "tries"} left.`}
+                : `Get the verification code from the sender. ${attemptsLeft} ${attemptsLeft === 1 ? "try" : "tries"} left.`}
             </p>
             <div className="mt-5">
               <CodeInput value={code} onChange={setCode} masked invalid={invalid} disabled={blocked || submitting} autoFocus />
@@ -329,21 +333,24 @@ export default function UnlockTransaction() {
             <Button onClick={submitCode} disabled={blocked || submitting || code.length !== 4}
               className="mt-5 w-full h-14 rounded-2xl text-base font-semibold gradient-primary text-primary-foreground hover:opacity-90 active:scale-[0.98] transition-transform">
               {submitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <ShieldCheck className="mr-2 h-5 w-5" />}
-              {submitting ? "Verifying…" : "Confirm transfer"}
+              {submitting ? "Verifying…" : "Unlock funds"}
             </Button>
             <p className="mt-3 text-center text-[11px] text-muted-foreground">
-              The transfer is initiated only when both of you enter the same code. Nothing happens until then.
+              The sender already set this code when starting the transfer. Entering it here releases the money to you.
             </p>
           </div>
         )}
 
-        {!finalState && myConfirmed && !otherConfirmed && (
-          <div className="mt-6 rounded-3xl bg-accent-soft p-6 text-center">
-            <CheckCircle2 className="mx-auto mb-2 h-8 w-8 text-accent" />
-            <p className="text-sm font-semibold">You're confirmed</p>
-            <p className="mt-1 text-xs text-muted-foreground">We've notified the other party. The transfer is initiated the moment they enter the same code.</p>
+        {!finalState && isSender && !tx.receiver_confirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation" || tx.status === "pending_payment") && (
+          <div className="mt-6 rounded-3xl bg-card p-6 text-center shadow-card">
+            <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+            <p className="mt-3 text-sm font-semibold">Waiting on {tx.recipient_identifier}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              You've already set the verification code. Share it with the recipient — the funds unlock as soon as they enter it.
+            </p>
           </div>
         )}
+
 
         {isReleased && (
           <div className="mt-6 overflow-hidden rounded-3xl bg-card p-5 shadow-card animate-slide-up">
@@ -417,13 +424,14 @@ export default function UnlockTransaction() {
   );
 }
 
-function ConfirmChip({ label, confirmed, you }: { label: string; confirmed: boolean; you: boolean }) {
+function ConfirmChip({ label, confirmed, you, confirmedLabel }: { label: string; confirmed: boolean; you: boolean; confirmedLabel?: string }) {
   return (
     <div className={`rounded-2xl p-3 text-center text-sm ${confirmed ? "bg-accent-soft" : "bg-secondary"}`}>
       <div className="text-xs text-muted-foreground">{label} {you && <span className="font-semibold">(you)</span>}</div>
       <div className={`mt-1 font-semibold ${confirmed ? "text-accent-foreground" : "text-muted-foreground"}`}>
-        {confirmed ? "✓ Confirmed" : "Pending"}
+        {confirmed ? (confirmedLabel ?? "✓ Confirmed") : "Pending"}
       </div>
+
     </div>
   );
 }
