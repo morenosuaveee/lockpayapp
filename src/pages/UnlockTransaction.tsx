@@ -424,13 +424,14 @@ export default function UnlockTransaction() {
   );
 }
 
-function ConfirmChip({ label, confirmed, you }: { label: string; confirmed: boolean; you: boolean }) {
+function ConfirmChip({ label, confirmed, you, confirmedLabel }: { label: string; confirmed: boolean; you: boolean; confirmedLabel?: string }) {
   return (
     <div className={`rounded-2xl p-3 text-center text-sm ${confirmed ? "bg-accent-soft" : "bg-secondary"}`}>
       <div className="text-xs text-muted-foreground">{label} {you && <span className="font-semibold">(you)</span>}</div>
       <div className={`mt-1 font-semibold ${confirmed ? "text-accent-foreground" : "text-muted-foreground"}`}>
-        {confirmed ? "✓ Confirmed" : "Pending"}
+        {confirmed ? (confirmedLabel ?? "✓ Confirmed") : "Pending"}
       </div>
+
     </div>
   );
 }
