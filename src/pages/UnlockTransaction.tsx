@@ -257,7 +257,7 @@ export default function UnlockTransaction() {
           </p>
           {!finalState && (
             <p className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
-              <ShieldCheck className="h-3 w-3 text-accent" /> Awaiting both confirmations
+              <ShieldCheck className="h-3 w-3 text-accent" /> Awaiting recipient verification
             </p>
           )}
           {!isReleased && <div className="mt-3 flex justify-center"><StatusBadge status={tx.status} /></div>}
@@ -272,10 +272,11 @@ export default function UnlockTransaction() {
         {/* Confirmation chips */}
         {!finalState && (
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <ConfirmChip label="Sender" confirmed={tx.sender_confirmed} you={isSender} />
-            <ConfirmChip label="Receiver" confirmed={tx.receiver_confirmed} you={isReceiver} />
+            <ConfirmChip label="Sender" confirmed you={isSender} confirmedLabel="✓ Initiated" />
+            <ConfirmChip label="Recipient" confirmed={tx.receiver_confirmed} you={isReceiver} />
           </div>
         )}
+
 
         {/* Code entry */}
         {/* Sender complete-payment CTA when recipient has confirmed */}
