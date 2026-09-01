@@ -38,7 +38,12 @@ export default function SendMoney() {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("details");
   const [recipient, setRecipient] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(() => {
+    // Prefill from the Home amount entry (e.g. /send?amount=25)
+    const v = new URLSearchParams(window.location.search).get("amount");
+    const n = Number(v);
+    return v && Number.isFinite(n) && n > 0 ? String(n) : "";
+  });
   const [note, setNote] = useState("");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
