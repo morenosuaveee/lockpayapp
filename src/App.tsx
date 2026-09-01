@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Dashboard from "./pages/Dashboard";
 import SendMoney from "./pages/SendMoney";
 import Transactions from "./pages/Transactions";
@@ -35,7 +36,9 @@ const App = () => (
       <Sonner position="top-center" richColors />
       <BrowserRouter>
         <AuthProvider>
+          <ErrorBoundary>
           <Routes>
+
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/unlock" element={<Unlock />} />
             <Route path="/login" element={<AuthPage mode="login" />} />
@@ -60,6 +63,7 @@ const App = () => (
             <Route path="/delete-account" element={<ProtectedRoute><DeleteAccount /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
