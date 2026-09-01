@@ -25,6 +25,8 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [txs, setTxs] = useState<Tx[]>([]);
   const [loading, setLoading] = useState(true);
+  const [quickAmount, setQuickAmount] = useState("");
+
 
   useEffect(() => {
     if (!user) return;
@@ -83,14 +85,32 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Balance card */}
+        {/* Start a transfer: enter the amount you want to send */}
         <div className="mt-6 overflow-hidden rounded-3xl gradient-balance p-6 text-primary-foreground shadow-elevated">
           <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-80">
             <Wallet className="h-3.5 w-3.5" />
-            Available balance
+            Amount to send
           </div>
-          <div className="mt-2 text-4xl font-bold tabular-nums">$2,480.<span className="text-2xl opacity-70">00</span></div>
-          <div className="mt-1 text-xs opacity-70">{profile?.paypal_email ?? "Link your PayPal"}</div>
+          <div className="mt-2 flex items-baseline gap-1">
+            <span className="text-4xl font-bold tabular-nums">$</span>
+            <input
+              inputMode="decimal"
+              placeholder="0.00"
+              value={quickAmount}
+              onChange={(e) => setQuickAmount(e.target.value.replace(/[^\d.]/g, "").slice(0, 8))}
+              aria-label="Amount to send"
+              className="w-full min-w-0 bg-transparent text-4xl font-bold tabular-nums outline-none placeholder:text-primary-foreground/40"
+            />
+          </div>
+          <div className="mt-1 text-xs opacity-70">
+            {profile?.paypal_email ?? "Link your PayPal"}
+          </div>
+          <Button
+            onClick={() => navigate(`/send${Number(quickAmount) > 0 ? `?amount=${Number(quickAmount)}` : ""}`)}
+            className="mt-4 h-12 w-full rounded-2xl bg-white/15 text-base font-semibold text-primary-foreground backdrop-blur-sm hover:bg-white/25 active:scale-[0.98] transition-transform"
+          >
+            Continue
+          </Button>
 
           {lockedAmount > 0 && (
             <div className="mt-5 flex items-center justify-between rounded-2xl bg-white/10 p-3 backdrop-blur-sm">
@@ -107,6 +127,7 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+
 
         {/* Action needed: recipient confirmed, awaiting sender payment */}
         {actionableTxs.length > 0 && (
