@@ -15,7 +15,6 @@ import AuthPage from "./pages/Auth";
 import Welcome from "./pages/Welcome";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound.tsx";
-import Unsubscribe from "./pages/Unsubscribe";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Support from "./pages/Support";
@@ -57,7 +56,6 @@ const App = () => (
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/unlock/:id" element={<ProtectedRoute><UnlockTransaction /></ProtectedRoute>} />
             <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
-            <Route path="/unsubscribe" element={<Unsubscribe />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/support" element={<Support />} />
