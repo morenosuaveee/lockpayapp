@@ -426,12 +426,31 @@ export default function SendMoney() {
               </div>
             )}
 
-            <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-card">
+            <div className="mt-6">
+              <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Pay with
+              </p>
+              <PaymentMethodChoice value={payMethod} onChange={setPayMethod} />
+              {payMethod === "bank" && (
+                <div className="mt-3 flex items-start gap-2 rounded-2xl bg-lock-soft px-4 py-3 text-[12px] animate-fade-in">
+                  <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-lock" />
+                  <span className="text-lock-foreground">
+                    You'll sign in to your bank securely — LockPay never sees your credentials. Bank
+                    debits clear in 3–5 business days, and the recipient can complete the transfer
+                    once funds settle.
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 overflow-hidden rounded-3xl bg-card shadow-card">
               <LockPayCheckout
+                key={payMethod}
                 transactionId={createdId}
                 amountInCents={Math.round(amountNum * 100)}
                 feeInCents={Math.round(feeNum * 100)}
                 recipient={recipient.trim()}
+                paymentMethod={payMethod}
                 returnUrl={`${window.location.origin}/checkout/return?txn=${createdId}&session_id={CHECKOUT_SESSION_ID}`}
               />
             </div>
