@@ -607,15 +607,6 @@ export type Database = {
           status: Database["public"]["Enums"]["transaction_status"]
         }[]
       }
-      delete_email: {
-        Args: { message_id: number; queue_name: string }
-        Returns: boolean
-      }
-      email_queue_dispatch: { Args: never; Returns: undefined }
-      enqueue_email: {
-        Args: { payload: Json; queue_name: string }
-        Returns: number
-      }
       expire_old_transactions: { Args: never; Returns: undefined }
       has_role: {
         Args: {
@@ -669,23 +660,6 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
-      }
-      move_to_dlq: {
-        Args: {
-          dlq_name: string
-          message_id: number
-          payload: Json
-          source_queue: string
-        }
-        Returns: number
-      }
-      read_email_batch: {
-        Args: { batch_size: number; queue_name: string; vt: number }
-        Returns: {
-          message: Json
-          msg_id: number
-          read_ct: number
-        }[]
       }
       recipient_confirm_claim: {
         Args: { _code_hash: string; _token: string }
