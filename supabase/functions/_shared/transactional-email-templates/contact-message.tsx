@@ -1,11 +1,13 @@
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Container, Head, Heading, Hr, Html, Preview, Section, Text,
+  Body, Container, Head, Heading, Hr, Html, Img, Preview, Section, Text,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'Lock Pay'
 const BLUE = '#131d34'
+const MINT = '#20c589'
+const LOGO_URL = 'https://getlockpay.com/email-logo.png'
 const BG = '#fafbfc'
 const BORDER = '#e1e4ea'
 const TEXT_DARK = '#141a29'
@@ -44,9 +46,16 @@ const ContactMessageEmail = ({
       <Body style={main}>
         <Container style={outer}>
           <Section style={{ padding: '0 0 16px' }}>
-            <Text style={brandText}>
-              Lock<span style={{ color: BLUE }}>Pay</span>
-            </Text>
+            <table cellPadding={0} cellSpacing={0} role="presentation">
+              <tr>
+                <td style={{ paddingRight: '12px', verticalAlign: 'middle' }}>
+                  <Img src={LOGO_URL} alt="LockPay" width="36" height="36" style={{ display: 'block', borderRadius: '9px' }} />
+                </td>
+                <td style={{ verticalAlign: 'middle' }}>
+                  <Text style={brandText}>Lock<span style={{ color: MINT }}>Pay</span></Text>
+                </td>
+              </tr>
+            </table>
             <Hr style={{ borderColor: BORDER, margin: '12px 0 0' }} />
           </Section>
 
@@ -68,7 +77,7 @@ const ContactMessageEmail = ({
           </Section>
 
           <Text style={footerText}>
-            Reply directly to <a href={`mailto:${email}`} style={{ color: BLUE }}>{email}</a> to respond to this user.
+            Reply directly to <a href={`mailto:${email}`} style={{ color: MINT }}>{email}</a> to respond to this user.
           </Text>
           <Text style={signoff}>© {new Date().getFullYear()} {SITE_NAME}</Text>
         </Container>
@@ -111,7 +120,7 @@ const h1 = { fontSize: '24px', fontWeight: 'bold' as const, color: TEXT_DARK, ma
 const h2 = { fontSize: '14px', fontWeight: '600' as const, color: TEXT_MUTED, textTransform: 'uppercase' as const, letterSpacing: '0.6px', margin: '24px 0 8px' }
 const subtle = { fontSize: '14px', color: TEXT_MUTED, margin: '0 0 20px' }
 const panel = { border: `1px solid ${BORDER}`, borderRadius: '10px', padding: '4px 16px', margin: 0 }
-const messagePanel = { border: `1px solid ${BORDER}`, borderRadius: '10px', padding: '14px 16px', margin: 0, backgroundColor: '#fafbfd' }
+const messagePanel = { border: `1px solid ${BORDER}`, borderRadius: '10px', padding: '14px 16px', margin: 0, backgroundColor: '#f6f7f9' }
 const messageText = { fontSize: '15px', color: TEXT_DARK, lineHeight: '1.55', margin: 0, whiteSpace: 'pre-wrap' as const }
 const detailLabelCell = { color: TEXT_MUTED, fontSize: '13px', padding: '12px 16px 12px 0', verticalAlign: 'middle' as const, width: '90px', borderBottom: `1px solid ${BORDER}` }
 const detailValueCell = { color: TEXT_DARK, fontSize: '14px', fontWeight: '600' as const, padding: '12px 0', verticalAlign: 'middle' as const, borderBottom: `1px solid ${BORDER}`, wordBreak: 'break-word' as const }
