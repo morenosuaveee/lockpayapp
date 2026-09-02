@@ -288,15 +288,22 @@ export default function Onboarding() {
     // person is never asked for their name or age again.
     setTimeout(async () => {
       if (user) {
-        await supabase
-          .from("profiles")
-          .update({
-            legal_name: legalName.trim(),
-            date_of_birth: dob,
-            country,
-            identity_verified_at: new Date().toISOString(),
-          })
-          .eq("id", user.id);
+        // Date of birth lives on the profile (age is calculated when needed);
+        // identity/KYC details live in their own table.
+        await Promise.all([
+          supabase.from("profiles").update({ date_of_birth: dob }).eq("id", user.id),
+          supabase.from("kyc_profiles").upsert(
+            {
+              user_id: user.id,
+              legal_name: legalName.trim(),
+              country,
+              identity_status: "verified",
+              identity_verified_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" },
+          ),
+        ]);
+
         try {
           localStorage.setItem(
             `lp_identity_${user.id}`,
