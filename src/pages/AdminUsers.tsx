@@ -135,8 +135,13 @@ export default function AdminUsers() {
               const name =
                 [u.first_name, u.last_name].filter(Boolean).join(" ") || u.display_name || "Unnamed";
               const age = calcAge(u.date_of_birth);
+              const open = flagCounts[u.id] ?? 0;
               return (
-                <li key={u.id} className="rounded-3xl bg-card p-4 shadow-card">
+                <li key={u.id}>
+                  <Link
+                    to={`/admin/users/${u.id}`}
+                    className="block rounded-3xl bg-card p-4 shadow-card transition active:scale-[0.99] hover:bg-secondary/30"
+                  >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
@@ -153,11 +158,19 @@ export default function AdminUsers() {
                         {age !== null && <span> · {age} yrs</span>}
                       </p>
                     </div>
-                    <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${status.tone}`}
-                    >
-                      {status.label}
-                    </span>
+                    <div className="flex shrink-0 flex-col items-end gap-1.5">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${status.tone}`}
+                      >
+                        {status.label}
+                      </span>
+                      {open > 0 && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-destructive-soft px-2 py-0.5 text-[10px] font-semibold text-destructive">
+                          <Flag className="h-2.5 w-2.5" /> {open} flag{open === 1 ? "" : "s"}
+                        </span>
+                      )}
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[10.5px]">
                     <Chip on={u.email_verified} label="Email" />
@@ -169,6 +182,7 @@ export default function AdminUsers() {
                       Joined {fmtDate(u.created_at)}
                     </span>
                   </div>
+                  </Link>
                 </li>
               );
             })}
