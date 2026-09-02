@@ -6,7 +6,8 @@ import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'LockPay'
 const APP_URL = 'https://getlockpay.com'
-const LOGO_URL = `${APP_URL}/logo.png`
+const LOGO_URL = `${APP_URL}/email-logo.png`
+const MINT = '#20c589'
 const CLAIM_URL = `${APP_URL}/transactions`
 
 const BLUE = '#131d34'
@@ -39,11 +40,11 @@ const PaymentWaitingEmail = ({ amount, note, senderName }: PaymentWaitingProps) 
             <table cellPadding={0} cellSpacing={0} role="presentation">
               <tr>
                 <td style={{ paddingRight: '12px', verticalAlign: 'middle' }}>
-                  <Img src={LOGO_URL} alt="" width="36" height="36" style={{ display: 'block' }} />
+                  <Img src={LOGO_URL} alt="LockPay" width="40" height="40" style={{ display: "block", borderRadius: "10px" }} />
                 </td>
                 <td style={{ verticalAlign: 'middle' }}>
                   <Text style={brandText}>
-                    Lock<span style={{ color: BLUE }}>Pay</span>
+                    Lock<span style={{ color: MINT }}>Pay</span>
                   </Text>
                 </td>
               </tr>
