@@ -419,28 +419,95 @@ export default function Onboarding() {
         {step === "name" && (
           <StepShell
             icon={<UserCircle2 className="h-7 w-7 text-primary-foreground" />}
-            title="What's your name?"
-            subtitle="This is how recipients will see you."
+            title="Create your profile"
+            subtitle="This is how recipients will see you. We only collect what we need."
           >
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="ob-first">First name</Label>
+                <Input
+                  id="ob-first"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Alex"
+                  autoFocus
+                  autoComplete="given-name"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ob-last">Last name</Label>
+                <Input
+                  id="ob-last"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Carter"
+                  autoComplete="family-name"
+                />
+              </div>
+            </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ob-name">Full name</Label>
+              <Label htmlFor="ob-email">Email</Label>
+              <Input id="ob-email" value={user?.email ?? ""} readOnly disabled />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ob-phonenum">Phone number (optional)</Label>
               <Input
-                id="ob-name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Alex Carter"
-                autoFocus
-                autoComplete="name"
+                id="ob-phonenum"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+14155551234"
+                autoComplete="tel"
               />
             </div>
+
+            <div className="space-y-2.5 rounded-2xl border border-border/70 bg-secondary/40 p-3.5">
+              <label htmlFor="ob-terms" className="flex cursor-pointer items-start gap-2.5">
+                <Checkbox
+                  id="ob-terms"
+                  checked={acceptTerms}
+                  onCheckedChange={(v) => setAcceptTerms(v === true)}
+                  className="mt-0.5"
+                />
+                <span className="text-[12.5px] leading-snug">
+                  I agree to the{" "}
+                  <Link to="/terms" target="_blank" className="underline underline-offset-2">
+                    Terms of Service
+                  </Link>
+                  .
+                </span>
+              </label>
+              <label htmlFor="ob-privacy" className="flex cursor-pointer items-start gap-2.5">
+                <Checkbox
+                  id="ob-privacy"
+                  checked={acceptPrivacy}
+                  onCheckedChange={(v) => setAcceptPrivacy(v === true)}
+                  className="mt-0.5"
+                />
+                <span className="text-[12.5px] leading-snug">
+                  I have read the{" "}
+                  <Link to="/privacy" target="_blank" className="underline underline-offset-2">
+                    Privacy Policy
+                  </Link>{" "}
+                  and consent to Lock Pay processing my information to verify transfers.
+                </span>
+              </label>
+            </div>
+
             <PrimaryCTA
               onClick={saveName}
               loading={saving}
               label="Continue"
-              disabled={displayName.trim().length < 2}
+              disabled={
+                firstName.trim().length < 2 ||
+                lastName.trim().length < 1 ||
+                !acceptTerms ||
+                !acceptPrivacy
+              }
             />
           </StepShell>
         )}
+
 
         {step === "phone" && (
           <StepShell
