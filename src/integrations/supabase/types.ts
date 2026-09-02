@@ -244,6 +244,33 @@ export type Database = {
         }
         Relationships: []
       }
+      payout_accounts: {
+        Row: {
+          created_at: string
+          details_submitted: boolean
+          payouts_enabled: boolean
+          stripe_account_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details_submitted?: boolean
+          payouts_enabled?: boolean
+          stripe_account_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details_submitted?: boolean
+          payouts_enabled?: boolean
+          stripe_account_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_fees: {
         Row: {
           amount: number
@@ -521,6 +548,89 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          kind: string
+          transaction_id: string | null
+          user_id: string
+          withdrawal_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          kind: string
+          transaction_id?: string | null
+          user_id: string
+          withdrawal_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          transaction_id?: string | null
+          user_id?: string
+          withdrawal_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_ledger_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      withdrawals: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          failure_reason: string | null
+          id: string
+          status: string
+          stripe_account_id: string | null
+          stripe_transfer_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          status?: string
+          stripe_account_id?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          status?: string
+          stripe_account_id?: string | null
+          stripe_transfer_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -661,6 +771,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      my_wallet_balance: { Args: never; Returns: number }
       recipient_confirm_claim: {
         Args: { _code_hash: string; _token: string }
         Returns: {
