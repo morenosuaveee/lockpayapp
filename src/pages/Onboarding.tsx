@@ -188,15 +188,35 @@ export default function Onboarding() {
 
   async function saveName() {
     if (!user) return;
-    if (displayName.trim().length < 2) {
-      toast.error("Enter your name");
+    if (firstName.trim().length < 2 || lastName.trim().length < 1) {
+      toast.error("Enter your first and last name");
       return;
     }
+    if (phoneNumber.trim() && !phoneSchema.safeParse(phoneNumber.trim()).success) {
+      toast.error("Use international format, e.g. +14155551234");
+      return;
+    }
+    if (!acceptTerms || !acceptPrivacy) {
+      toast.error("Please accept the Terms and Privacy Policy");
+      return;
+    }
+    const full = `${firstName.trim()} ${lastName.trim()}`.trim();
+    setDisplayName(full);
     setSaving(true);
+    const now = new Date().toISOString();
     const { error } = await supabase
       .from("profiles")
-      .update({ display_name: displayName.trim() })
+      .update({
+        display_name: full,
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        email: user.email ?? null,
+        phone_number: phoneNumber.trim() || null,
+        terms_accepted_at: now,
+        privacy_policy_accepted_at: now,
+      })
       .eq("id", user.id);
+
     setSaving(false);
     if (error) {
       toast.error(error.message);
