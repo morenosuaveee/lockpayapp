@@ -29,6 +29,7 @@ import Claim from "./pages/Claim";
 import Unlock from "./pages/Unlock";
 import VerifyEmail from "./pages/VerifyEmail";
 import AdminUsers from "./pages/AdminUsers";
+import AdminSenderProfile from "./pages/AdminSenderProfile";
 import { AdminRoute } from "@/components/AdminRoute";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/signup" element={<AuthPage mode="signup" />} />
             <Route path="/verify-email" element={<ProtectedRoute><VerifyEmail /></ProtectedRoute>} />
             <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+            <Route path="/admin/users/:id" element={<AdminRoute><AdminSenderProfile /></AdminRoute>} />
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/send" element={<ProtectedRoute><SendMoney /></ProtectedRoute>} />
