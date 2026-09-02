@@ -5,18 +5,18 @@ import {
 import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'LockPay'
-const APP_URL = 'https://code-lock-pay.lovable.app'
+const APP_URL = 'https://getlockpay.com'
 const LOGO_URL = `${APP_URL}/logo.png`
 const CLAIM_URL = `${APP_URL}/transactions`
 
-const BLUE = '#2563eb'
-const BLUE_DARK = '#1d4ed8'
-const BLUE_LIGHT = '#dbeafe'
-const BG = '#ffffff'
-const BORDER = '#e5e9f2'
-const TEXT_DARK = '#0b1220'
-const TEXT_MUTED = '#6b7280'
-const TEXT_DIM = '#9ca3af'
+const BLUE = '#131d34'
+const BLUE_DARK = '#1d3672'
+const BLUE_LIGHT = '#e5faf3'
+const BG = '#fafbfc'
+const BORDER = '#e1e4ea'
+const TEXT_DARK = '#141a29'
+const TEXT_MUTED = '#626c84'
+const TEXT_DIM = '#8b93a7'
 
 interface PaymentWaitingProps {
   amount?: number
