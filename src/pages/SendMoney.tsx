@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, RefreshCw, Copy, Check, Loader2, ShieldCheck, Lock,
-  UserCheck, Send as SendIcon, AlertCircle, CheckCircle2, Mail, Phone,
+  UserCheck, Send as SendIcon, AlertCircle, CheckCircle2, Mail, Phone, Building2,
 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CodeInput } from "@/components/CodeInput";
 import { LockPayCheckout } from "@/components/LockPayCheckout";
+import { PaymentMethodChoice, type PayMethod } from "@/components/PaymentMethodChoice";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { SuccessMark } from "@/components/SuccessMark";
 import { RecipientLookupCard, type LookupState } from "@/components/RecipientLookupCard";
@@ -37,6 +38,7 @@ export default function SendMoney() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("details");
+  const [payMethod, setPayMethod] = useState<PayMethod>("card");
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState(() => {
     // Prefill from the Home amount entry (e.g. /send?amount=25)
@@ -426,12 +428,31 @@ export default function SendMoney() {
               </div>
             )}
 
-            <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-card">
+            <div className="mt-6">
+              <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Pay with
+              </p>
+              <PaymentMethodChoice value={payMethod} onChange={setPayMethod} />
+              {payMethod === "bank" && (
+                <div className="mt-3 flex items-start gap-2 rounded-2xl bg-lock-soft px-4 py-3 text-[12px] animate-fade-in">
+                  <Building2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-lock" />
+                  <span className="text-lock-foreground">
+                    You'll sign in to your bank securely — LockPay never sees your credentials. Bank
+                    debits clear in 3–5 business days, and the recipient can complete the transfer
+                    once funds settle.
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 overflow-hidden rounded-3xl bg-card shadow-card">
               <LockPayCheckout
+                key={payMethod}
                 transactionId={createdId}
                 amountInCents={Math.round(amountNum * 100)}
                 feeInCents={Math.round(feeNum * 100)}
                 recipient={recipient.trim()}
+                paymentMethod={payMethod}
                 returnUrl={`${window.location.origin}/checkout/return?txn=${createdId}&session_id={CHECKOUT_SESSION_ID}`}
               />
             </div>

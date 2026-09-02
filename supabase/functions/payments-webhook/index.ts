@@ -20,6 +20,42 @@ async function handleCheckoutCompleted(session: any) {
   }
   const paymentIntent = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
   const feeInCents = Number(session.metadata?.feeInCents ?? 0);
+
+  // ACH / bank debits complete the session before funds settle (payment_status
+  // is "unpaid" until the debit clears, typically 3-5 business days). Hold the
+  // transfer in "pending" and only lock it once payment_intent.succeeded lands.
+  if (session.payment_status && session.payment_status !== "paid") {
+    const sb = getSupabase();
+    await sb
+      .from("transactions")
+      .update({
+        status: "pending",
+        stripe_payment_intent: paymentIntent ?? null,
+        // Bank debits can take up to 5 business days; keep the transfer alive
+        // well past the standard 48h card window so it isn't auto-expired.
+        expires_at: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", transactionId)
+      .eq("status", "pending_payment");
+    console.log(`Transaction ${transactionId} awaiting bank settlement (payment_status=${session.payment_status})`);
+    return;
+  }
+
+  await lockTransaction(transactionId, paymentIntent ?? null, feeInCents);
+}
+
+/** Fired when a delayed (ACH) payment intent finally settles. */
+async function handlePaymentIntentSucceeded(pi: any) {
+  const transactionId = pi.metadata?.transactionId;
+  if (!transactionId) {
+    console.warn("payment_intent.succeeded without transactionId metadata");
+    return;
+  }
+  await lockTransaction(transactionId, pi.id, Number(pi.metadata?.feeInCents ?? 0));
+}
+
+async function lockTransaction(transactionId: string, paymentIntent: string | null, feeInCents: number) {
   const sb = getSupabase();
 
   const { data: txn } = await sb
@@ -30,7 +66,7 @@ async function handleCheckoutCompleted(session: any) {
       updated_at: new Date().toISOString(),
     })
     .eq("id", transactionId)
-    .eq("status", "pending_payment")
+    .in("status", ["pending_payment", "pending"])
     .select("id, sender_id")
     .maybeSingle();
 
@@ -194,8 +230,15 @@ async function handleWebhook(req: Request) {
 
   switch (event.type) {
     case "checkout.session.completed":
+    case "checkout.session.async_payment_succeeded":
     case "transaction.completed":
       await handleCheckoutCompleted(event.data.object);
+      break;
+    case "payment_intent.succeeded":
+      await handlePaymentIntentSucceeded(event.data.object);
+      break;
+    case "checkout.session.async_payment_failed":
+      await handlePaymentFailed(event.data.object);
       break;
     case "payment_intent.payment_failed":
     case "transaction.payment_failed":

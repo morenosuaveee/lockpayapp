@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, AlertCircle, ShieldCheck, Clock, Receipt } from "lucide-react";
+import { Loader2, AlertCircle, ShieldCheck, Clock, Receipt, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { SuccessMark } from "@/components/SuccessMark";
 
-type State = "polling" | "locked" | "timeout" | "error";
+type State = "polling" | "locked" | "clearing" | "timeout" | "error";
 
 export default function CheckoutReturn() {
   const [params] = useSearchParams();
@@ -35,6 +35,10 @@ export default function CheckoutReturn() {
           if (data.status === "locked" || data.status === "awaiting_confirmation" || data.status === "completed") {
             setState("locked"); return;
           }
+          if (data.status === "pending") {
+            // Bank (ACH) debit initiated — funds settle in a few business days.
+            setState("clearing"); return;
+          }
         }
         await new Promise((r) => setTimeout(r, 1500));
       }
@@ -56,6 +60,41 @@ export default function CheckoutReturn() {
             <p className="mt-1.5 max-w-[280px] text-[13px] text-muted-foreground text-balance">
               Just a few seconds. Don't close the app.
             </p>
+          </div>
+        )}
+
+        {state === "clearing" && (
+          <div className="flex w-full max-w-sm flex-col items-center animate-fade-in">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-lock-soft">
+              <Building2 className="h-9 w-9 text-lock" />
+            </div>
+            <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-lock">Bank transfer started</p>
+            <h1 className="mt-1.5 text-[28px] font-bold tracking-tight">Payment clearing</h1>
+            {amount !== null && (
+              <div className="mt-2 text-[44px] font-bold tabular-nums tracking-tight leading-none">
+                ${amount.toFixed(2)}
+              </div>
+            )}
+            <p className="mt-3 max-w-[300px] text-[13px] text-muted-foreground text-balance">
+              Your bank debit is on its way. Funds typically settle in 3–5 business days — we'll
+              notify you and <span className="font-semibold text-foreground">{recipient}</span> the
+              moment it clears and the transfer locks.
+            </p>
+
+            <div className="mt-7 w-full divide-y divide-border/60 rounded-3xl bg-card shadow-card text-left">
+              <TrustRow icon={ShieldCheck} title="Bank login stays private" subtitle="LockPay never sees your credentials." />
+              <TrustRow icon={Clock} title="Settles in 3–5 business days" subtitle="Recipient can complete it once cleared." />
+              <TrustRow icon={Receipt} title="Receipt sent" subtitle="Check your email." />
+            </div>
+
+            <div className="mt-6 flex w-full flex-col gap-2">
+              <Button onClick={() => navigate("/transactions")} className="h-12 rounded-2xl">
+                View activity
+              </Button>
+              <Button variant="ghost" onClick={() => navigate("/")} className="h-11 rounded-2xl text-muted-foreground">
+                Back to home
+              </Button>
+            </div>
           </div>
         )}
 
