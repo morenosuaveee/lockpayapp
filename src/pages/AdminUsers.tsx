@@ -62,17 +62,21 @@ export default function AdminUsers() {
 
   const load = useCallback(async (term: string) => {
     setLoading(true);
-    const { data, error } = await supabase.rpc("admin_list_users", {
-      _search: term || null,
-      _limit: 200,
-      _offset: 0,
-    });
+    const [users, flags] = await Promise.all([
+      supabase.rpc("admin_list_users", { _search: term || null, _limit: 200, _offset: 0 }),
+      supabase.rpc("admin_flag_counts"),
+    ]);
     setLoading(false);
-    if (error) {
-      toast.error(error.message);
+    if (users.error) {
+      toast.error(users.error.message);
       return;
     }
-    setRows((data ?? []) as AdminUser[]);
+    setRows((users.data ?? []) as AdminUser[]);
+    const counts: Record<string, number> = {};
+    for (const f of (flags.data ?? []) as { user_id: string; open_flags: number }[]) {
+      counts[f.user_id] = Number(f.open_flags);
+    }
+    setFlagCounts(counts);
   }, []);
 
   useEffect(() => {
