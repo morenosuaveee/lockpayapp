@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import {
   ArrowRight,
@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -82,14 +83,20 @@ export default function Onboarding() {
 
   const [step, setStep] = useState<Step>("welcome");
   const [displayName, setDisplayName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
 
-  // Identity
+  // Identity (KYC — stored separately from basic profile data)
   const [legalName, setLegalName] = useState("");
   const [dob, setDob] = useState("");
   const [country, setCountry] = useState("US");
   const [verifyingId, setVerifyingId] = useState(false);
+
 
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -115,14 +122,23 @@ export default function Onboarding() {
     if (!user) return;
     let cancel = false;
     (async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("display_name, phone_verified_at, legal_name, date_of_birth, country, identity_verified_at, onboarding_completed_at")
-        .eq("id", user.id)
-        .maybeSingle();
+      const [{ data }, { data: kyc }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select(
+            "display_name, first_name, last_name, phone_number, phone_verified_at, date_of_birth, onboarding_completed_at, terms_accepted_at, privacy_policy_accepted_at",
+          )
+          .eq("id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("kyc_profiles")
+          .select("legal_name, country, identity_verified_at")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+      ]);
       if (cancel) return;
-      // Verification is remembered on the profile — never ask for name/age twice.
-      const identityDone = !!data?.identity_verified_at;
+      // Verification is remembered server-side — never ask for name/age twice.
+      const identityDone = !!kyc?.identity_verified_at;
       const done =
         !!data?.onboarding_completed_at ||
         identityDone ||
@@ -141,11 +157,19 @@ export default function Onboarding() {
         setDisplayName(data.display_name);
         if (!legalName) setLegalName(data.display_name);
       }
-      if (data?.legal_name) setLegalName(data.legal_name);
+      if (data?.first_name) setFirstName(data.first_name);
+      if (data?.last_name) setLastName(data.last_name);
+      if (data?.phone_number) setPhoneNumber(data.phone_number);
+      if (data?.terms_accepted_at) setAcceptTerms(true);
+      if (data?.privacy_policy_accepted_at) setAcceptPrivacy(true);
+      if (kyc?.legal_name) setLegalName(kyc.legal_name);
       if (data?.date_of_birth) setDob(data.date_of_birth);
-      if (data?.country) setCountry(data.country);
+      if (kyc?.country) setCountry(kyc.country);
+      // Keep the profile's verification flags in sync with the login record.
+      void supabase.rpc("sync_my_verification");
       setBootstrapped(true);
     })();
+
     return () => {
       cancel = true;
     };
@@ -165,15 +189,35 @@ export default function Onboarding() {
 
   async function saveName() {
     if (!user) return;
-    if (displayName.trim().length < 2) {
-      toast.error("Enter your name");
+    if (firstName.trim().length < 2 || lastName.trim().length < 1) {
+      toast.error("Enter your first and last name");
       return;
     }
+    if (phoneNumber.trim() && !phoneSchema.safeParse(phoneNumber.trim()).success) {
+      toast.error("Use international format, e.g. +14155551234");
+      return;
+    }
+    if (!acceptTerms || !acceptPrivacy) {
+      toast.error("Please accept the Terms and Privacy Policy");
+      return;
+    }
+    const full = `${firstName.trim()} ${lastName.trim()}`.trim();
+    setDisplayName(full);
     setSaving(true);
+    const now = new Date().toISOString();
     const { error } = await supabase
       .from("profiles")
-      .update({ display_name: displayName.trim() })
+      .update({
+        display_name: full,
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        email: user.email ?? null,
+        phone_number: phoneNumber.trim() || null,
+        terms_accepted_at: now,
+        privacy_policy_accepted_at: now,
+      })
       .eq("id", user.id);
+
     setSaving(false);
     if (error) {
       toast.error(error.message);
@@ -245,15 +289,22 @@ export default function Onboarding() {
     // person is never asked for their name or age again.
     setTimeout(async () => {
       if (user) {
-        await supabase
-          .from("profiles")
-          .update({
-            legal_name: legalName.trim(),
-            date_of_birth: dob,
-            country,
-            identity_verified_at: new Date().toISOString(),
-          })
-          .eq("id", user.id);
+        // Date of birth lives on the profile (age is calculated when needed);
+        // identity/KYC details live in their own table.
+        await Promise.all([
+          supabase.from("profiles").update({ date_of_birth: dob }).eq("id", user.id),
+          supabase.from("kyc_profiles").upsert(
+            {
+              user_id: user.id,
+              legal_name: legalName.trim(),
+              country,
+              identity_status: "verified",
+              identity_verified_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id" },
+          ),
+        ]);
+
         try {
           localStorage.setItem(
             `lp_identity_${user.id}`,
@@ -369,28 +420,95 @@ export default function Onboarding() {
         {step === "name" && (
           <StepShell
             icon={<UserCircle2 className="h-7 w-7 text-primary-foreground" />}
-            title="What's your name?"
-            subtitle="This is how recipients will see you."
+            title="Create your profile"
+            subtitle="This is how recipients will see you. We only collect what we need."
           >
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="ob-first">First name</Label>
+                <Input
+                  id="ob-first"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Alex"
+                  autoFocus
+                  autoComplete="given-name"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ob-last">Last name</Label>
+                <Input
+                  id="ob-last"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Carter"
+                  autoComplete="family-name"
+                />
+              </div>
+            </div>
             <div className="space-y-1.5">
-              <Label htmlFor="ob-name">Full name</Label>
+              <Label htmlFor="ob-email">Email</Label>
+              <Input id="ob-email" value={user?.email ?? ""} readOnly disabled />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ob-phonenum">Phone number (optional)</Label>
               <Input
-                id="ob-name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Alex Carter"
-                autoFocus
-                autoComplete="name"
+                id="ob-phonenum"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+14155551234"
+                autoComplete="tel"
               />
             </div>
+
+            <div className="space-y-2.5 rounded-2xl border border-border/70 bg-secondary/40 p-3.5">
+              <label htmlFor="ob-terms" className="flex cursor-pointer items-start gap-2.5">
+                <Checkbox
+                  id="ob-terms"
+                  checked={acceptTerms}
+                  onCheckedChange={(v) => setAcceptTerms(v === true)}
+                  className="mt-0.5"
+                />
+                <span className="text-[12.5px] leading-snug">
+                  I agree to the{" "}
+                  <Link to="/terms" target="_blank" className="underline underline-offset-2">
+                    Terms of Service
+                  </Link>
+                  .
+                </span>
+              </label>
+              <label htmlFor="ob-privacy" className="flex cursor-pointer items-start gap-2.5">
+                <Checkbox
+                  id="ob-privacy"
+                  checked={acceptPrivacy}
+                  onCheckedChange={(v) => setAcceptPrivacy(v === true)}
+                  className="mt-0.5"
+                />
+                <span className="text-[12.5px] leading-snug">
+                  I have read the{" "}
+                  <Link to="/privacy" target="_blank" className="underline underline-offset-2">
+                    Privacy Policy
+                  </Link>{" "}
+                  and consent to Lock Pay processing my information to verify transfers.
+                </span>
+              </label>
+            </div>
+
             <PrimaryCTA
               onClick={saveName}
               loading={saving}
               label="Continue"
-              disabled={displayName.trim().length < 2}
+              disabled={
+                firstName.trim().length < 2 ||
+                lastName.trim().length < 1 ||
+                !acceptTerms ||
+                !acceptPrivacy
+              }
             />
           </StepShell>
         )}
+
 
         {step === "phone" && (
           <StepShell

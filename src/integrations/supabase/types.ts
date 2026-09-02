@@ -131,6 +131,39 @@ export type Database = {
         }
         Relationships: []
       }
+      kyc_profiles: {
+        Row: {
+          country: string | null
+          created_at: string
+          id: string
+          identity_status: string
+          identity_verified_at: string | null
+          legal_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          identity_status?: string
+          identity_verified_at?: string | null
+          legal_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          identity_status?: string
+          identity_verified_at?: string | null
+          legal_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payment_methods: {
         Row: {
           account_identifier: string
@@ -199,50 +232,68 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
-          country: string | null
           created_at: string
           date_of_birth: string | null
           display_name: string | null
+          email: string | null
+          email_verified: boolean
           expo_push_token: string | null
+          first_name: string | null
           id: string
           identity_verified_at: string | null
-          legal_name: string | null
+          last_name: string | null
           onboarding_completed_at: string | null
           paypal_email: string | null
           phone: string | null
+          phone_number: string | null
+          phone_verified: boolean
           phone_verified_at: string | null
+          privacy_policy_accepted_at: string | null
+          terms_accepted_at: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
-          country?: string | null
           created_at?: string
           date_of_birth?: string | null
           display_name?: string | null
+          email?: string | null
+          email_verified?: boolean
           expo_push_token?: string | null
+          first_name?: string | null
           id: string
           identity_verified_at?: string | null
-          legal_name?: string | null
+          last_name?: string | null
           onboarding_completed_at?: string | null
           paypal_email?: string | null
           phone?: string | null
+          phone_number?: string | null
+          phone_verified?: boolean
           phone_verified_at?: string | null
+          privacy_policy_accepted_at?: string | null
+          terms_accepted_at?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
-          country?: string | null
           created_at?: string
           date_of_birth?: string | null
           display_name?: string | null
+          email?: string | null
+          email_verified?: boolean
           expo_push_token?: string | null
+          first_name?: string | null
           id?: string
           identity_verified_at?: string | null
-          legal_name?: string | null
+          last_name?: string | null
           onboarding_completed_at?: string | null
           paypal_email?: string | null
           phone?: string | null
+          phone_number?: string | null
+          phone_verified?: boolean
           phone_verified_at?: string | null
+          privacy_policy_accepted_at?: string | null
+          terms_accepted_at?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -396,11 +447,52 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      admin_list_users: {
+        Args: { _limit?: number; _offset?: number; _search?: string }
+        Returns: {
+          created_at: string
+          date_of_birth: string
+          display_name: string
+          email: string
+          email_verified: boolean
+          first_name: string
+          id: string
+          identity_status: string
+          is_admin: boolean
+          last_name: string
+          onboarding_completed_at: string
+          phone_number: string
+          phone_verified: boolean
+          privacy_policy_accepted_at: string
+          terms_accepted_at: string
+        }[]
+      }
       claim_lookup: {
         Args: { _token: string }
         Returns: {
@@ -428,6 +520,13 @@ export type Database = {
         Returns: number
       }
       expire_old_transactions: { Args: never; Returns: undefined }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_txn_party: {
         Args: { _txn: Database["public"]["Tables"]["transactions"]["Row"] }
         Returns: boolean
@@ -529,6 +628,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      sync_my_verification: { Args: never; Returns: undefined }
       unlock_transaction: {
         Args: { _txn_id: string }
         Returns: {
@@ -569,6 +669,7 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "user"
       payment_provider: "paypal" | "venmo" | "bank"
       transaction_status:
         | "pending_payment"
@@ -710,6 +811,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "user"],
       payment_provider: ["paypal", "venmo", "bank"],
       transaction_status: [
         "pending_payment",

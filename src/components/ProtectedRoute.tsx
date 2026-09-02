@@ -24,6 +24,16 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
   if (!user) return <Navigate to="/welcome" state={{ from: location }} replace />;
 
+  // Email-based accounts stay limited until the address is confirmed.
+  const needsEmailVerification =
+    !!user.email &&
+    !user.email_confirmed_at &&
+    !(user.app_metadata?.providers ?? []).some((p: string) => p !== "email");
+  if (needsEmailVerification && location.pathname !== "/verify-email") {
+    return <Navigate to="/verify-email" replace />;
+  }
+
+
   // Resume an interrupted claim/invite destination after sign-in or OAuth return.
   const pending = location.pathname === "/" ? takePendingNext() : null;
   if (pending && pending !== "/") return <Navigate to={pending} replace />;
