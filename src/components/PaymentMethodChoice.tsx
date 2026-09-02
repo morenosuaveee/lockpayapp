@@ -51,7 +51,7 @@ export function PaymentMethodChoice({ value, onChange, disabled }: Props) {
             aria-pressed={active}
             className={cn(
               "flex w-full items-center gap-3.5 rounded-[1.25rem] px-3.5 py-3.5 text-left transition-colors",
-              active ? "bg-primary-soft" : "hover:bg-muted/60",
+              active ? "bg-lock-soft" : "hover:bg-muted/60",
               disabled && "opacity-60",
             )}
           >
