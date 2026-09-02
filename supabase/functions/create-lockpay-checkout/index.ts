@@ -29,9 +29,11 @@ Deno.serve(async (req) => {
     const user = userData.user;
 
     const body = await req.json();
-    const { transactionId, amountInCents, feeInCents, recipient, returnUrl, environment } = body as {
+    const { transactionId, amountInCents, feeInCents, recipient, returnUrl, environment, paymentMethod } = body as {
       transactionId: string; amountInCents: number; feeInCents: number; recipient: string; returnUrl: string; environment: StripeEnv;
+      paymentMethod?: "card" | "bank";
     };
+    const method: "card" | "bank" = paymentMethod === "bank" ? "bank" : "card";
 
     if (!transactionId || typeof transactionId !== "string") throw new Error("Invalid transactionId");
     if (!amountInCents || amountInCents < 50) throw new Error("Amount must be at least $0.50");
@@ -71,14 +73,27 @@ Deno.serve(async (req) => {
       });
     }
 
+    const methodConfig: Record<string, any> = method === "bank"
+      ? {
+          payment_method_types: ["us_bank_account"],
+          payment_method_options: {
+            us_bank_account: {
+              financial_connections: { permissions: ["payment_method", "balances"] },
+              verification_method: "instant",
+            },
+          },
+        }
+      : { payment_method_types: ["card"] };
+
     const session = await stripe.checkout.sessions.create({
+      ...methodConfig,
       line_items: lineItems,
       mode: "payment",
       ui_mode: "embedded",
       return_url: returnUrl,
       customer_email: user.email,
-      metadata: { transactionId, userId: user.id, feeInCents: String(feeInCents) },
-      payment_intent_data: { metadata: { transactionId, userId: user.id, feeInCents: String(feeInCents) } },
+      metadata: { transactionId, userId: user.id, feeInCents: String(feeInCents), paymentMethod: method },
+      payment_intent_data: { metadata: { transactionId, userId: user.id, feeInCents: String(feeInCents), paymentMethod: method } },
     });
 
     await supabase
