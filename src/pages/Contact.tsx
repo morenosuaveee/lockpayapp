@@ -50,11 +50,8 @@ export default function Contact() {
     }
     setSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke("send-transactional-email", {
-        body: {
-          templateName: "contact-message",
-          templateData: result.data,
-        },
+      const { data, error } = await supabase.functions.invoke("send-contact-message", {
+        body: result.data,
       });
       if (error) throw error;
       if (data && (data as any).error) throw new Error((data as any).error);
