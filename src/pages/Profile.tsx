@@ -4,6 +4,7 @@ import { LogOut, Mail, User as UserIcon, CreditCard, Sparkles, ShieldCheck, File
 import { LegalFooter } from "@/components/layout/LegalFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ const schema = z.object({
 
 export default function Profile() {
   const { user } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [paypal, setPaypal] = useState("");
