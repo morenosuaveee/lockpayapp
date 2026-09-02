@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft, RefreshCw, Copy, Check, Loader2, ShieldCheck, Lock,
-  UserCheck, Send as SendIcon, AlertCircle, CheckCircle2, Mail, Phone,
+  UserCheck, Send as SendIcon, AlertCircle, CheckCircle2, Mail, Phone, Building2,
 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CodeInput } from "@/components/CodeInput";
 import { LockPayCheckout } from "@/components/LockPayCheckout";
+import { PaymentMethodChoice, type PayMethod } from "@/components/PaymentMethodChoice";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { SuccessMark } from "@/components/SuccessMark";
 import { RecipientLookupCard, type LookupState } from "@/components/RecipientLookupCard";
@@ -37,6 +38,7 @@ export default function SendMoney() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("details");
+  const [payMethod, setPayMethod] = useState<PayMethod>("card");
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState(() => {
     // Prefill from the Home amount entry (e.g. /send?amount=25)
