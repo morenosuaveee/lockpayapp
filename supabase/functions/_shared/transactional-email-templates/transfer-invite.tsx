@@ -104,5 +104,5 @@ const smallMuted: React.CSSProperties = { fontSize: '12px', color: TEXT_MUTED, t
 const amountCard: React.CSSProperties = { background: '#f6f7f9', border: `1px solid ${BORDER}`, borderRadius: '14px', padding: '20px', textAlign: 'center', margin: '8px 0 24px' }
 const amountLabel: React.CSSProperties = { fontSize: '11px', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }
 const amountValue: React.CSSProperties = { fontSize: '34px', fontWeight: 700, color: TEXT_DARK, margin: '6px 0 0' }
-const primaryBtn: React.CSSProperties = { background: BLUE, color: '#fff', padding: '14px 28px', borderRadius: '12px', fontSize: '15px', fontWeight: 600, textDecoration: 'none', display: 'inline-block' }
+const primaryBtn: React.CSSProperties = { backgroundColor: BLUE, backgroundImage: `linear-gradient(135deg, ${BLUE} 0%, #1d3672 100%)`, color: '#fff', padding: '17px 40px', borderRadius: '999px', fontSize: '16px', fontWeight: 600, textDecoration: 'none', display: 'inline-block', letterSpacing: '-0.2px', boxShadow: '0 8px 20px rgba(19,29,52,0.28)', border: '1px solid rgba(255,255,255,0.12)' }
 const hr: React.CSSProperties = { border: 'none', borderTop: `1px solid ${BORDER}`, margin: '28px 0 16px' }
