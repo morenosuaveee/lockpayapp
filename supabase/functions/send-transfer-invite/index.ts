@@ -2,6 +2,8 @@
 // generate a claim token, save invite metadata, and send SMS or email.
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { z } from 'npm:zod@3.23.8'
+import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts'
+import { sendAndLog } from '../_shared/transactional-email-templates/log-send.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -117,15 +119,17 @@ Deno.serve(async (req) => {
 
   // Dispatch
   if (channel === 'email') {
-    const { error: emailErr } = await admin.functions.invoke('send-transactional-email', {
-      body: {
-        templateName: 'transfer-invite',
-        recipientEmail: norm,
-        idempotencyKey: `invite-${claimToken}`,
-        templateData: { senderName, amount, claimUrl },
-      },
-    })
-    if (emailErr) {
+    try {
+      const result = await sendAndLog(
+        () =>
+          sendTemplateEmail('transfer-invite', norm, {
+            idempotencyKey: `invite-${claimToken}`,
+            templateData: { senderName, amount, claimUrl },
+          }),
+        { templateName: 'transfer-invite', recipientEmail: norm },
+      )
+      if (!result.sent) console.log('Invite email not delivered:', result.reason)
+    } catch (emailErr) {
       console.error('Email send failed', emailErr)
       return json({ error: 'Failed to send invite email' }, 500)
     }
