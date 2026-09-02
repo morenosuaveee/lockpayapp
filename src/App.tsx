@@ -26,6 +26,7 @@ import SmsPolicy from "./pages/SmsPolicy";
 import DeleteAccount from "./pages/DeleteAccount";
 import Claim from "./pages/Claim";
 import Unlock from "./pages/Unlock";
+import WalletPage from "./pages/Wallet";
 import VerifyEmail from "./pages/VerifyEmail";
 import AdminUsers from "./pages/AdminUsers";
 import AdminSenderProfile from "./pages/AdminSenderProfile";
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/send" element={<ProtectedRoute><SendMoney /></ProtectedRoute>} />
+            <Route path="/wallet" element={<ProtectedRoute><WalletPage /></ProtectedRoute>} />
             <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/unlock/:id" element={<ProtectedRoute><UnlockTransaction /></ProtectedRoute>} />
