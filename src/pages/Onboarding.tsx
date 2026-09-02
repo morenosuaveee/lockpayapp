@@ -121,14 +121,23 @@ export default function Onboarding() {
     if (!user) return;
     let cancel = false;
     (async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("display_name, phone_verified_at, legal_name, date_of_birth, country, identity_verified_at, onboarding_completed_at")
-        .eq("id", user.id)
-        .maybeSingle();
+      const [{ data }, { data: kyc }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select(
+            "display_name, first_name, last_name, phone_number, phone_verified_at, date_of_birth, onboarding_completed_at, terms_accepted_at, privacy_policy_accepted_at",
+          )
+          .eq("id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("kyc_profiles")
+          .select("legal_name, country, identity_verified_at")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+      ]);
       if (cancel) return;
-      // Verification is remembered on the profile — never ask for name/age twice.
-      const identityDone = !!data?.identity_verified_at;
+      // Verification is remembered server-side — never ask for name/age twice.
+      const identityDone = !!kyc?.identity_verified_at;
       const done =
         !!data?.onboarding_completed_at ||
         identityDone ||
@@ -147,11 +156,19 @@ export default function Onboarding() {
         setDisplayName(data.display_name);
         if (!legalName) setLegalName(data.display_name);
       }
-      if (data?.legal_name) setLegalName(data.legal_name);
+      if (data?.first_name) setFirstName(data.first_name);
+      if (data?.last_name) setLastName(data.last_name);
+      if (data?.phone_number) setPhoneNumber(data.phone_number);
+      if (data?.terms_accepted_at) setAcceptTerms(true);
+      if (data?.privacy_policy_accepted_at) setAcceptPrivacy(true);
+      if (kyc?.legal_name) setLegalName(kyc.legal_name);
       if (data?.date_of_birth) setDob(data.date_of_birth);
-      if (data?.country) setCountry(data.country);
+      if (kyc?.country) setCountry(kyc.country);
+      // Keep the profile's verification flags in sync with the login record.
+      void supabase.rpc("sync_my_verification");
       setBootstrapped(true);
     })();
+
     return () => {
       cancel = true;
     };
