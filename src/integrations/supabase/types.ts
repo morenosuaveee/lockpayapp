@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_flags: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          notes: string | null
+          reason: string
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          transaction_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          notes?: string | null
+          reason: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          notes?: string | null
+          reason?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          transaction_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_flags_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deletion_requests: {
         Row: {
           email: string | null
@@ -473,6 +526,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_flag_counts: {
+        Args: never
+        Returns: {
+          open_flags: number
+          user_id: string
+        }[]
+      }
       admin_list_users: {
         Args: { _limit?: number; _offset?: number; _search?: string }
         Returns: {
@@ -491,6 +551,43 @@ export type Database = {
           phone_verified: boolean
           privacy_policy_accepted_at: string
           terms_accepted_at: string
+        }[]
+      }
+      admin_sender_flags: {
+        Args: { _user_id: string }
+        Returns: {
+          created_at: string
+          created_by_name: string
+          id: string
+          notes: string
+          reason: string
+          resolved_at: string
+          severity: string
+          status: string
+          transaction_id: string
+        }[]
+      }
+      admin_sender_summary: { Args: { _user_id: string }; Returns: Json }
+      admin_sender_transfers: {
+        Args: { _limit?: number; _user_id: string }
+        Returns: {
+          amount: number
+          created_at: string
+          currency: string
+          expires_at: string
+          failed_attempts: number
+          fee_amount: number
+          flag_count: number
+          id: string
+          invite_sent_at: string
+          recipient_channel: string
+          recipient_claimed: boolean
+          recipient_confirmed_at: string
+          recipient_id: string
+          recipient_identifier: string
+          recipient_name: string
+          released_at: string
+          status: Database["public"]["Enums"]["transaction_status"]
         }[]
       }
       claim_lookup: {
