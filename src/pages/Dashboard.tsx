@@ -26,6 +26,7 @@ export default function Dashboard() {
   const [txs, setTxs] = useState<Tx[]>([]);
   const [loading, setLoading] = useState(true);
   const [quickAmount, setQuickAmount] = useState("");
+  const [balance, setBalance] = useState(0);
 
 
   useEffect(() => {
@@ -36,6 +37,9 @@ export default function Dashboard() {
         supabase.from("profiles").select("display_name,paypal_email,phone_verified_at").eq("id", user.id).maybeSingle(),
         supabase.from("transactions").select("*").order("created_at", { ascending: false }).limit(8),
       ]);
+      supabase.from("wallet_ledger").select("amount").then(({ data }) => {
+        if (mounted) setBalance((data ?? []).reduce((s, e) => s + Number(e.amount), 0));
+      });
       if (!mounted) return;
       const onboarded =
         localStorage.getItem(`lp_onboarded_${user.id}`) === "1" ||
@@ -154,6 +158,21 @@ export default function Dashboard() {
             ))}
           </div>
         )}
+
+        {/* LockPay balance + withdraw */}
+        <Link
+          to="/wallet"
+          className="mt-4 flex items-center gap-3 rounded-2xl bg-card p-4 shadow-card transition-transform active:scale-[0.99]"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft">
+            <Wallet className="h-5 w-5 text-accent-foreground" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-semibold">LockPay balance</p>
+            <p className="text-xs text-muted-foreground">Money you've unlocked, ready to withdraw</p>
+          </div>
+          <span className="shrink-0 text-sm font-bold tabular-nums">${balance.toFixed(2)}</span>
+        </Link>
 
         {/* Quick actions */}
         <div className="mt-5 grid grid-cols-2 gap-3">
