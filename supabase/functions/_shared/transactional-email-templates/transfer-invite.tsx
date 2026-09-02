@@ -1,15 +1,17 @@
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Button, Container, Head, Heading, Hr, Html, Preview, Section, Text,
+  Body, Button, Container, Head, Heading, Hr, Html, Img, Preview, Section, Text,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'Lock Pay'
-const BLUE = '#2563eb'
-const BG = '#ffffff'
-const BORDER = '#e5e9f2'
-const TEXT_DARK = '#0b1220'
-const TEXT_MUTED = '#6b7280'
+const BLUE = '#131d34'
+const MINT = '#20c589'
+const LOGO_URL = 'https://getlockpay.com/email-logo.png'
+const BG = '#fafbfc'
+const BORDER = '#e1e4ea'
+const TEXT_DARK = '#141a29'
+const TEXT_MUTED = '#626c84'
 
 interface TransferInviteProps {
   senderName?: string
@@ -28,7 +30,16 @@ const TransferInviteEmail = ({ senderName, amount, claimUrl }: TransferInvitePro
       <Body style={main}>
         <Container style={container}>
           <Section style={brand}>
-            <Heading as="h2" style={brandText}>LockPay</Heading>
+            <table cellPadding={0} cellSpacing={0} role="presentation">
+              <tr>
+                <td style={{ paddingRight: '12px', verticalAlign: 'middle' }}>
+                  <Img src={LOGO_URL} alt="LockPay" width="40" height="40" style={{ display: 'block', borderRadius: '10px' }} />
+                </td>
+                <td style={{ verticalAlign: 'middle' }}>
+                  <Heading as="h2" style={brandText}>Lock<span style={{ color: MINT }}>Pay</span></Heading>
+                </td>
+              </tr>
+            </table>
           </Section>
 
           <Heading style={h1}>You've received a secure transfer</Heading>
@@ -52,7 +63,7 @@ const TransferInviteEmail = ({ senderName, amount, claimUrl }: TransferInvitePro
 
           <Text style={smallMuted}>
             Or open this link: <br />
-            <span style={{ color: BLUE, wordBreak: 'break-all' }}>{url}</span>
+            <span style={{ color: MINT, wordBreak: 'break-all' }}>{url}</span>
           </Text>
 
           <Hr style={hr} />
@@ -84,13 +95,13 @@ export const template = {
 const main: React.CSSProperties = { backgroundColor: BG, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }
 const container: React.CSSProperties = { padding: '32px 24px', maxWidth: '560px', margin: '0 auto' }
 const brand: React.CSSProperties = { marginBottom: '24px' }
-const brandText: React.CSSProperties = { fontSize: '18px', fontWeight: 700, color: BLUE, margin: 0, letterSpacing: '-0.01em' }
+const brandText: React.CSSProperties = { fontSize: '22px', fontWeight: 700, color: TEXT_DARK, margin: 0, letterSpacing: '-0.01em' }
 const h1: React.CSSProperties = { fontSize: '24px', fontWeight: 700, color: TEXT_DARK, margin: '0 0 12px', lineHeight: 1.2 }
 const lead: React.CSSProperties = { fontSize: '15px', color: TEXT_MUTED, lineHeight: 1.55, margin: '0 0 24px' }
 const text: React.CSSProperties = { fontSize: '14px', color: TEXT_MUTED, lineHeight: 1.6, margin: '0 0 16px' }
 const small: React.CSSProperties = { fontSize: '12px', color: TEXT_MUTED, lineHeight: 1.55, margin: '0 0 12px' }
 const smallMuted: React.CSSProperties = { fontSize: '12px', color: TEXT_MUTED, textAlign: 'center', margin: '12px 0 0' }
-const amountCard: React.CSSProperties = { background: '#f6f8fc', border: `1px solid ${BORDER}`, borderRadius: '14px', padding: '20px', textAlign: 'center', margin: '8px 0 24px' }
+const amountCard: React.CSSProperties = { background: '#f6f7f9', border: `1px solid ${BORDER}`, borderRadius: '14px', padding: '20px', textAlign: 'center', margin: '8px 0 24px' }
 const amountLabel: React.CSSProperties = { fontSize: '11px', color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }
 const amountValue: React.CSSProperties = { fontSize: '34px', fontWeight: 700, color: TEXT_DARK, margin: '6px 0 0' }
 const primaryBtn: React.CSSProperties = { background: BLUE, color: '#fff', padding: '14px 28px', borderRadius: '12px', fontSize: '15px', fontWeight: 600, textDecoration: 'none', display: 'inline-block' }
