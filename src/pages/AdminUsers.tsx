@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import {
   ArrowLeft,
   BadgeCheck,
+  ChevronRight,
+  Flag,
   Loader2,
   Mail,
   Phone,
@@ -54,6 +56,7 @@ export default function AdminUsers() {
   const [debounced, setDebounced] = useState("");
   const [rows, setRows] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [flagCounts, setFlagCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 300);
