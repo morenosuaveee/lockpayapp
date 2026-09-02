@@ -82,14 +82,20 @@ export default function Onboarding() {
 
   const [step, setStep] = useState<Step>("welcome");
   const [displayName, setDisplayName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
 
-  // Identity
+  // Identity (KYC — stored separately from basic profile data)
   const [legalName, setLegalName] = useState("");
   const [dob, setDob] = useState("");
   const [country, setCountry] = useState("US");
   const [verifyingId, setVerifyingId] = useState(false);
+
 
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
