@@ -1,5 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { verifyWebhook } from "../_shared/stripe.ts";
+import { sendTemplateEmail } from "../_shared/transactional-email-templates/send-email.ts";
+import { sendAndLog } from "../_shared/transactional-email-templates/log-send.ts";
 
 let _supabase: ReturnType<typeof createClient> | null = null;
 function getSupabase() {
@@ -179,17 +181,21 @@ async function sendRecipientEmail(transactionId: string, recipientIdentifier: st
     console.log("Recipient not an email; skipping notification:", recipientIdentifier);
     return;
   }
-  const sb = getSupabase();
-  const { error } = await sb.functions.invoke("send-transactional-email", {
-    body: {
-      templateName: "payment-waiting",
-      recipientEmail: recipientIdentifier.trim().toLowerCase(),
-      idempotencyKey: `payment-waiting-${transactionId}`,
-      templateData: { amount, note, senderName, recipientName },
-    },
-  });
-  if (error) console.error("send-transactional-email error:", error);
-  else console.log("Payment-waiting email enqueued for", recipientIdentifier);
+  const recipientEmail = recipientIdentifier.trim().toLowerCase();
+  try {
+    const result = await sendAndLog(
+      () =>
+        sendTemplateEmail("payment-waiting", recipientEmail, {
+          idempotencyKey: `payment-waiting-${transactionId}`,
+          templateData: { amount, note, senderName, recipientName },
+        }),
+      { templateName: "payment-waiting", recipientEmail },
+    );
+    if (result.sent) console.log("Payment-waiting email sent for", transactionId);
+    else console.log("Payment-waiting email not delivered:", result.reason);
+  } catch (e) {
+    console.error("payment-waiting email error:", e);
+  }
 }
 
 async function sendPush(userIds: string[], title: string, body: string, data: Record<string, unknown> = {}) {
