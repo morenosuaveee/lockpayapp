@@ -136,6 +136,15 @@ export default function Profile() {
             </div>
           </div>
 
+          {isAdmin && (
+            <>
+              <p className="eyebrow mt-6">Administration</p>
+              <div className="overflow-hidden rounded-3xl bg-card shadow-card">
+                <ProfileLink to="/admin/users" icon={ShieldCheck} label="User directory" last />
+              </div>
+            </>
+          )}
+
           <p className="eyebrow mt-6">Help &amp; legal</p>
           <div className="overflow-hidden rounded-3xl bg-card shadow-card">
             <ProfileLink to="/support" icon={LifeBuoy} label="Support" />
@@ -143,6 +152,7 @@ export default function Profile() {
             <ProfileLink to="/terms" icon={FileText} label="Terms of Service" />
             <ProfileLink to="/delete-account" icon={UserX} label="Delete account" tone="destructive" last />
           </div>
+
 
           <Button onClick={signOut} variant="outline" className="mt-6 w-full h-12 rounded-xl text-destructive hover:bg-destructive-soft hover:text-destructive">
             <LogOut className="mr-2 h-4 w-4" /> Sign out
