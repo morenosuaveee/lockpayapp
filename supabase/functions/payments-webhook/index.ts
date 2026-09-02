@@ -31,6 +31,9 @@ async function handleCheckoutCompleted(session: any) {
       .update({
         status: "pending",
         stripe_payment_intent: paymentIntent ?? null,
+        // Bank debits can take up to 5 business days; keep the transfer alive
+        // well past the standard 48h card window so it isn't auto-expired.
+        expires_at: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
         updated_at: new Date().toISOString(),
       })
       .eq("id", transactionId)

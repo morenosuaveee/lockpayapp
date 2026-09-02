@@ -8,12 +8,13 @@ interface Props {
   feeInCents: number;
   recipient: string;
   returnUrl: string;
+  paymentMethod?: "card" | "bank";
 }
 
-export function LockPayCheckout({ transactionId, amountInCents, feeInCents, recipient, returnUrl }: Props) {
+export function LockPayCheckout({ transactionId, amountInCents, feeInCents, recipient, returnUrl, paymentMethod = "card" }: Props) {
   const fetchClientSecret = async (): Promise<string> => {
     const { data, error } = await supabase.functions.invoke("create-lockpay-checkout", {
-      body: { transactionId, amountInCents, feeInCents, recipient, returnUrl, environment: getStripeEnvironment() },
+      body: { transactionId, amountInCents, feeInCents, recipient, returnUrl, environment: getStripeEnvironment(), paymentMethod },
     });
     if (error || !data?.clientSecret) {
       throw new Error(error?.message || data?.error || "Failed to start checkout");

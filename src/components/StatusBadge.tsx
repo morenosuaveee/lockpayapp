@@ -14,7 +14,7 @@ const config: Record<Status, { label: string; icon: typeof Lock; className: stri
   completed: { label: "Completed", icon: CheckCircle2, className: "bg-accent-soft text-accent-foreground" },
   expired: { label: "Expired", icon: Clock, className: "bg-muted text-muted-foreground" },
   cancelled: { label: "Cancelled", icon: XCircle, className: "bg-destructive-soft text-destructive" },
-  pending: { label: "Pending", icon: Clock, className: "bg-muted text-muted-foreground" },
+  pending: { label: "Bank payment clearing", icon: Clock, className: "bg-muted text-muted-foreground" },
   unlocked: { label: "Unlocked", icon: Unlock, className: "bg-accent-soft text-accent-foreground" },
   refunded: { label: "Refunded", icon: Undo2, className: "bg-muted text-muted-foreground" },
 };
