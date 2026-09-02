@@ -1,6 +1,6 @@
 import { Building2, CreditCard, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { haptic } from "@/lib/haptics";
+import { haptic } from "@/lib/native";
 
 export type PayMethod = "card" | "bank";
 
