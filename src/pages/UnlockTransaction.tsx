@@ -12,7 +12,6 @@ import { TransferTimeline } from "@/components/TransferTimeline";
 import { RecipientVerifiedSuccess } from "@/components/RecipientVerifiedSuccess";
 import { Countdown } from "@/components/Countdown";
 import { verifyCode } from "@/lib/unlock-code";
-import { getProvider } from "@/lib/payments/providers";
 import { toast } from "sonner";
 import { formatDistanceToNowStrict } from "date-fns";
 
