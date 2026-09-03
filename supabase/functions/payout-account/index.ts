@@ -93,6 +93,11 @@ Deno.serve(async (req) => {
     return json({ url: accountLink.url, accountId });
   } catch (e) {
     console.error("payout-account error:", e);
-    return json({ error: e instanceof Error ? e.message : "Unknown error" }, 400);
+    let msg = e instanceof Error ? e.message : "Unknown error";
+    if (/signed up for Connect/i.test(msg)) {
+      msg = "Payouts aren't activated on this Stripe account yet. Enable Stripe Connect (Express accounts) on the account behind STRIPE_SECRET_KEY, then try again.";
+    }
+    return json({ error: msg }, 400);
   }
 });
+
