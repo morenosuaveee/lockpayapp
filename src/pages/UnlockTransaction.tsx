@@ -12,7 +12,6 @@ import { TransferTimeline } from "@/components/TransferTimeline";
 import { RecipientVerifiedSuccess } from "@/components/RecipientVerifiedSuccess";
 import { Countdown } from "@/components/Countdown";
 import { verifyCode } from "@/lib/unlock-code";
-import { getProvider } from "@/lib/payments/providers";
 import { toast } from "sonner";
 import { formatDistanceToNowStrict } from "date-fns";
 
@@ -196,19 +195,16 @@ export default function UnlockTransaction() {
       // when starting the transfer and never re-enters it.
       const newStatus = "unlocked";
 
-      await supabase.from("transactions").update({
-        ...update, status: newStatus,
-        ...(newStatus === "unlocked" ? { released_at: new Date().toISOString() } : {}),
-      }).eq("id", tx.id);
+      await supabase.from("transactions").update(update).eq("id", tx.id);
 
       if (newStatus === "unlocked") {
-        const provider = getProvider("paypal");
-        await provider.releasePayment({
-          providerRef: tx.id,
-          recipientAccount: tx.recipient_identifier,
-          amount: Number(tx.amount),
-        });
+        // The RPC flips the status AND credits the recipient's LockPay balance
+        // (wallet_ledger 'transfer_credit'), so the money is withdrawable.
+        const { error: unlockErr } = await supabase.rpc("unlock_transaction", { _txn_id: tx.id });
+        if (unlockErr) throw new Error(unlockErr.message);
+
         toast.success("Payment completed securely");
+
         const targets = [tx.sender_id, tx.recipient_id ?? user!.id].filter(Boolean) as string[];
         supabase.functions.invoke("send-push", {
           body: {
