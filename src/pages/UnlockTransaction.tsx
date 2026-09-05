@@ -186,22 +186,22 @@ export default function UnlockTransaction() {
         return;
       }
 
-      // Code correct — mark this party confirmed
-      const update: Partial<Tx> = isSender
-        ? { sender_confirmed: true }
-        : { receiver_confirmed: true, recipient_id: user!.id };
-
-      // Recipient verification is the only unlock step — the sender set the code
-      // when starting the transfer and never re-enters it.
-      const newStatus = "unlocked";
-
-      await supabase.from("transactions").update(update).eq("id", tx.id);
-
-      if (newStatus === "unlocked") {
+      // Code correct — release the funds FIRST, then mark the party confirmed.
+      // If the release is rejected (expired, not yet funded, etc.) we must not
+      // persist receiver_confirmed, or the unlock form disappears forever.
+      if (isSender) {
+        await supabase.from("transactions").update({ sender_confirmed: true }).eq("id", tx.id);
+      } else {
         // The RPC flips the status AND credits the recipient's LockPay balance
         // (wallet_ledger 'transfer_credit'), so the money is withdrawable.
         const { error: unlockErr } = await supabase.rpc("unlock_transaction", { _txn_id: tx.id });
         if (unlockErr) throw new Error(unlockErr.message);
+
+        // Only now persist the confirmation — the money has actually moved.
+        await supabase.from("transactions")
+          .update({ receiver_confirmed: true, recipient_id: user!.id })
+          .eq("id", tx.id);
+
 
         toast.success("Payment completed securely");
 
@@ -214,8 +214,6 @@ export default function UnlockTransaction() {
             data: { transactionId: tx.id, type: "payment_unlocked" },
           },
         }).catch(() => {});
-      } else {
-        toast.success("Code confirmed. Waiting for the other party.");
       }
       setCode("");
     } catch (e) {
@@ -315,7 +313,7 @@ export default function UnlockTransaction() {
           </div>
         )}
 
-        {!finalState && isReceiver && !myConfirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation" || tx.status === "pending_payment") && (
+        {!finalState && isReceiver && !myConfirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation") && (
           <div className="mt-6 rounded-3xl bg-card p-6 shadow-card">
             <h2 className="text-center text-base font-semibold">Enter the verification code</h2>
             <p className="mt-1 text-center text-xs text-muted-foreground">
