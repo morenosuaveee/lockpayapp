@@ -214,8 +214,6 @@ export default function UnlockTransaction() {
             data: { transactionId: tx.id, type: "payment_unlocked" },
           },
         }).catch(() => {});
-      } else {
-        toast.success("Code confirmed. Waiting for the other party.");
       }
       setCode("");
     } catch (e) {
