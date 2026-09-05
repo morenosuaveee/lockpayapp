@@ -315,7 +315,7 @@ export default function UnlockTransaction() {
           </div>
         )}
 
-        {!finalState && isReceiver && !myConfirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation" || tx.status === "pending_payment") && (
+        {!finalState && isReceiver && !myConfirmed && (tx.status === "locked" || tx.status === "awaiting_confirmation") && (
           <div className="mt-6 rounded-3xl bg-card p-6 shadow-card">
             <h2 className="text-center text-base font-semibold">Enter the verification code</h2>
             <p className="mt-1 text-center text-xs text-muted-foreground">
